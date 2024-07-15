@@ -13,18 +13,20 @@ int currentLine = 0;
 
 int main(int argc, char *argv[]) {
 
-	char buffer[80] = "entmacr    \0";
+	char *buffer = calloc(LINE_LENGTH, sizeof (char)) ;
 	char start[MACRO_END_LEN];
 	int pos = 0;
 	char *temp = &buffer[0];
 	int i = 0;
 
-	while (isspace(temp[i] != '\0' && temp[i++]));
-	if (*temp == '\0' || isdigit(*temp))
+	strcpy(buffer,  "endmacr    \0");
+
+	while (isspace(buffer[i] != '\0' && buffer[i++]));
+	if (*buffer == '\0' || isdigit(*buffer))
 		return 0;
 
 	i = 0;
-	if (sscanf(temp, "%s%n", start, &pos) == 1) {
+	if (sscanf(buffer, "%s%n", start, &pos) == 1) {
 		if (!checkLegalName(start)) {
 			macro_error(ERR_MACRO_DEFINE);
 			return (MACRO_ERROR);
@@ -113,9 +115,10 @@ int checkMacroEnd(char *line, char *start, int pos) {
 	char *str = line;
 
 	printf("beginning line:%s start:%s\n", line, start);
-	if (strncmp(MACRO_END_WORD, start, MACRO_END_LEN) == 0) {
+	printf("macro_end_word len %lu || start len %lu ||", strlen(MACRO_END_WORD), strlen(start));
+	if (strncmp(MACRO_END_WORD, start, MACRO_END_LEN+1) == 0) {
 		str = str + pos;
-		printf("insert strncmp line:%s    start:%s\n", str, start);
+		printf("inside strncmp line:%s    start:%s\n", str, start);
 		while (isspace(*str)) {
 			str++;
 		}
