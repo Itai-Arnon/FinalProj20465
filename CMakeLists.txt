@@ -7,4 +7,5 @@ include_directories(.)
 
 add_executable(m14
         macro.c
-        macro.h)
+        macro.h
+        global_vars.h)
