@@ -8,4 +8,6 @@ include_directories(.)
 add_executable(m14
         macro.c
         macro.h
-        global_vars.h)
+        global_vars.h
+        linkedlist.h
+        linkedlist.c)

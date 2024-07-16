@@ -13,27 +13,10 @@ int currentLine = 0;
 
 int main(int argc, char *argv[]) {
 
-	char *buffer = calloc(LINE_LENGTH, sizeof (char)) ;
-	char start[MACRO_END_LEN];
-	int pos = 0;
-	char *temp = &buffer[0];
-	int i = 0;
+	char *line = calloc(LINE_LENGTH, sizeof(char));
 
-	strcpy(buffer,  "endmacr    \0");
-
-	while (isspace(buffer[i] != '\0' && buffer[i++]));
-	if (*buffer == '\0' || isdigit(*buffer))
-		return 0;
-
-	i = 0;
-	if (sscanf(buffer, "%s%n", start, &pos) == 1) {
-		if (!checkLegalName(start)) {
-			macro_error(ERR_MACRO_DEFINE);
-			return (MACRO_ERROR);
-		} else
-			printf("%d\n", checkMacroEnd(buffer, start, pos));
-	}
-	/*	printf("%d\n", checkMacroEnd(buffer, start, pos));*/
+	strcpy(line,"endmacr\0");
+	printf("%d\n",typeofline(line));
 
 	return 0;
 }
@@ -43,27 +26,38 @@ int dummy() {
 }
 
 int typeofline(char *line) {
-	char start[7];
-	char macro_name[MAX_MACRO_NAME];
-	char *str = line;
+	char *buffer = calloc(LINE_LENGTH, sizeof(char));
+	char start[MACRO_END_LEN];
 	int pos = 0;
-	if (sscanf(str, "%s%n", start, &pos) == 1) {
+	int i = 0;
 
-		if (checkMacroStart(str, start, pos))
+	strcpy(buffer, line);
+
+	while (isspace(buffer[i] != '\0' && buffer[i++]));
+	if (*buffer == '\0' || isdigit(*buffer))
+		return 0;
+
+	if (sscanf(buffer, "%s%n", start, &pos) == 1) {
+		if (!checkLegalName(start, ALPHA)) {
+			macro_error(ERR_MACRO_DEFINE);
+			return (MACRO_ERROR);
+		} else if (checkMacroStart(buffer, start, pos))
 			return MACRO_START;
-		else if (checkMacroEnd(str, start, pos))
+		else if (checkMacroEnd(buffer, start, pos))
 			return MACRO_END;
+
 		else if (macptr != NULL)
 			return LINE_INSIDE;
 		else if (macptr == NULL)
 			return LINE_OUTSIDE;
-
-
-	} else {
-		macro_error(ERR_MACRO_DEFINE);
-		return MACRO_ERROR;/*TODO: placeholder for is macro expandelse if (dummy() == 1)*//*TODO:  use check name
-		return MACRO_EXPAND;*/
+		else {
+			macro_error(ERR_MACRO_DEFINE);
+			return MACRO_ERROR;
+		}/*TODO: placeholder for is macro expand else if (dummy() == 1)*/
+		/*TODO:  use check name*/
+		/*return MACRO_EXPAND;*/
 	}
+	return MACRO_ERROR;
 }
 
 void readline(int _argc, char **_argv) {
@@ -94,20 +88,17 @@ int checkMacroStart(char *line, char *start, int pos) {
 		pos = 0;
 		printf("%s\n", str);
 		if (sscanf(str, "%s%n", macro_name, &pos) == 1) {/*check for actual macro name*/
-			printf("%s\n", macro_name);
+			printf("%s\n", macro_name); /*TODO: insert recognizer*/
 			str = str + pos + 1;
-			while (isspace(*str)) {
-				str++;
-			}
-			if (*str != '\0' && *str != '\n') {
+			if (!(isLineEmpty(str))) {
 				macro_error(ERR_MACRO_DEFINE);
 				return 0;
-			} else
-				return 1;/*==0*/
+			}
+			printf("macro start");
+			return 1;/*line with name is correct*/
 		}
-
 	}
-	macro_error(ERR_MACRO_DEFINE);
+	macro_error(ERR_MACRO_DEFINE);/*strncmp failed*/
 	return 0;
 }
 
@@ -116,24 +107,23 @@ int checkMacroEnd(char *line, char *start, int pos) {
 
 	printf("beginning line:%s start:%s\n", line, start);
 	printf("macro_end_word len %lu || start len %lu ||", strlen(MACRO_END_WORD), strlen(start));
-	if (strncmp(MACRO_END_WORD, start, MACRO_END_LEN+1) == 0) {
+	if (strncmp(MACRO_END_WORD, start, MACRO_END_LEN) == 0) {
 		str = str + pos;
 		printf("inside strncmp line:%s    start:%s\n", str, start);
-		while (isspace(*str)) {
-			str++;
-		}
-		if (*str != '\0' && *str != '\n') {
-
+		if (!(isLineEmpty(str))) {
 			macro_error(ERR_MACRO_END);
 			return 0;
-		} else
+		} else {
+			printf("macro end\n");
 			return 1;
-	} else {/* in case it didn't recognize endmacr*/
-		printf("%s\n", str);
-		return 0;
+		}
 	}
+	printf("%s\n", str);
 
+	return 0;
 }
+
+
 
 
 int nonNullTerminatedLength(char *arr) {
@@ -186,24 +176,32 @@ void macro_error(char *err) {
 	printf("%s at line %lu\n", err, ftell(fptr_before) / 80);
 
 }
-
-int checkLegalName(char *str) {/*this function check if the non alpha numeric chars in a given string*/
+/*this function check if the non alpha numeric chars in a given string*/
+/*ALPHA - only alphabets allowed  ALPHANUM alphabets and a number at the end*/
+int checkLegalName(char *str, int type) {
 	int i = 0;
 	int len = nonNullTerminatedLength(str);
-	while (i < len && isalpha(str[i])) {
-		i++;
+	switch (type) {
+		case ALPHA:
+			while (i < len && isalpha(str[i])) i++;
+
+			return i == len ? 1 : 0;
+		case ALPHANUM:
+			while (i < len && isalpha(str[i])) i++;
+			/*check condition where after the alphabet there are digits which is acceptable*/
+			while (i < len && isdigit(str[i])) i++;
+
+			return i == len ? 1 : 0;
+
+		default:
+			break;
 	}
-	/*check condition where after the alphabet there are digits which is acceptable*/
-	while (i < len && isdigit(str[i])) {
-		i++;
-	}
-	return i == len ? 1 : 0;
 }
 
-string_seperator_t string_sep(char *line) {
+string_separator_t string_sep(char *line) {
 	int strings_count = 0;
 	char *s;
-	string_seperator_t ssr_t = {0};
+	string_separator_t ssr_t = {0};
 	while (isspace(*line)) line++;
 	if (*line == '\0') {
 		return ssr_t;
@@ -252,3 +250,47 @@ string_seperator_t string_sep(char *line) {
 	}
 	return tbl;
 }*/
+int isLineEmpty(char *line) {
+	while (isspace(*line)) line++;
+	if (*line != '\0' && *line != '\n')
+		return 0;
+	return 1;
+}
+/*
+ * line inside is not check for syntax errors it's will
+ * be check at the later parsing stage
+ * */
+int checkLineInside(char* line,char* start ,int pos){
+	/*empty line case*/
+	if (isLineEmpty(line) && start == NULL)
+		return 2;/*doesn't belong to the macro*/
+
+	if (macptr!=NULL){
+        /*start new node and copy content of line*/
+		/*invokes node creation and load to hash table*/
+		/*expects success*/
+		/*error ERR_WRITING_MACRO*/
+		printf("LineInside = placedholder\n");
+		return 1;
+   }
+	if(macptr == NULL){
+		/*checks if macptr==NULL
+		 * and if so writes the line straight to the file
+		 * it returns 2 to show that it's outside
+		 * will be taken into account the switch/case filter i*/
+		printf("LineInside = placedholder\n");
+		return 2;/*doesn't belong to the macro*/
+	}
+
+	/*not necessary*/
+	/*if (!(isLineEmpty(line))) {
+		macro_error(ERR_MACRO_END);
+		return 0;
+	}*/
+}
+
+/*int checkLineOutside(char*,char*,int);*/
+
+
+
+
