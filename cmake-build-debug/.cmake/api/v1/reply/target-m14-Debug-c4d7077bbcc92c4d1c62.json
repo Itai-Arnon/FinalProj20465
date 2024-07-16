@@ -114,7 +114,8 @@
 			[
 				1,
 				2,
-				3
+				3,
+				5
 			]
 		}
 	],
@@ -146,6 +147,11 @@
 			"compileGroupIndex" : 0,
 			"path" : "linkedlist.c",
 			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "shared.h",
+			"sourceGroupIndex" : 1
 		}
 	],
 	"type" : "EXECUTABLE"

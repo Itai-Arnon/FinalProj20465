@@ -10,4 +10,5 @@ add_executable(m14
         macro.h
         global_vars.h
         linkedlist.h
-        linkedlist.c)
+        linkedlist.c
+        shared.h)

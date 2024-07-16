@@ -3,20 +3,32 @@
 #include <stdlib.h>
 #include<ctype.h>
 #include "macro.h"
+#include "linkedlist.h"
+#include "shared.h"
 
 /*int getErrorLoci(FILE* file){}*/
 
 FILE *fptr_before = NULL;
 FILE *fptr_after = NULL;
-macro_t *macptr = NULL;
+macro_node_t *macptr = NULL;
 int currentLine = 0;
 
 int main(int argc, char *argv[]) {
 
 	char *line = calloc(LINE_LENGTH, sizeof(char));
+	macro_node_t *node;
+	macro_table_t *tbl;
+	tbl = initTable();
 
-	strcpy(line,"endmacr\0");
-	printf("%d\n",typeofline(line));
+	node = constructMacroNode("mm","endmacro \0" ,NULL );
+	printf("node name %s | node line %s \n",node->name,node->mbuffer);
+	printf("Table is Full  %d | table isMacroOpen %d \n",tbl->isFull,tbl->isMacroOpen);
+	tbl = loadTable(tbl,"moshik", "endmacr\0",NULL );
+	tbl = loadTable(tbl,"moshi", "endmacr\0",NULL );
+	tbl = loadTable(tbl,"mhi", "endmacr\0",NULL );
+	printf("Table is Full  %d | isMacroOpen %d|tbl amount %d \n",tbl->isFull,tbl->isMacroOpen,tbl->amount);
+	printf("tbl slot 2 name %s \n",tbl->slot[2]->name);
+
 
 	return 0;
 }
@@ -39,7 +51,7 @@ int typeofline(char *line) {
 
 	if (sscanf(buffer, "%s%n", start, &pos) == 1) {
 		if (!checkLegalName(start, ALPHA)) {
-			macro_error(ERR_MACRO_DEFINE);
+			report_error(ERR_MACRO_DEFINE);
 			return (MACRO_ERROR);
 		} else if (checkMacroStart(buffer, start, pos))
 			return MACRO_START;
@@ -51,7 +63,7 @@ int typeofline(char *line) {
 		else if (macptr == NULL)
 			return LINE_OUTSIDE;
 		else {
-			macro_error(ERR_MACRO_DEFINE);
+			report_error(ERR_MACRO_DEFINE);
 			return MACRO_ERROR;
 		}/*TODO: placeholder for is macro expand else if (dummy() == 1)*/
 		/*TODO:  use check name*/
@@ -63,10 +75,15 @@ int typeofline(char *line) {
 void readline(int _argc, char **_argv) {
 	char buffer[LINE_LENGTH];
 	char *macro_buffer;
+
 /*TODO add a way to save line numbers*/
+
 	int count = 0, end = 0;
+
 	fptr_before = initPointerFile(_argc, _argv, fptr_before, 0);
 	fptr_after = initPointerFile(_argc, _argv, fptr_after, 1);
+
+
 
 	while (fgets(buffer, 10, fptr_before) != NULL);
 
@@ -91,14 +108,14 @@ int checkMacroStart(char *line, char *start, int pos) {
 			printf("%s\n", macro_name); /*TODO: insert recognizer*/
 			str = str + pos + 1;
 			if (!(isLineEmpty(str))) {
-				macro_error(ERR_MACRO_DEFINE);
+				report_error(ERR_MACRO_DEFINE);
 				return 0;
 			}
 			printf("macro start");
 			return 1;/*line with name is correct*/
 		}
 	}
-	macro_error(ERR_MACRO_DEFINE);/*strncmp failed*/
+	report_error(ERR_MACRO_DEFINE);/*strncmp failed*/
 	return 0;
 }
 
@@ -111,7 +128,7 @@ int checkMacroEnd(char *line, char *start, int pos) {
 		str = str + pos;
 		printf("inside strncmp line:%s    start:%s\n", str, start);
 		if (!(isLineEmpty(str))) {
-			macro_error(ERR_MACRO_END);
+			report_error(ERR_MACRO_END);
 			return 0;
 		} else {
 			printf("macro end\n");
@@ -171,7 +188,7 @@ FILE *initPointerFile(int _argc, char **_argv, FILE *fptr, int type) {
 	} else printf("%s\n", ERR_NO_MORE_FILES);
 }
 
-void macro_error(char *err) {
+void report_error(char *err) {
 
 	printf("%s at line %lu\n", err, ftell(fptr_before) / 80);
 
@@ -284,7 +301,7 @@ int checkLineInside(char* line,char* start ,int pos){
 
 	/*not necessary*/
 	/*if (!(isLineEmpty(line))) {
-		macro_error(ERR_MACRO_END);
+		report_error(ERR_MACRO_END);
 		return 0;
 	}*/
 }
