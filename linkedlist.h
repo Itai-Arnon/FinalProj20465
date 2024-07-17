@@ -21,7 +21,6 @@ typedef struct {
 	int isFull;
 	int isMacroOpen;
 	int amount;
-
 	macro_node_t *slot[MAX_MACROS];
 }macro_table_t;
 

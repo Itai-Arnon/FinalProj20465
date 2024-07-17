@@ -11,7 +11,7 @@
 FILE *fptr_before = NULL;
 FILE *fptr_after = NULL;
 macro_node_t *macptr = NULL;
-int currentLine = 0;
+
 
 int main(int argc, char *argv[]) {
 
@@ -32,6 +32,31 @@ int main(int argc, char *argv[]) {
 
 	return 0;
 }
+
+void readline(int _argc, char **_argv) {
+	char buffer[LINE_LENGTH];
+	char *macro_buffer;
+	macro_table_t *tbl;
+	tbl = initTable();
+/*TODO add a way to save line numbers*/
+	fptr_before = initPointerFile(_argc, _argv, fptr_before, 0);
+	fptr_after = initPointerFile(_argc, _argv, fptr_after, 1);
+
+
+	while (fgets(buffer, 10, fptr_before) != NULL){
+		
+
+	}
+
+
+
+	printf("%s\n", buffer);
+	/*later will head the switch*/
+	/*typeofline(char* line)*/
+	fclose(fptr_before);
+	fclose(fptr_after);
+}
+
 
 int dummy() {
 	return 1;
@@ -58,7 +83,7 @@ int typeofline(char *line) {
 		else if (checkMacroEnd(buffer, start, pos))
 			return MACRO_END;
 
-		else if (macptr != NULL)
+		else if (macptr != NULL )
 			return LINE_INSIDE;
 		else if (macptr == NULL)
 			return LINE_OUTSIDE;
@@ -72,27 +97,6 @@ int typeofline(char *line) {
 	return MACRO_ERROR;
 }
 
-void readline(int _argc, char **_argv) {
-	char buffer[LINE_LENGTH];
-	char *macro_buffer;
-
-/*TODO add a way to save line numbers*/
-
-	int count = 0, end = 0;
-
-	fptr_before = initPointerFile(_argc, _argv, fptr_before, 0);
-	fptr_after = initPointerFile(_argc, _argv, fptr_after, 1);
-
-
-
-	while (fgets(buffer, 10, fptr_before) != NULL);
-
-	printf("%s\n", buffer);
-	/*later will head the switch*/
-	/*typeofline(char* line)*/
-	fclose(fptr_before);
-	fclose(fptr_after);
-}
 
 int checkMacroStart(char *line, char *start, int pos) {
 

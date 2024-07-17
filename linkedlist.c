@@ -21,12 +21,12 @@ macro_node_t *retEndList(macro_node_t *head) {
 	return temp;
 }
 
-macro_table_t *loadTable(macro_table_t *tbl, char *macr_name, char *line , macro_node_t* next) {
+macro_table_t *loadTable(macro_table_t *tbl, char *macr_name, char *line, macro_node_t *next) {
 	macro_node_t *temp = NULL;
 	macro_node_t *last = NULL;
 	int slot_idx = 0;
 
-	if(tbl->amount == MAX_MACROS) {
+	if (tbl->amount == MAX_MACROS) {
 		report_error(MACRO_TABLE_FULL);
 		return NULL;
 	}
@@ -37,10 +37,11 @@ macro_table_t *loadTable(macro_table_t *tbl, char *macr_name, char *line , macro
 	if (tbl->slot[slot_idx] != NULL) {
 		last = retEndList(tbl->slot[slot_idx]);
 		last->macro_next = temp;
-	} else
+	} else {
 		tbl->slot[slot_idx] = temp;
+		tbl->amount += 1;
+	}
 
-	tbl->amount+=1;
 	return tbl;
 }
 
