@@ -5,29 +5,27 @@
 #include "macro.h"
 #include "linkedlist.h"
 #include "shared.h"
+#include "global_vars.h"
 
-/*int getErrorLoci(FILE* file){}*/
 
-FILE *fptr_before = NULL;
-FILE *fptr_after = NULL;
-macro_node_t *macptr = NULL;
+macro_node_t *macptr;
 
+FILE *fptr_before;
+FILE *fptr_after;
 
 int main(int argc, char *argv[]) {
 
-	char *line = calloc(LINE_LENGTH, sizeof(char));
-	macro_node_t *node;
-	macro_table_t *tbl;
-	tbl = initTable();
 
-	node = constructMacroNode("mm","endmacro \0" ,NULL );
+	readline(argc, argv);
+
+	/*node = constructMacroNode("mm","endmacro \0" ,NULL );
 	printf("node name %s | node line %s \n",node->name,node->mbuffer);
 	printf("Table is Full  %d | table isMacroOpen %d \n",tbl->isFull,tbl->isMacroOpen);
 	tbl = loadTable(tbl,"moshik", "endmacr\0",NULL );
 	tbl = loadTable(tbl,"moshi", "endmacr\0",NULL );
 	tbl = loadTable(tbl,"mhi", "endmacr\0",NULL );
-	printf("Table is Full  %d | isMacroOpen %d|tbl amount %d \n",tbl->isFull,tbl->isMacroOpen,tbl->amount);
-	printf("tbl slot 2 name %s \n",tbl->slot[2]->name);
+	printf("Table is Full  %d | isMacroOpen %d|tbl amount %d \n",tbl->isFull,tbl->isMacroOpen,tbl->amount);*/
+	/*printf("tbl slot 2 name %s \n",tbl->slot[0]->name);*/
 
 
 	return 0;
@@ -35,26 +33,53 @@ int main(int argc, char *argv[]) {
 
 void readline(int _argc, char **_argv) {
 	char buffer[LINE_LENGTH];
-	char *macro_buffer;
-	macro_table_t *tbl;
-	tbl = initTable();
+	char *macro_buffer = (char *) calloc(10, sizeof(char));
+	macro_table_t *tbl = NULL;
+	tbl = initTable(tbl);
+
+
+
 /*TODO add a way to save line numbers*/
-	fptr_before = initPointerFile(_argc, _argv, fptr_before, 0);
+	/*fptr_before = initPointerFile(_argc, _argv, fptr_before, 0);
 	fptr_after = initPointerFile(_argc, _argv, fptr_after, 1);
+*/
+
+	/*while (fgets(buffer, LINE_LENGTH, fptr_before) != NULL){*/
 
 
-	while (fgets(buffer, 10, fptr_before) != NULL){
-		
+	strcpy(buffer, "macr seeback \0");
+//	if(buffer[0]==';')
+//		continue;
+	printf("%d\n", (typeofline(buffer, macro_buffer)));
+	switch (typeofline(buffer, macro_buffer)) {
+		case MACRO_START:
+			if (tbl->isMacroOpen == 0 && tbl->amount < MAX_MACROS) {
+				tbl->isMacroOpen = 1;
+
+				printf("tbl slot 0 name %s  line %s\n", tbl->slot[0]->macro_name , tbl->slot[0]->macro_line);
+			} else
+				report_error(ERR_MACRO_PERMISSION);
+			break;
+		case LINE_INSIDE:
+			loadTable(tbl, macro_buffer, buffer);
+
+		case MACRO_END:
+		case LINE_OUTSIDE:
+		case MACRO_ERROR:
+			break;
+		default:
+			break;
 
 	}
 
 
 
-	printf("%s\n", buffer);
-	/*later will head the switch*/
-	/*typeofline(char* line)*/
+
+
+	/*printf("%s\n", buffer);
+
 	fclose(fptr_before);
-	fclose(fptr_after);
+	fclose(fptr_after);*/
 }
 
 
@@ -62,19 +87,20 @@ int dummy() {
 	return 1;
 }
 
-int typeofline(char *line) {
+int typeofline(char *line, char *macro_buffer) {
 	char *buffer = calloc(LINE_LENGTH, sizeof(char));
-	char start[MACRO_END_LEN];
+	char *start = calloc(MACRO_END, sizeof(char));
 	int pos = 0;
 	int i = 0;
 
+	if (*line == '\0') return EMPTY_LINE;
 	strcpy(buffer, line);
-
 	while (isspace(buffer[i] != '\0' && buffer[i++]));
 	if (*buffer == '\0' || isdigit(*buffer))
 		return 0;
 
 	if (sscanf(buffer, "%s%n", start, &pos) == 1) {
+		strcpy(macro_buffer, start);
 		if (!checkLegalName(start, ALPHA)) {
 			report_error(ERR_MACRO_DEFINE);
 			return (MACRO_ERROR);
@@ -83,7 +109,7 @@ int typeofline(char *line) {
 		else if (checkMacroEnd(buffer, start, pos))
 			return MACRO_END;
 
-		else if (macptr != NULL )
+		else if (macptr != NULL)
 			return LINE_INSIDE;
 		else if (macptr == NULL)
 			return LINE_OUTSIDE;
@@ -107,15 +133,20 @@ int checkMacroStart(char *line, char *start, int pos) {
 		printf("%s\n", str);
 		str = str + pos + 1;
 		pos = 0;
-		printf("%s\n", str);
+		printf("%s\n",start);
 		if (sscanf(str, "%s%n", macro_name, &pos) == 1) {/*check for actual macro name*/
-			printf("%s\n", macro_name); /*TODO: insert recognizer*/
+			/*change the position*/
 			str = str + pos + 1;
+
+			if (strlen(macro_name) >= MAX_MACRO_NAME) {
+				report_error(ERR_MACRO_NAME_LONG);
+				return 0;
+			}
 			if (!(isLineEmpty(str))) {
 				report_error(ERR_MACRO_DEFINE);
 				return 0;
 			}
-			printf("macro start");
+			printf("macro start DD\n");
 			return 1;/*line with name is correct*/
 		}
 	}
@@ -126,8 +157,6 @@ int checkMacroStart(char *line, char *start, int pos) {
 int checkMacroEnd(char *line, char *start, int pos) {
 	char *str = line;
 
-	printf("beginning line:%s start:%s\n", line, start);
-	printf("macro_end_word len %lu || start len %lu ||", strlen(MACRO_END_WORD), strlen(start));
 	if (strncmp(MACRO_END_WORD, start, MACRO_END_LEN) == 0) {
 		str = str + pos;
 		printf("inside strncmp line:%s    start:%s\n", str, start);
@@ -143,8 +172,6 @@ int checkMacroEnd(char *line, char *start, int pos) {
 
 	return 0;
 }
-
-
 
 
 int nonNullTerminatedLength(char *arr) {
@@ -277,24 +304,25 @@ int isLineEmpty(char *line) {
 		return 0;
 	return 1;
 }
+
 /*
  * line inside is not check for syntax errors it's will
  * be check at the later parsing stage
  * */
-int checkLineInside(char* line,char* start ,int pos){
+int checkLineInside(char *line, char *start, int pos) {
 	/*empty line case*/
 	if (isLineEmpty(line) && start == NULL)
 		return 2;/*doesn't belong to the macro*/
 
-	if (macptr!=NULL){
-        /*start new node and copy content of line*/
+	if (macptr != NULL) {
+		/*start new node and copy content of line*/
 		/*invokes node creation and load to hash table*/
 		/*expects success*/
 		/*error ERR_WRITING_MACRO*/
 		printf("LineInside = placedholder\n");
 		return 1;
-   }
-	if(macptr == NULL){
+	}
+	if (macptr == NULL) {
 		/*checks if macptr==NULL
 		 * and if so writes the line straight to the file
 		 * it returns 2 to show that it's outside

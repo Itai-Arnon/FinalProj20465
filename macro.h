@@ -14,7 +14,7 @@ typedef struct  {
 
 
 
-typedef enum{MACRO_START, MACRO_END , MACRO_EXPAND , LINE_INSIDE , LINE_OUTSIDE , MACRO_ERROR }MACRO_STATE_T;
+typedef enum{MACRO_START, MACRO_END , MACRO_EXPAND , LINE_INSIDE , LINE_OUTSIDE, EMPTY_LINE , MACRO_ERROR }MACRO_STATE_T;
 typedef enum{ALPHA,ALPHANUM}CHECK_LEGAL_NAME;
 
 /*int  getErrorLoci(FILE*);*/
@@ -27,7 +27,7 @@ FILE* initPointerFile(int ,char**,FILE*, int );/*returns ptr to current .as  or 
  * manages all the parsing
  * @param receives argc and argv
  */
-void readline (int, char**);
+void readline (int, char** );
 /**
   * @param arr
  *  length of non null terminated strings
@@ -36,7 +36,7 @@ int nonNullTerminatedLength(char* arr);
 /**
  * decides where is the line in pre processor terms
  */
-int typeofline(char* line);
+int typeofline(char* line , char* macro_buffer);
 /*create a node specify name and store one macro line in it */
 /*macro_t *createNode(macro_t *mptr , char name[], char line[]);*/
 /*macro_t *createNewMacro(macro_t *mptr , char name[], char line[]);*/

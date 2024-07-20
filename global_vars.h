@@ -7,8 +7,8 @@
 
 #include<stdio.h>
 
-
-extern FILE *fptr_before = NULL;
-extern FILE *fptr_after = NULL;
+/*extern macro_table_t *tbl;*/
+extern FILE *fptr_before;
+extern FILE *fptr_after;
 
 #endif /*M14_GLOBAL_VARS_H*/

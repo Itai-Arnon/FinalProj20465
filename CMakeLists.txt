@@ -11,4 +11,5 @@ add_executable(m14
         global_vars.h
         linkedlist.h
         linkedlist.c
-        shared.h)
+        shared.h
+        scripts/utils.c)
