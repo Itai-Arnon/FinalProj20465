@@ -82,8 +82,17 @@ int expandMacro(macro_table_t *tbl , char * macro_name){
 
 void printMacro(macro_node_t *head ){
 	macro_node_t *temp = head;
-	while(temp->macro_next!=NULL)
-		fprintf(fptr_after,"%s\n", temp->macro_line);
+	while(temp!=NULL) {
+		printf("%s", temp->macro_line);
+		temp = temp->macro_next;
+	}
+}
+
+void printMacroName(macro_node_t *head){
+	if(head!=NULL){
+		printf("%s\n",head->macro_name);
+	}
+	else report_error(ERR_CHK_UNDEFINED_MACRO,line_count);
 }
 
 
@@ -98,13 +107,10 @@ macro_node_t *retEndList(macro_node_t *head) {
 int retSlot(macro_table_t *tbl, char *macro_name) {
 	int i = 0;
 	for (i = 0; i < MAX_MACROS; ++i) {
-		if (tbl->slot[i] != NULL) {
+		if (tbl->slot[i] != NULL)
 			if ((strcmp(macro_name, tbl->slot[i]->macro_name)) == 0) {
-				 return i;
+				return i;
 			}
-		} else /*slot[i] is null */
-			return i;
 	}
 	return -1;
 }
-

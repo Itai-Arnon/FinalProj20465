@@ -37,43 +37,55 @@ void readline(int _argc, char **_argv) {
 	char *macro_name = (char *) calloc(10, sizeof(char));
 	macro_table_t *tbl = NULL;
 	int line_length = 0;
-	int i = 0;
-	tbl = initTable(tbl);
+	int idx = 0;
+	int current_slot = -1;
 
+	tbl = initTable(tbl);
 	fptr_before = initSourceFiles(_argc, _argv, fptr_before, 1);
 	fptr_after = initDestinationPointer(fptr_after, "out.txt");
 
 	while (fgets(buffer, LINE_LENGTH, fptr_before) != NULL) {
 		line_count++;
 		line_length = 0;
-		i = 0;
+		idx = 0;
 
-		while (isspace(buffer[i]) && line_length++ && buffer[i++] != '\0');
-		if (*buffer == '\n' && line_length > LINE_LENGTH) {
+		while (isspace(buffer[idx]) && line_length++ && buffer[idx++] != '\0');
+		if (buffer[idx] == '\n' && line_length > LINE_LENGTH) {
 			report_error(ERR_LINE_LENGTH, line_count);
 			continue;
 		}
-		if (buffer[i] == ';')
+		if (buffer[idx] == ';')
 			continue;
 
 
 		/*printf("typeofline: %d\n", (typeofline(tbl, buffer, macro_name)));*/
 		switch (typeofline(tbl, buffer, macro_name)) {
 			case MACRO_START:
-				if (tbl->isMacroOpen == 0 && tbl->amount < MAX_MACROS) {
+				if (tbl->isMacroOpen == 0 && tbl->amount < MAX_MACROS)
 					tbl->isMacroOpen = 1;
-
-					/*printf("report typeofline: tbl slot 0 name %s  line %s\n", tbl->slot[0]->macro_name, tbl->slot[0]->macro_line);*/
-				} else
+				else
 					report_error(ERR_MACRO_PERMISSION, line_count);
+
+				if ((current_slot = retSlot(tbl, macro_name) != -1))
+					report_error(EER_MACRO_TABLE_RETREIVE, line_count);/*critical*/
+					exit(0);
+
 				break;
+			case MACRO_END:
+				if ( current_slot!=-1) {
+					tbl->isMacroOpen = 0;
+					tbl->slot[current_slot]->macro_lock = 1;
+					printf("REPORT: macro locked");
+				}
+				break;
+			case MACRO_EXPAND:
 			case LINE_INSIDE:
 				printf("line inside\n");
 				loadTable(tbl, macro_name, buffer);
-				printf("Table is Full  %d | isMacroOpen %d|tbl amount %d \n", tbl->isFull, tbl->isMacroOpen, tbl->amount);
-				printf( "Macro Name %s\n",tbl->slot[0]->macro_name);
-				printf( "Macro Line%s\n", tbl->slot[0]->macro_line);
-
+				/*printf("Table is Full  %d | isMacroOpen %d|tbl amount %d \n", tbl->isFull, tbl->isMacroOpen, tbl->amount);*/
+				printMacroName(tbl->slot[current_slot]->macro_name);
+				printMacroName(tbl->slot[current_slot]->macro_name);
+				expandMacro(tbl, macro_name);
 
 
 			default:
@@ -81,7 +93,7 @@ void readline(int _argc, char **_argv) {
 		}
 
 	}
-	expandMacro(tbl , macro_name);
+
 	fclose(fptr_before);
 	fclose(fptr_after);
 }

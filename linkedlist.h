@@ -53,3 +53,5 @@ macro_table_t *initTable( macro_table_t *tbl);
 int expandMacro(macro_table_t *tbl , char * macro_name);
 
 void printMacro(macro_node_t *head );
+
+void printMacroName(macro_node_t *head);

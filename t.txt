@@ -1,5 +1,20 @@
 macr t
 mov r3 r5
 cpy r7 r1
-cpy r3 r2
+cpy r8 r2
+cpy r7 r3
+cpy r7 r3
+mov r7 r3
+cpy r7 r3
+mov r7 r3
+cpy r7 r3
+mov r7 r3
+cpy r7 r3
+mov r7 r3
+
+endmacr
+
+macr t2
+la la la
+la la
 endmacr

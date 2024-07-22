@@ -15,6 +15,13 @@
 #define MACRO_START_LEN 4
 
 
+/*text add in */
+#define PATH_BASE "..\\" /*TODO change when moving to linux*/
+#define EXT_BEFORE ".txt" /*TODO change to appropriate extension once in linux*/
+#define EXT_AFTER "out.txt"
+#define SPACES  " \t\v\f"
+
+
 /*writing Macro Error and File Errors*/
 
 #define ERR_MACRO_NAME_LONG "Macro Name Too Long"
@@ -22,22 +29,18 @@
 #define ERR_FILE_AFTER ".am File Failed To Create"
 #define ERR_NO_MORE_FILES "No Files Inserted"
 #define ERR_MACRO_DEFINE "Error In Macro Start Definition"
-
 #define ERR_MACRO_END "Error In Macro End Definition"
 
 #define ERR_WRITING_MACRO  "Failed to write Macro"
 #define EER_MACRO_TABLE_FULL "Error No more space in Macro Table"
+#define EER_MACRO_TABLE_RETREIVE "Error Retreiving From Macro Table"
 #define ERR_MACRO_PERMISSION "Error Writing Macro Permission Mistake"
 #define ERR_MACRO_NODE_CREATION_FAILED "Macro Node Allocation Failed"
 #define ERR_LINE_LENGTH "Line is too long"
+#define ERR_CHK_UNDEFINED_MACRO "Checking Macro that is Undefined"
 
 
 
-/*text add in */
-#define PATH_BASE "..\\" /*TODO change when moving to linux*/
-#define EXT_BEFORE ".txt" /*TODO change to appropriate extension once in linux*/
-#define EXT_AFTER "out.txt"
-#define SPACES  " \t\v\f"
 
 
 
