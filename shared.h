@@ -29,7 +29,7 @@
 #define EER_MACRO_TABLE_FULL "Error No more space in Macro Table"
 #define ERR_MACRO_PERMISSION "Error Writing Macro Permission Mistake"
 #define ERR_MACRO_NODE_CREATION_FAILED "Macro Node Allocation Failed"
-
+#define ERR_LINE_LENGTH "Line is too long"
 
 
 
@@ -46,7 +46,7 @@
 /**
  * reports of macro_error as well as which line
  */
-void report_error(char* r);
+void report_error(char* err , int linecount);
 /*check if name is only alpha or alpha ending numerals*/
 /*uses the ENUM CHECK_LEGAL_NAME*/
 int checkLegalName(char* str , int);

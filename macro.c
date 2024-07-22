@@ -8,86 +8,86 @@
 #include "global_vars.h"
 
 
-macro_node_t *macptr;
-
 FILE *fptr_before;
 FILE *fptr_after;
+int line_count;
 
 int main(int argc, char *argv[]) {
 
 
 	readline(argc, argv);
 
-	/*node = constructMacroNode("mm","endmacro \0" ,NULL );
-	printf("node name %s | node line %s \n",node->name,node->mbuffer);
-	printf("Table is Full  %d | table isMacroOpen %d \n",tbl->isFull,tbl->isMacroOpen);
-	tbl = loadTable(tbl,"moshik", "endmacr\0",NULL );
-	tbl = loadTable(tbl,"moshi", "endmacr\0",NULL );
-	tbl = loadTable(tbl,"mhi", "endmacr\0",NULL );
-	printf("Table is Full  %d | isMacroOpen %d|tbl amount %d \n",tbl->isFull,tbl->isMacroOpen,tbl->amount);*/
-	/*printf("tbl slot 2 name %s \n",tbl->slot[0]->name);*/
+
+
+//	loadTable(tbl, "mimi", "mcr\0");
+//	loadTable(tbl, "mimi", "mona\0");
+//	loadTable(tbl, "mimi", "miko\0");
+//
+
+	/*printf("tbl slot 2 name %s \n", tbl->slot[0]->macro_next->macro_name);
+	printf("tbl slot 2 name %s \n", tbl->slot[0]->macro_next->macro_next->macro_name);*/
 
 
 	return 0;
 }
 
+
 void readline(int _argc, char **_argv) {
 	char buffer[LINE_LENGTH];
-	char *macro_buffer = (char *) calloc(10, sizeof(char));
+	char *macro_name = (char *) calloc(10, sizeof(char));
 	macro_table_t *tbl = NULL;
+	int line_length = 0;
+	int i = 0;
 	tbl = initTable(tbl);
 
+	fptr_before = initSourceFiles(_argc, _argv, fptr_before, 1);
+	fptr_after = initDestinationPointer(fptr_after, "out.txt");
+
+	while (fgets(buffer, LINE_LENGTH, fptr_before) != NULL) {
+		line_count++;
+		line_length = 0;
+		i = 0;
+
+		while (isspace(buffer[i]) && line_length++ && buffer[i++] != '\0');
+		if (*buffer == '\n' && line_length > LINE_LENGTH) {
+			report_error(ERR_LINE_LENGTH, line_count);
+			continue;
+		}
+		if (buffer[i] == ';')
+			continue;
 
 
-/*TODO add a way to save line numbers*/
-	/*fptr_before = initPointerFile(_argc, _argv, fptr_before, 0);
-	fptr_after = initPointerFile(_argc, _argv, fptr_after, 1);
-*/
+		/*printf("typeofline: %d\n", (typeofline(tbl, buffer, macro_name)));*/
+		switch (typeofline(tbl, buffer, macro_name)) {
+			case MACRO_START:
+				if (tbl->isMacroOpen == 0 && tbl->amount < MAX_MACROS) {
+					tbl->isMacroOpen = 1;
 
-	/*while (fgets(buffer, LINE_LENGTH, fptr_before) != NULL){*/
+					/*printf("report typeofline: tbl slot 0 name %s  line %s\n", tbl->slot[0]->macro_name, tbl->slot[0]->macro_line);*/
+				} else
+					report_error(ERR_MACRO_PERMISSION, line_count);
+				break;
+			case LINE_INSIDE:
+				printf("line inside\n");
+				loadTable(tbl, macro_name, buffer);
+				printf("Table is Full  %d | isMacroOpen %d|tbl amount %d \n", tbl->isFull, tbl->isMacroOpen, tbl->amount);
+				printf( "Macro Name %s\n",tbl->slot[0]->macro_name);
+				printf( "Macro Line%s\n", tbl->slot[0]->macro_line);
 
 
-	strcpy(buffer, "macr seeback \0");
-//	if(buffer[0]==';')
-//		continue;
-	printf("%d\n", (typeofline(buffer, macro_buffer)));
-	switch (typeofline(buffer, macro_buffer)) {
-		case MACRO_START:
-			if (tbl->isMacroOpen == 0 && tbl->amount < MAX_MACROS) {
-				tbl->isMacroOpen = 1;
 
-				printf("tbl slot 0 name %s  line %s\n", tbl->slot[0]->macro_name , tbl->slot[0]->macro_line);
-			} else
-				report_error(ERR_MACRO_PERMISSION);
-			break;
-		case LINE_INSIDE:
-			loadTable(tbl, macro_buffer, buffer);
-
-		case MACRO_END:
-		case LINE_OUTSIDE:
-		case MACRO_ERROR:
-			break;
-		default:
-			break;
+			default:
+				break;
+		}
 
 	}
-
-
-
-
-
-	/*printf("%s\n", buffer);
-
+	expandMacro(tbl , macro_name);
 	fclose(fptr_before);
-	fclose(fptr_after);*/
+	fclose(fptr_after);
 }
 
 
-int dummy() {
-	return 1;
-}
-
-int typeofline(char *line, char *macro_buffer) {
+int typeofline(macro_table_t *tbl, char *line, char *macro_name) {
 	char *buffer = calloc(LINE_LENGTH, sizeof(char));
 	char *start = calloc(MACRO_END, sizeof(char));
 	int pos = 0;
@@ -95,85 +95,121 @@ int typeofline(char *line, char *macro_buffer) {
 
 	if (*line == '\0') return EMPTY_LINE;
 	strcpy(buffer, line);
-	while (isspace(buffer[i] != '\0' && buffer[i++]));
-	if (*buffer == '\0' || isdigit(*buffer))
-		return 0;
+	/*removes white space from the front*/
+
 
 	if (sscanf(buffer, "%s%n", start, &pos) == 1) {
-		strcpy(macro_buffer, start);
-		if (!checkLegalName(start, ALPHA)) {
-			report_error(ERR_MACRO_DEFINE);
+
+		if (!checkLegalName(start, ALPHANUM)) {
+			report_error(ERR_MACRO_DEFINE, line_count);
 			return (MACRO_ERROR);
-		} else if (checkMacroStart(buffer, start, pos))
+		} else if (checkMacroStart(buffer, start, macro_name, pos))
 			return MACRO_START;
 		else if (checkMacroEnd(buffer, start, pos))
 			return MACRO_END;
-
-		else if (macptr != NULL)
+		else
 			return LINE_INSIDE;
-		else if (macptr == NULL)
-			return LINE_OUTSIDE;
-		else {
-			report_error(ERR_MACRO_DEFINE);
-			return MACRO_ERROR;
-		}/*TODO: placeholder for is macro expand else if (dummy() == 1)*/
-		/*TODO:  use check name*/
-		/*return MACRO_EXPAND;*/
 	}
-	return MACRO_ERROR;
 }
 
+/*else if (tbl->isMacroOpen == 0)
+	return LINE_OUTSIDE;
+else {
+	report_error(ERR_MACRO_DEFINE, line_count);
+	return MACRO_ERROR;
+}		return MACRO_EXPAND;
+}
+return MACRO_ERROR;
+}
+}*/
 
-int checkMacroStart(char *line, char *start, int pos) {
+
+int checkMacroStart(char *line, char *start, char *macro_name, int pos) {
 
 	char *str = line;
-	char macro_name[MAX_MACRO_NAME];
+	char macro_n[MAX_MACRO_NAME];
+	memset(macro_n, '\0', sizeof(macro_n));
 
 	if (strncmp(MACRO_START_WORD, start, MACRO_START_LEN) == 0) {
-		printf("%s\n", str);
 		str = str + pos + 1;
 		pos = 0;
-		printf("%s\n",start);
-		if (sscanf(str, "%s%n", macro_name, &pos) == 1) {/*check for actual macro name*/
+		if (sscanf(str, "%s%n", macro_n, &pos) == 1) {/*check for actual macro name*/
 			/*change the position*/
 			str = str + pos + 1;
 
-			if (strlen(macro_name) >= MAX_MACRO_NAME) {
-				report_error(ERR_MACRO_NAME_LONG);
+			if (strlen(macro_n) >= MAX_MACRO_NAME) {
+				report_error(ERR_MACRO_NAME_LONG, line_count);/*critical error*/
 				return 0;
 			}
+			/*macro named identified check if contiuation of line is empty*/
 			if (!(isLineEmpty(str))) {
-				report_error(ERR_MACRO_DEFINE);
+				report_error(ERR_MACRO_DEFINE, line_count);  /*wait for macro check*/
 				return 0;
 			}
-			printf("macro start DD\n");
+			printf("REPORT: macro start \n");
+			/*final filtering for isMacroStart*/
+			strcpy(macro_name, macro_n);/*only place in use by typeofline*/
 			return 1;/*line with name is correct*/
 		}
 	}
-	report_error(ERR_MACRO_DEFINE);/*strncmp failed*/
 	return 0;
 }
 
 int checkMacroEnd(char *line, char *start, int pos) {
 	char *str = line;
-
 	if (strncmp(MACRO_END_WORD, start, MACRO_END_LEN) == 0) {
 		str = str + pos;
-		printf("inside strncmp line:%s    start:%s\n", str, start);
+
 		if (!(isLineEmpty(str))) {
-			report_error(ERR_MACRO_END);
+			report_error(ERR_MACRO_END, line_count);/*critical*/
 			return 0;
 		} else {
-			printf("macro end\n");
+			printf("report: macro end");
 			return 1;
 		}
 	}
-	printf("%s\n", str);
 
 	return 0;
 }
 
 
+int checkLineInside(char *line, char *start, int pos) {
+
+	return 1;
+
+
+	/*empty line case*/
+	/*if (isLineEmpty(line) && *start == '\0')
+		return 2;*//*doesn't belong to the macro*//*
+
+	if (macptr != NULL) {
+		*//*start new node and copy content of line*//*
+		*//*invokes node creation and load to hash table*//*
+		*//*expects success*//*
+		*//*error ERR_WRITING_MACRO*//*
+		printf("LineInside = placedholder\n");
+		return 1;
+	}
+	if (macptr == NULL) {
+		*//*checks if macptr==NULL
+		 * and if so writes the line straight to the file
+		 * it returns 2 to show that it's outside
+		 * will be taken into account the switch/case filter i*//*
+		printf("LineInside = placedholder\n");
+		return 2;*//*doesn't belong to the macro*//*
+	}*/
+}
+
+/*
+
+int checkMacroExapnd(char *line, char *start, int pos)
+{
+	char* str = line;
+
+if ((strncmp(MACRO_END_WORD, start, MACRO_END_LEN) != 0) && (strncmp(MACRO_END_WORD, start, MACRO_END_LEN)!=0)){
+	str = str + pos;
+}
+*/
 int nonNullTerminatedLength(char *arr) {
 	int count = 0;
 	while (arr[++count] != 0);
@@ -181,47 +217,46 @@ int nonNullTerminatedLength(char *arr) {
 }
 
 /*type=0 for input file type =1 for output*/
-FILE *initPointerFile(int _argc, char **_argv, FILE *fptr, int type) {
+FILE *initSourceFiles(int _argc, char **_argv, FILE *fptr, int index) {
+	/*TODO: add option to goto next file once a file fails to open*/
 	char line[LINE_LENGTH];
 	char filename_before[64];
-	char filename_after[64];
 	int argv_len = 0;
 	if (_argc > 1) {/*argc  must always be subtracted by one*/
-		argv_len = nonNullTerminatedLength(_argv[_argc - 1]);
-		switch (type) {
-			case 0:
-				strcpy(filename_before, PATH_BASE);/*TODO no need in linux*/
-				strncat(filename_before, _argv[_argc - 1], argv_len); /*TODO arg_c iteration tbd*/
-				printf("%s\n", filename_before);
-				if (!(fptr = fopen(filename_before, "r"))) {
-					printf("%s\n", ERR_FILE_BEFORE);
-					exit(0);
-				}
-				return fptr;
-			case 1:
-				strcpy(filename_after, PATH_BASE);/*TODO no need in linux*/
-				strcat(filename_after, "out");
-				strncat(filename_after, _argv[_argc - 1], argv_len);
-				/*TODO add extension in linux*/
-				printf("%s\n", filename_after);
-				if (!(fptr = fopen(filename_after, "a"))) {
-					printf("%s\n", ERR_FILE_AFTER);
-					exit(0);
-				}
-				printf("success\n");
-				return fptr;
+		argv_len = nonNullTerminatedLength(_argv[index]);
 
-			default:
-				printf(" Error: You entered A wrong type value");
-				break;
+		strcpy(filename_before, PATH_BASE);/*TODO no need in linux*/
+		strncat(filename_before, _argv[index], argv_len); /*TODO arg_c iteration tbd*/
+		printf("%s\n", filename_before);
+		if (!(fptr = fopen(filename_before, "r"))) {
+			report_error(ERR_FILE_BEFORE, line_count);
+			exit(0);
 		}
 
-	} else printf("%s\n", ERR_NO_MORE_FILES);
+		return fptr;
+
+	} else report_error(ERR_NO_MORE_FILES, line_count);
 }
 
-void report_error(char *err) {
+FILE *initDestinationPointer(FILE *fptr, char *filename) {
+	// Construct the file path by prepending the parent directory
+	char filename_path[64];
+	strcpy(filename_path, PATH_BASE);/*TODO no need in linux*/
+	strcat(filename_path, filename);
 
-	printf("%s at line %lu\n", err, ftell(fptr_before) / 80);
+	/* Attempt to open the file for writing*/
+	if (!(fptr = fopen(filename_path, "a"))) {
+		report_error(ERR_FILE_AFTER, line_count);
+		exit(0);
+	}
+	/* Return the file pointer if the file was successfully created*/
+	return fptr;
+}
+
+
+void report_error(char *err, int line_count) {
+
+	printf("%s at line %lu\n", err, line_count);
 
 }
 /*this function check if the non alpha numeric chars in a given string*/
@@ -274,30 +309,7 @@ string_separator_t string_sep(char *line) {
 	return ssr_t;
 }
 
-/*macro_table_t* loadFile(table* tbl, int* hash_arr, char** _argv)
-{
-	node* temp =NULL;
-	node* last = NULL;
-	char* f_name = _argv[idx];
-	int i = 0;
-	for (i = 0; i < ARR_SIZE; i++)
-	{
-		if (hash_arr[i] != 0)
-		{
-			temp = constructNode(i, hash_arr[i], f_name);
-			if (tbl->slot[i] != NULL)
-			{
-				last = retEndList(tbl->slot[i]);
-				last->next = temp;
-			}
-			else
-				tbl->slot[i] = temp;
 
-			temp->next = NULL;
-		}
-	}
-	return tbl;
-}*/
 int isLineEmpty(char *line) {
 	while (isspace(*line)) line++;
 	if (*line != '\0' && *line != '\n')
@@ -309,35 +321,16 @@ int isLineEmpty(char *line) {
  * line inside is not check for syntax errors it's will
  * be check at the later parsing stage
  * */
-int checkLineInside(char *line, char *start, int pos) {
-	/*empty line case*/
-	if (isLineEmpty(line) && start == NULL)
-		return 2;/*doesn't belong to the macro*/
 
-	if (macptr != NULL) {
-		/*start new node and copy content of line*/
-		/*invokes node creation and load to hash table*/
-		/*expects success*/
-		/*error ERR_WRITING_MACRO*/
-		printf("LineInside = placedholder\n");
-		return 1;
-	}
-	if (macptr == NULL) {
-		/*checks if macptr==NULL
-		 * and if so writes the line straight to the file
-		 * it returns 2 to show that it's outside
-		 * will be taken into account the switch/case filter i*/
-		printf("LineInside = placedholder\n");
-		return 2;/*doesn't belong to the macro*/
-	}
+/*not necessary*/
+/*if (!(isLineEmpty(line))) {
+	report_error(ERR_MACRO_END, line_count);
+	return 0;
+}*/
 
-	/*not necessary*/
-	/*if (!(isLineEmpty(line))) {
-		report_error(ERR_MACRO_END);
-		return 0;
-	}*/
+int dummy() {
+	return 1;
 }
-
 /*int checkLineOutside(char*,char*,int);*/
 
 

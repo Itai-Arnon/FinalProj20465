@@ -1,0 +1,33 @@
+//TODO function exterior to loadTable
+//TODO transform initSourceFileForIteration or creation a function that manages it
+
+#include <string.h> // For strcmp
+
+/**
+ * Checks if a macro name exists in the macro table.
+ *
+ * @param tbl Pointer to the macro table.
+ * @param macro_name The name of the macro to search for.
+ * @return 1 if the macro name exists, 0 otherwise.
+ */
+int check_macro_name_exists(macro_table_t *tbl, char *macro_name) {
+    int i;
+    macro_node_t *current_node;
+
+    // Iterate through each slot in the table
+    for (i = 0; i < MAX_MACROS; ++i) {
+        if (tbl->slot[i] != NULL) {
+            // Iterate through the linked list in the current slot
+            current_node = tbl->slot[i];
+            while (current_node != NULL) {
+                // Compare the current node's macro name with the input macro name
+                if (strcmp(current_node->macro_name, macro_name) == 0) {
+                    return 1; // Macro name found
+                }
+                current_node = current_node->macro_next; // Move to the next node in the list
+            }
+        }
+    }
+
+    return 0; // Macro name not found
+}

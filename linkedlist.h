@@ -11,6 +11,7 @@ typedef struct macro_node_t{
 
 	char macro_name[MAX_MACRO_NAME];/*ref to macro name*/
 	char macro_line[LINE_LENGTH];/*holds all contents of macro - dynamically allocated*/
+	int macro_lock;
 	struct macro_node_t *macro_next;
 
 }macro_node_t;
@@ -19,6 +20,7 @@ typedef struct {
 	int isFull;
 	int isMacroOpen;
 	int amount;
+	int size;
 	macro_node_t *slot[MAX_MACROS];
 }macro_table_t;
 
@@ -38,10 +40,16 @@ void loadTable(macro_table_t* tbl,char*macr_name, char*line);
  * @param macro_name
  * @return index of table slot of macro_name or a new null slot ,-1 if not found
  */
-int retEmptySlot(macro_table_t *tbl , char* macro_name);
+int retSlot(macro_table_t *tbl , char* macro_name);
 /**
  * initiates tables;
  * */
 macro_table_t *initTable( macro_table_t *tbl);
 
 #endif /*M14_LINKEDLIST_H*/
+
+/*int check_macro_name_exists(macro_table_t *tbl , char * macro_name);*/
+
+int expandMacro(macro_table_t *tbl , char * macro_name);
+
+void printMacro(macro_node_t *head );

@@ -1,2 +1,5 @@
-itai 
-itai
+macr t
+mov r3 r5
+cpy r7 r1
+cpy r3 r2
+endmacr

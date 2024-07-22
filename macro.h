@@ -2,7 +2,7 @@
 #ifndef MACRO_H
 #define MACRO_H
 
-
+#include <linkedlist.h>
 
 
 
@@ -20,8 +20,19 @@ typedef enum{ALPHA,ALPHANUM}CHECK_LEGAL_NAME;
 /*int  getErrorLoci(FILE*);*/
 /*function that will locate line number using ftell or fpos see page 248 in c books*/
 
- /*returns two file ptrs based and argv and argc */
-FILE* initPointerFile(int ,char**,FILE*, int );/*returns ptr to current .as  or .am file*/
+ /*returns a file ptr based and argv and argc, based on index the last param
+  * require more managament to increment the index*/
+FILE* initSourceFiles(int ,char**,FILE*, int );/*returns ptr to current .as  */
+
+/**
+ * Creates a destination file & returns it file pointer.
+ *
+ * @param fptr The file pointer to be updated with the new file's pointer.
+ * @return FILE* The updated file pointer if successful, NULL if an error occurred.
+ */
+
+FILE *initDestinationPointer(FILE *fptr, char *filename);
+
 /**
  * prime function of the pre-compiler
  * manages all the parsing
@@ -36,7 +47,7 @@ int nonNullTerminatedLength(char* arr);
 /**
  * decides where is the line in pre processor terms
  */
-int typeofline(char* line , char* macro_buffer);
+int typeofline( macro_table_t *tbl, char* line , char* macro_name);
 /*create a node specify name and store one macro line in it */
 /*macro_t *createNode(macro_t *mptr , char name[], char line[]);*/
 /*macro_t *createNewMacro(macro_t *mptr , char name[], char line[]);*/
@@ -45,7 +56,7 @@ int dummy();
  * checks if macro start, retunrs 1 or 0
  * @param pos 
  */
-int checkMacroStart(char* , char *,int pos);
+int checkMacroStart(char* , char *, char *macro_name, int pos);
 /**
  * checks if macro start, returns 1 or 0
  * @param pos 
@@ -81,7 +92,14 @@ string_separator_t string_sep(char*);
  * @return int
  */
 int isLineEmpty(char *);
-
+/**
+ * checks the line if its a macro and exapnds it
+ * @param line
+ * @param start
+ * @param pos
+ * @return
+ */
+int checkMacroExapnd(char *line, char *start, int pos);
 
 #endif /*MACRO_H*/
 
