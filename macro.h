@@ -99,7 +99,7 @@ int isLineEmpty(char *);
  * @param pos
  * @return
  */
-int checkMacroExapnd(char *line, char *start, int pos);
+int checkMacroExpand(macro_table_t *tbl, char *line, char *start, char *macro_name, int pos);
 
 #endif /*MACRO_H*/
 

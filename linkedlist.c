@@ -10,7 +10,7 @@
 macro_table_t *initTable(macro_table_t *tbl) {
 	int i = 0;
 	tbl = (macro_table_t *) malloc(sizeof(macro_table_t));
-	for (i = 0; i < MAX_MACROS; ++i)
+	for (i = 0; i < tbl->size; ++i)
 		tbl->slot[i] = NULL;
 	tbl->isFull = 0;
 	tbl->isMacroOpen = 0;
@@ -42,12 +42,10 @@ void loadTable(macro_table_t *tbl, char *macro_name, char *line) {
 	macro_node_t *last = NULL;
 	int slot_idx = 0;
 
-	if (tbl->amount == MAX_MACROS) {
+	if (tbl->amount == tbl->size) {
 		report_error(ERR_MACRO_PERMISSION, line_count);
 		return;
 	}
-
-
 	/*new Macro Node  */
 	if (!(temp = constructMacroNode(macro_name, line, NULL))) {
 		report_error(ERR_MACRO_NODE_CREATION_FAILED,line_count);
@@ -64,7 +62,6 @@ void loadTable(macro_table_t *tbl, char *macro_name, char *line) {
 	}
 
 }
-
 
 int expandMacro(macro_table_t *tbl , char * macro_name){
 	int i= 0;
@@ -106,11 +103,31 @@ macro_node_t *retEndList(macro_node_t *head) {
 
 int retSlot(macro_table_t *tbl, char *macro_name) {
 	int i = 0;
-	for (i = 0; i < MAX_MACROS; ++i) {
+	for (i = 0; i < tbl->size; ++i) {
 		if (tbl->slot[i] != NULL)
 			if ((strcmp(macro_name, tbl->slot[i]->macro_name)) == 0) {
 				return i;
 			}
 	}
 	return -1;
+}
+
+#include <string.h> // For strcmp
+
+/**
+ * Checks if a given name exists in any slot of the macro table.
+
+ * @return 1 if the name exists, 0 otherwise.
+ */
+int checkNameExistsInTable(macro_table_t *tbl,  char *macro_name) {
+	if (!tbl || !macro_name) return 0;  /*Check for NULL pointers*/
+
+	for (int i = 0; i < tbl->size; ++i) {
+		if (tbl->slot[i] != NULL) {
+			/* Compare the macro_name of the first node in this slot with the given name*/
+			if (strcmp(tbl->slot[i]->macro_name, macro_name) == 0)
+				return 1;  /*Name found*/
+		}
+	}
+	return 0;/* Name not found*/
 }
