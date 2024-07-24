@@ -21,6 +21,7 @@
 #define EXT_AFTER "out.txt"
 #define SPACES  " \t\v\f"
 
+#define MACRO_TABLE_FULL "Macro Table full allocate more place"
 
 /*writing Macro Error and File Errors*/
 
@@ -30,7 +31,10 @@
 #define ERR_NO_MORE_FILES "No Files Inserted"
 #define ERR_MACRO_DEFINE "Error In Macro Start Definition"
 #define ERR_MACRO_END "Error In Macro End Definition"
-#define ERR_MACRO_NAME_EXIST "Error Macro Name Already Exist"
+#define ERR_MACRO_EXPAND "Error In Macro Expand Definition"
+#define ERR_MACRO_NAME_DUP "Error Duplicate Macro Name"
+
+
 
 
 #define ERR_WRITING_MACRO  "Failed to write Macro"

@@ -15,7 +15,7 @@ typedef struct  {
 
 
 typedef enum{MACRO_START, MACRO_END , MACRO_EXPAND , LINE_INSIDE , LINE_OUTSIDE, EMPTY_LINE , MACRO_ERROR }MACRO_STATE_T;
-typedef enum{ALPHA,ALPHANUM}CHECK_LEGAL_NAME;
+typedef enum{ALPHA,ALPHANUM, ALPHANUM_COMBINED}CHECK_LEGAL_NAME;
 
 /*int  getErrorLoci(FILE*);*/
 /*function that will locate line number using ftell or fpos see page 248 in c books*/
@@ -38,7 +38,7 @@ FILE *initDestinationPointer(FILE *fptr, char *filename);
  * manages all the parsing
  * @param receives argc and argv
  */
-void readline (int, char** );
+void readline (int, char** , macro_table_t*);
 /**
   * @param arr
  *  length of non null terminated strings
@@ -100,6 +100,16 @@ int isLineEmpty(char *);
  * @return
  */
 int checkMacroExpand(macro_table_t *tbl, char *line, char *start, char *macro_name, int pos);
+
+#include <stdio.h>
+
+/**
+ * Checks if the given buffer contains a specific EOF marker.
+ *
+ * @param buffer The buffer to check.
+ * @return int Returns 1 if EOF marker is found, 0 otherwise.
+ */
+int checkEOFInBuffer(char* buffer);
 
 #endif /*MACRO_H*/
 

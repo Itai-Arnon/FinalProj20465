@@ -13,11 +13,11 @@ FILE *fptr_after;
 int line_count;
 
 int main(int argc, char *argv[]) {
+	macro_table_t *tbl = NULL;
+	tbl = initTable(tbl);
+	readline(argc, argv, tbl);
 
-
-	readline(argc, argv);
-
-
+	free(tbl);
 
 //	loadTable(tbl, "mimi", "mcr\0");
 //	loadTable(tbl, "mimi", "mona\0");
@@ -28,18 +28,24 @@ int main(int argc, char *argv[]) {
 	printf("tbl slot 2 name %s \n", tbl->slot[0]->macro_next->macro_next->macro_name);*/
 
 
+
 	return 0;
 }
 
 
-void readline(int _argc, char **_argv) {
+void readline(int _argc, char **_argv, macro_table_t *tbl) {
 	char buffer[LINE_LENGTH];
 	char *macro_name = (char *) calloc(10, sizeof(char));
-	macro_table_t *tbl = NULL;
+
 	int idx = 0;
 	int current_slot = -1;
 
-	tbl = initTable(tbl);
+
+	if (tbl == NULL) {
+		report_error(ERR_MACRO_TABLE_GENERAL_ERROR, line_count);
+		return;
+	}
+
 	fptr_before = initSourceFiles(_argc, _argv, fptr_before, 1);
 	fptr_after = initDestinationPointer(fptr_after, "out.txt");
 
@@ -47,60 +53,56 @@ void readline(int _argc, char **_argv) {
 		line_count++;
 		idx = 0;
 
-		while (isspace(buffer[idx]) && idx++ < LINE_LENGTH);
-		if (buffer[idx] == '\n' && idx < LINE_LENGTH) {
-			report_error(ERR_LINE_LENGTH, line_count);/*TODO:check if crit err*/
-			continue;
-		}
-		if (buffer[idx] == ';')
+		if (isLineEmpty(buffer))
 			continue;
 
+		while (isspace(buffer[idx]) && idx++ < LINE_LENGTH);
+		if (buffer[idx] == '\n' && idx < LINE_LENGTH) {
+			report_error(ERR_LINE_LENGTH, line_count);/*TODO:check crit err*/
+			continue;
+		} else if (buffer[idx] == ';')/*comment*/
+			continue;
 
 		switch (typeofline(tbl, buffer, macro_name)) {
 			case MACRO_START:
 				printf("%s\n", "REPORT: macro_start");
-				if (checkNameExistsInTable(tbl, macro_name) == 1) {
-					report_error(ERR_MACRO_NAME_EXIST, line_count);/*critical*/
-					if (tbl->isMacroOpen == 0 && tbl->amount < MAX_MACROS)
-						tbl->isMacroOpen = 1;
-					else
-						report_error(ERR_MACRO_PERMISSION, line_count);
-				}
+
+				if (tbl->isMacroOpen == 0 && tbl->amount < tbl->size)
+					tbl->isMacroOpen = 1;
+				else
+					report_error(ERR_MACRO_PERMISSION, line_count);
+
 				break;
 			case MACRO_END:
 				printf("%s\n", "REPORT: macro_end");
-				if (current_slot != -1) {
+				if (current_slot != -1 && tbl->isMacroOpen ==  1) {
+					/*closes macro writing*/
 					tbl->isMacroOpen = 0;
+					/*macro is locked from rewriting forever*/
 					tbl->slot[current_slot]->macro_lock = 1;
-					printf("REPORT: macro locked");
-				} else if (tbl != NULL)
-					report_error(ERR_MACRO_PERMISSION, line_count);
-				else
-					report_error(ERR_MACRO_TABLE_GENERAL_ERROR,line_count);
-
+					memset(macro_name,'\0', sizeof(macro_name));
+					printf("REPORT: macro locked\n");
+				} else
+					/*general problem with table*/
+					report_error(ERR_MACRO_TABLE_GENERAL_ERROR, line_count);
 				break;
 			case MACRO_EXPAND:
 				printf("REPORT: Macro Expand\n");
-			   expandMacro(tbl, macro_name);
-
+				expandMacro(tbl, macro_name);
 				break;
 			case LINE_INSIDE:
 				printf("REPORT:line inside\n");
 				loadTable(tbl, macro_name, buffer);
-				if ((current_slot = retSlot(tbl, macro_name) != -1))
-					report_error(EER_MACRO_TABLE_RETREIVE, line_count);/*critical*/
-				printf("%d\n", current_slot);
-				/*printf("Table is Full  %d | isMacroOpen %d|tbl amount %d \n", tbl->isFull, tbl->isMacroOpen, tbl->amount);*/
-
+				current_slot = retSlot(tbl,macro_name);
+				break;
 			case LINE_OUTSIDE:
+				printf("REPORT:line outside\n");
 				fprintf(fptr_after, "%s", buffer);
-
 			default:
 				break;
 		}
 
 	}
-
 	fclose(fptr_before);
 	fclose(fptr_after);
 }
@@ -119,14 +121,14 @@ int typeofline(macro_table_t *tbl, char *line, char *macro_name) {
 
 	if (sscanf(buffer, "%s%n", start, &pos) == 1) {
 
-		if (!checkLegalName(start, ALPHANUM)) {
+		if (!checkLegalName(start, ALPHANUM_COMBINED)) {
 			report_error(ERR_MACRO_DEFINE, line_count);
 			return (MACRO_ERROR);
 		} else if (checkMacroStart(buffer, start, macro_name, pos))
 			return MACRO_START;
 		else if (checkMacroEnd(buffer, start, pos))
 			return MACRO_END;
-		else if (checkMacroExpand(tbl, line, start,macro_name, pos))
+		else if (checkMacroExpand(tbl, line, start, macro_name, pos))
 			return MACRO_EXPAND;
 		else if (tbl->isMacroOpen == 1)
 			return LINE_INSIDE;
@@ -166,7 +168,7 @@ int checkMacroStart(char *line, char *start, char *macro_name, int pos) {
 			}
 			/*macro named identified check if contiuation of line is empty*/
 			if (!(isLineEmpty(str))) {
-				report_error(ERR_MACRO_DEFINE, line_count);  /*wait for macro check*/
+				report_error(ERR_MACRO_DEFINE, line_count);  /* critical wait for macro check*/
 				return 0;
 			}
 			printf("REPORT: macro start \n");
@@ -190,20 +192,24 @@ int checkMacroEnd(char *line, char *start, int pos) {
 			return 1;
 		}
 	}
-	return 0;/*didn't identify macro_end_word*/
+	/*didn't identify macro_end_word, but we still check for EOF*/
+	/*hence we should close the macro*/
+	return checkEOFInBuffer(line);
 }
 
 
 int checkMacroExpand(macro_table_t *tbl, char *line, char *start, char *macro_name, int pos) {
 	char *str = line;
-	if ((strncmp(MACRO_END_WORD, start, MACRO_END_LEN) != 0) &&
-	    (strncmp(MACRO_END_WORD, start, MACRO_END_LEN) != 0)) {
-		if (isLineEmpty(line) || strlen(start) == 0)
-			return 0;//*doesn't belong to the macro*/
-		else if (checkNameExistsInTable(tbl, start)) {
-			strcpy(macro_name,start);
-			str += pos;
-			return (!(isLineEmpty(str)));
+
+	if (tbl->amount > 0 && (checkNameExistsInTable(tbl, start) == 1)) {
+		strcpy(macro_name, start);
+		str += pos;
+		if (isLineEmpty(str))
+			return 1;
+		else {
+			/*macro name is the single word allowed on macro expand*/
+			report_error(ERR_MACRO_EXPAND, line_count);
+			return 0;
 		}
 	}
 	return 0;
@@ -264,17 +270,27 @@ void report_error(char *err, int line_count) {
 int checkLegalName(char *str, int type) {
 	int i = 0;
 	int len = nonNullTerminatedLength(str);
+	if(!isalpha(str[0]) ) return 0;
+	str++;
 	switch (type) {
 		case ALPHA:
 			while (i < len && isalpha(str[i])) i++;
 
-			return i == len ? 1 : 0;
+			return i == (len - 1) ? 1 : 0;
 		case ALPHANUM:
+
 			while (i < len && isalpha(str[i])) i++;
 			/*check condition where after the alphabet there are digits which is acceptable*/
 			while (i < len && isdigit(str[i])) i++;
 
-			return i == len ? 1 : 0;
+			return i ==  (len - 1) ? 1 : 0;
+
+			case ALPHANUM_COMBINED:
+				/*check condition where after the alphabet there are digits which is acceptable*/
+				while (i < len && isalnum(str[i])) i++;
+
+
+			return i ==  (len - 1) ? 1 : 0;
 
 		default:
 			break;
@@ -327,6 +343,17 @@ int isLineEmpty(char *line) {
 	report_error(ERR_MACRO_END, line_count);
 	return 0;
 }*/
+
+int checkEOFInBuffer(char *buffer) {
+	char *localPtr = buffer;
+
+	while (*localPtr != '\0') {
+		if (*localPtr == EOF)
+			return 1; /* EOF marker found*/
+		localPtr++; /*Move to the next character*/
+	}
+	return 0; /*Eof Not Found*/
+}
 
 int dummy() {
 	return 1;
