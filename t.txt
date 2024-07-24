@@ -1,11 +1,29 @@
+\n
 macr t
 mov r3 r5
-mov r7 r3
+mov r99 r33
 endmacr
 t
 macr v
-mov r1 r7
+mov r19 r71
 endmacr
 v
+macr tt
+move your ass
+endmacr
+tt
+
+macr motherfucker
+bitch
+cunt
+pablo
+endmacr
+motherfucker
+
+mm shit
+mmmmmmm
+mmmmnnnn
+\n
+;
 
 

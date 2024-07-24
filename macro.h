@@ -48,19 +48,12 @@ int nonNullTerminatedLength(char* arr);
  * decides where is the line in pre processor terms
  */
 int typeofline( macro_table_t *tbl, char* line , char* macro_name);
-/*create a node specify name and store one macro line in it */
-/*macro_t *createNode(macro_t *mptr , char name[], char line[]);*/
-/*macro_t *createNewMacro(macro_t *mptr , char name[], char line[]);*/
-int dummy();
-/**
- * checks if macro start, retunrs 1 or 0
- * @param pos 
- */
-int checkMacroStart(char* , char *, char *macro_name, int pos);
-/**
- * checks if macro start, returns 1 or 0
- * @param pos 
- */
+
+/* checks if macro start, returns 1 or 0
+*/
+ int checkMacroStart(char* , char *, char *macro_name, int pos);
+/* checks if macro ends, returns 1 or 0
+*/
 int	checkMacroEnd(char *,char *, int pos);
 
  /*

@@ -36,9 +36,9 @@ int main(int argc, char *argv[]) {
 void readline(int _argc, char **_argv, macro_table_t *tbl) {
 	char buffer[LINE_LENGTH];
 	char *macro_name = (char *) calloc(10, sizeof(char));
-
 	int idx = 0;
-	int current_slot = -1;
+	char* line_bak;
+
 
 
 	if (tbl == NULL) {
@@ -55,13 +55,15 @@ void readline(int _argc, char **_argv, macro_table_t *tbl) {
 
 		if (isLineEmpty(buffer))
 			continue;
-
-		while (isspace(buffer[idx]) && idx++ < LINE_LENGTH);
-		if (buffer[idx] == '\n' && idx < LINE_LENGTH) {
+		else
 			report_error(ERR_LINE_LENGTH, line_count);/*TODO:check crit err*/
-			continue;
-		} else if (buffer[idx] == ';')/*comment*/
-			continue;
+
+
+
+			while (isspace(buffer[idx]) && idx< LINE_LENGTH)  ++idx;
+			if (buffer[idx] == ';')
+				 continue;
+
 
 		switch (typeofline(tbl, buffer, macro_name)) {
 			case MACRO_START:
@@ -71,20 +73,15 @@ void readline(int _argc, char **_argv, macro_table_t *tbl) {
 					tbl->isMacroOpen = 1;
 				else
 					report_error(ERR_MACRO_PERMISSION, line_count);
-
 				break;
 			case MACRO_END:
 				printf("%s\n", "REPORT: macro_end");
-				if (current_slot != -1 && tbl->isMacroOpen ==  1) {
 					/*closes macro writing*/
 					tbl->isMacroOpen = 0;
 					/*macro is locked from rewriting forever*/
-					tbl->slot[current_slot]->macro_lock = 1;
-					memset(macro_name,'\0', sizeof(macro_name));
-					printf("REPORT: macro locked\n");
-				} else
-					/*general problem with table*/
-					report_error(ERR_MACRO_TABLE_GENERAL_ERROR, line_count);
+					macro_lock(tbl,macro_name);
+					/*memset(macro_name,'\0', sizeof(macro_name));*/
+
 				break;
 			case MACRO_EXPAND:
 				printf("REPORT: Macro Expand\n");
@@ -93,7 +90,6 @@ void readline(int _argc, char **_argv, macro_table_t *tbl) {
 			case LINE_INSIDE:
 				printf("REPORT:line inside\n");
 				loadTable(tbl, macro_name, buffer);
-				current_slot = retSlot(tbl,macro_name);
 				break;
 			case LINE_OUTSIDE:
 				printf("REPORT:line outside\n");
@@ -295,8 +291,7 @@ int checkLegalName(char *str, int type) {
 		default:
 			break;
 	}
-}
-
+}/*TODO:go to utils*/
 string_separator_t string_sep(char *line) {
 	int strings_count = 0;
 	char *s;
@@ -327,8 +322,8 @@ string_separator_t string_sep(char *line) {
 
 
 int isLineEmpty(char *line) {
-	while (isspace(*line)) line++;
-	if (*line != '\0' && *line != '\n')
+	while (*line && isspace(*line)) line++;
+	if ( *line != '\n' && *line!='\0')
 		return 0;
 	return 1;
 }
@@ -355,10 +350,6 @@ int checkEOFInBuffer(char *buffer) {
 	return 0; /*Eof Not Found*/
 }
 
-int dummy() {
-	return 1;
-}
-/*int checkLineOutside(char*,char*,int);*/
 
 
 

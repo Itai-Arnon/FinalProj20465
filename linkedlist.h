@@ -37,19 +37,19 @@ void loadTable(macro_table_t* tbl,char*macr_name, char*line);
 
  /* @return index of table slot of macro_name or a new null slot ,-1 if not found
  */
-int retSlot(macro_table_t *tbl , char* macro_name);
+ static int retSlot(macro_table_t *tbl , char* macro_name);
 /*  initiates tables; */
 macro_table_t *initTable( macro_table_t *tbl);
 
 
 
-int checkNameExistsInTable(macro_table_t *tbl,  char *macro_name);
+int checkNameExistsInTable(macro_table_t *tbl,  char *macro_name );
 
 int expandMacro(macro_table_t *tbl , char * macro_name);
 
 void printMacro(macro_node_t *head );
 
 void printMacroName(macro_node_t *head);
-
-
+/*lock the macro so it would not be accessed accidently*/
+void macro_lock(macro_table_t *tbl, char *macro_name);
 #endif /*M14_LINKEDLIST_H*/
