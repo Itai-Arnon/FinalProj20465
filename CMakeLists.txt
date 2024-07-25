@@ -15,4 +15,6 @@ add_executable(m14
         utils.c
         utils.h
         assembler.c
-        assembler.h)
+        assembler.h
+        error.c
+        error.h)

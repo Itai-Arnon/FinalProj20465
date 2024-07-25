@@ -23,7 +23,7 @@ typedef struct  {
 /*finds first occurance of non white space - */
 int isRestOfLineEmpty(char *);
 /*find the first occurane of chars in sep[]*/
-int findSeperator(char* str, char sep[], int sep_count);
+int findSeperator(char* str, char sep[], int num_of_sep);
 int int_to_octal(int num);
 void ret_next_word(char line_text[], int *offset, char line[], char separators[], int separators_amount);
 void jump_spaces_and_tabs(int *offset, char line[]);

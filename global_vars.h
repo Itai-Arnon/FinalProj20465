@@ -12,4 +12,5 @@ extern FILE *fptr_before;
 extern FILE *fptr_after;
 extern int line_count;
 
+
 #endif /*M14_GLOBAL_VARS_H*/

@@ -12,7 +12,7 @@
 
 FILE *fptr_before;
 FILE *fptr_after;
-int line_count;
+
 
 int main(int argc, char *argv[]) {
 	macro_table_t *tbl = NULL;
@@ -20,19 +20,24 @@ int main(int argc, char *argv[]) {
 	manage_files(argc ,argv, tbl);
 
 
-
-
+	fclose(fptr_before);
+	fclose(fptr_after);
 	/*free(tbl);*/
+
+
 }
 
-void manage_files(int num_files ,char ** file_list, macro_table_t* tbl){
+void manage_files(int _argc ,char ** _argv, macro_table_t* tbl){
 	int idx;
-	for ( idx = 1; idx < num_files ; ++idx) {
-		fptr_before = initSourceFiles(_argc, _argv, fptr_before, 1);
-
+	int num_files =_argc;
+	if(_argc == 1) {
+		report_error(ERR_NO_FILES,line_count);
+		return;
 	}
 	fptr_after = initDestinationPointer(fptr_after, "out.txt");
-
-
-	read_preprocessor(argc, argv, tbl);
+	for ( idx = 1; idx < num_files ; ++idx)
+	{
+		fptr_before = initSourceFiles(_argc, _argv, fptr_before, idx);
+		read_preprocessor(tbl);
+	}
 }

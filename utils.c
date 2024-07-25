@@ -15,12 +15,12 @@ int isRestOfLineEmpty(char *line) {
 }
 
 
-int findSeperator(char* str, char sep[], int sep_count) {
+int findSeperator(char* str, char sep[], int num_of_sep) {
 	int LEN = strlen(str);
 	int i, j;
 	i = j = 0;
 	for (i = 0; str[i] < LEN; i++) {
-		for (j = 0; j < sep_count; j++) {
+		for (j = 0; j < num_of_sep; j++) {
 			if (str[i] == sep[j] && i < (LEN -1 )  )
 				return 1;
 		}

@@ -28,7 +28,7 @@ FILE *initDestinationPointer(FILE *fptr, char *filename);
  * manages all the parsing
  * @param receives argc and argv
  */
-void read_preprocessor (int, char** , macro_table_t*);
+void read_preprocessor ( macro_table_t*);
 /**
   * @param arr
  *  length of non null terminated strings

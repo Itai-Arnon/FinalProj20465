@@ -9,13 +9,11 @@
 #include "utils.h"
 
 
-FILE *fptr_before;
-FILE *fptr_after;
+
 int line_count;
 
 
-
-void read_preprocessor(int _argc, char **_argv, macro_table_t *tbl) {
+void read_preprocessor( macro_table_t *tbl) {
 	char buffer[LINE_LENGTH];
 	char *macro_name = (char *) calloc(10, sizeof(char));
 	int idx = 0;
@@ -46,7 +44,7 @@ void read_preprocessor(int _argc, char **_argv, macro_table_t *tbl) {
 
 		switch (typeofline(tbl, buffer, macro_name)) {
 			case MACRO_START:
-				printf("%s\n", "REPORT: macro_start");
+				printf( "REPORT: macro_start %d", line_count);
 
 				if (tbl->isMacroOpen == 0 && tbl->amount < tbl->size)
 					tbl->isMacroOpen = 1;
@@ -54,7 +52,7 @@ void read_preprocessor(int _argc, char **_argv, macro_table_t *tbl) {
 					report_error(ERR_MACRO_PERMISSION, line_count);
 				break;
 			case MACRO_END:
-				printf("%s\n", "REPORT: macro_end");
+				printf( "REPORT: macro_end %d\n",line_count);
 					/*closes macro writing*/
 					tbl->isMacroOpen = 0;
 					/*macro is locked from rewriting forever*/
@@ -63,23 +61,22 @@ void read_preprocessor(int _argc, char **_argv, macro_table_t *tbl) {
 
 				break;
 			case MACRO_EXPAND:
-				printf("REPORT: Macro Expand\n");
+				printf("REPORT: Macro Expand %d\n", line_count);
 				expandMacro(tbl, macro_name);
 				break;
 			case LINE_INSIDE:
-				printf("REPORT:line inside\n");
+				printf("REPORT:line inside %d\n", line_count);
 				loadTable(tbl, macro_name, buffer);
 				break;
 			case LINE_OUTSIDE:
-				printf("REPORT:line outside\n");
+				printf("REPORT:line outside %d\n", line_count);
 				fprintf(fptr_after, "%s", buffer);
 			default:
 				break;
 		}
 
 	}
-	fclose(fptr_before);
-	fclose(fptr_after);
+
 }
 
 
@@ -145,7 +142,7 @@ int checkMacroStart(char *line, char *start, char *macro_name, int pos) {
 				report_error(ERR_MACRO_DEFINE, line_count);  /* critical wait for macro check*/
 				return 0;
 			}
-			printf("REPORT: macro start \n");
+			printf("REPORT: macro start %d\n", line_count);
 			/*final filtering for isMacroStart*/
 			strcpy(macro_name, macro_n);/*only place in use by typeofline*/
 			return 1;/*line with name is correct*/
@@ -215,7 +212,7 @@ FILE *initSourceFiles(int _argc, char **_argv, FILE *fptr, int index) {
 
 		return fptr;
 
-	} else report_error(ERR_NO_MORE_FILES, line_count);
+	} else report_error(ERR_NO_FILES, line_count);
 }
 
 FILE *initDestinationPointer(FILE *fptr, char *filename) {

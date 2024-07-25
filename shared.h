@@ -25,10 +25,10 @@
 
 /*writing Macro Error and File Errors*/
 
-#define ERR_MACRO_NAME_LONG "Macro Name Too Long"
 #define ERR_FILE_BEFORE ".as File Failed To Open"
 #define ERR_FILE_AFTER ".am File Failed To Create"
-#define ERR_NO_MORE_FILES "No Files Inserted"
+#define ERR_MACRO_NAME_LONG "Macro Name Too Long"
+#define ERR_NO_FILES "No Files Inserted"
 #define ERR_MACRO_DEFINE "Error In Macro Start Definition"
 #define ERR_MACRO_END "Error In Macro End Definition"
 #define ERR_MACRO_EXPAND "Error In Macro Expand Definition"

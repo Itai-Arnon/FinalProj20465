@@ -10,21 +10,10 @@ mov r19 r71
 endmacr
 v
 macr tt
-move your ass
+mov r3 r4
+cpy r2 r6
 endmacr
 tt
 
-macr motherfucker
-bitch
-cunt
-pablo
-endmacr
-motherfucker
-
-mm shit
-mmmmmmm
-mmmmnnnn
-\n
-;
 
 
