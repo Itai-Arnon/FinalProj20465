@@ -1,4 +1,5 @@
-\n
+
+macr t1  c
 macr t
 mov r3 r5
 mov r99 r33

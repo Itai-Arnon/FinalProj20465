@@ -6,19 +6,9 @@
 
 
 
-
-typedef struct  {
-	char *strings[80];
-	int strings_count;
-}string_separator_t;
-
-
-
 typedef enum{MACRO_START, MACRO_END , MACRO_EXPAND , LINE_INSIDE , LINE_OUTSIDE, EMPTY_LINE , MACRO_ERROR }MACRO_STATE_T;
 typedef enum{ALPHA,ALPHANUM, ALPHANUM_COMBINED}CHECK_LEGAL_NAME;
 
-/*int  getErrorLoci(FILE*);*/
-/*function that will locate line number using ftell or fpos see page 248 in c books*/
 
  /*returns a file ptr based and argv and argc, based on index the last param
   * require more managament to increment the index*/
@@ -38,7 +28,7 @@ FILE *initDestinationPointer(FILE *fptr, char *filename);
  * manages all the parsing
  * @param receives argc and argv
  */
-void readline (int, char** , macro_table_t*);
+void read_preprocessor (int, char** , macro_table_t*);
 /**
   * @param arr
  *  length of non null terminated strings
@@ -75,23 +65,8 @@ void macro_error(char* r);
 /*check if name is only alpha or alpha ending numerals*/
 /*uses the ENUM CHECK_LEGAL_NAME*/
 int checkLegalName(char* str , int);
-/**
- * creates an array of separated strings using strpbrk
- */
-string_separator_t string_sep(char*);
 
-/**
- * check if rest of line is whitspace
- * @return int
- */
-int isLineEmpty(char *);
-/**
- * checks the line if its a macro and exapnds it
- * @param line
- * @param start
- * @param pos
- * @return
- */
+ /* checks the line if its a macro and exapnds it*/
 int checkMacroExpand(macro_table_t *tbl, char *line, char *start, char *macro_name, int pos);
 
 #include <stdio.h>

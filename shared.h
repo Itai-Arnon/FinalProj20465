@@ -36,7 +36,6 @@
 
 
 
-
 #define ERR_WRITING_MACRO  "Failed to write Macro"
 #define EER_MACRO_TABLE_FULL "Error No more space in Macro Table"
 #define EER_MACRO_TABLE_RETREIVE "Error Retreiving From Macro Table"

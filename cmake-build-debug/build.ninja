@@ -63,12 +63,19 @@ build CMakeFiles/m14.dir/linkedlist.c.obj: C_COMPILER__m14_unscanned_Debug C$:/O
   OBJECT_DIR = CMakeFiles\m14.dir
   OBJECT_FILE_DIR = CMakeFiles\m14.dir
 
-build CMakeFiles/m14.dir/scripts/utils.c.obj: C_COMPILER__m14_unscanned_Debug C$:/OPU/20465/m/m14/scripts/utils.c || cmake_object_order_depends_target_m14
-  DEP_FILE = CMakeFiles\m14.dir\scripts\utils.c.obj.d
+build CMakeFiles/m14.dir/utils.c.obj: C_COMPILER__m14_unscanned_Debug C$:/OPU/20465/m/m14/utils.c || cmake_object_order_depends_target_m14
+  DEP_FILE = CMakeFiles\m14.dir\utils.c.obj.d
   FLAGS = -g -std=gnu90 -fdiagnostics-color=always
   INCLUDES = -IC:/OPU/20465/m/m14/.
   OBJECT_DIR = CMakeFiles\m14.dir
-  OBJECT_FILE_DIR = CMakeFiles\m14.dir\scripts
+  OBJECT_FILE_DIR = CMakeFiles\m14.dir
+
+build CMakeFiles/m14.dir/assembler.c.obj: C_COMPILER__m14_unscanned_Debug C$:/OPU/20465/m/m14/assembler.c || cmake_object_order_depends_target_m14
+  DEP_FILE = CMakeFiles\m14.dir\assembler.c.obj.d
+  FLAGS = -g -std=gnu90 -fdiagnostics-color=always
+  INCLUDES = -IC:/OPU/20465/m/m14/.
+  OBJECT_DIR = CMakeFiles\m14.dir
+  OBJECT_FILE_DIR = CMakeFiles\m14.dir
 
 
 # =============================================================================
@@ -78,7 +85,7 @@ build CMakeFiles/m14.dir/scripts/utils.c.obj: C_COMPILER__m14_unscanned_Debug C$
 #############################################
 # Link the executable m14.exe
 
-build m14.exe: C_EXECUTABLE_LINKER__m14_Debug CMakeFiles/m14.dir/macro.c.obj CMakeFiles/m14.dir/linkedlist.c.obj CMakeFiles/m14.dir/scripts/utils.c.obj
+build m14.exe: C_EXECUTABLE_LINKER__m14_Debug CMakeFiles/m14.dir/macro.c.obj CMakeFiles/m14.dir/linkedlist.c.obj CMakeFiles/m14.dir/utils.c.obj CMakeFiles/m14.dir/assembler.c.obj
   FLAGS = -g
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\m14.dir

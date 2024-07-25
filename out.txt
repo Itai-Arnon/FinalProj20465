@@ -1,3 +1,4 @@
+macr t1  c
 mov r3 r5
 mov r99 r33
 mov r19 r71

@@ -12,4 +12,7 @@ add_executable(m14
         linkedlist.h
         linkedlist.c
         shared.h
-        scripts/utils.c)
+        utils.c
+        utils.h
+        assembler.c
+        assembler.h)
