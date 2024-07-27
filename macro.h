@@ -10,6 +10,7 @@ typedef enum{MACRO_START, MACRO_END , MACRO_EXPAND , LINE_INSIDE , LINE_OUTSIDE,
 typedef enum{ALPHA,ALPHANUM, ALPHANUM_COMBINED}CHECK_LEGAL_NAME;
 
 
+
  /*returns a file ptr based and argv and argc, based on index the last param
   * require more managament to increment the index*/
 FILE* initSourceFiles(int ,char**,FILE*, int );/*returns ptr to current .as  */
@@ -78,6 +79,8 @@ int checkMacroExpand(macro_table_t *tbl, char *line, char *start, char *macro_na
  * @return int Returns 1 if EOF marker is found, 0 otherwise.
  */
 int checkEOFInBuffer(char* buffer);
+/*check if macro name has opcode directive or  symbol*/
+int macro_name_has_opcode_direct_symbol(char*);
 
 #endif /*MACRO_H*/
 

@@ -33,7 +33,7 @@
 #define ERR_MACRO_END "Error In Macro End Definition"
 #define ERR_MACRO_EXPAND "Error In Macro Expand Definition"
 #define ERR_MACRO_NAME_DUP "Error Duplicate Macro Name"
-
+#define ERR_MACRO_NAME_OP_DIRECT_SYMBOL "Macro name is a opcode, a directive or a symbol"
 
 
 #define ERR_WRITING_MACRO  "Failed to write Macro"

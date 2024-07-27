@@ -17,4 +17,6 @@ add_executable(m14
         assembler.c
         assembler.h
         error.c
-        error.h)
+        error.h
+        front.c
+        front.h)

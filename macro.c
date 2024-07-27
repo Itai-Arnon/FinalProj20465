@@ -11,7 +11,9 @@
 
 
 int line_count;
-
+static const char *opcode_names[16] = {"mov", "cmp", "add", "sub", "lea", "clr", "not", "inc", "dec", "jmp",
+                                "bne", "red", "prn", "jsr", "rts", "stop"};
+static const char *directives[4] ={".data",".string",".extern",".entry"};
 
 void read_preprocessor( macro_table_t *tbl) {
 	char buffer[LINE_LENGTH];
@@ -282,6 +284,19 @@ int checkEOFInBuffer(char *buffer) {
 }
 
 
+int macro_name_has_opcode_direct_symbol(char* macro_name){
+	int j = 0 ;
+	for ( j = 0; j < 16; ++j) {
+		if(strcmp(macro_name,opcode_names[j])!=0)
+			return 1;
+	}
+	for ( j = 0; j < 4; ++j) {
+		if(strcmp(macro_name,directives[j])!=0)
+			return 1;
+	}
+	return 0;
+	/* TODO; later on symbols will come here*/
 
+}
 
 
