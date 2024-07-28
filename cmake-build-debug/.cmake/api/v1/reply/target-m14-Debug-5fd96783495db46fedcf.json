@@ -71,7 +71,7 @@
 				6,
 				8,
 				10,
-				12
+				13
 			]
 		}
 	],
@@ -113,7 +113,7 @@
 				6,
 				8,
 				10,
-				12
+				13
 			]
 		},
 		{
@@ -127,7 +127,7 @@
 				7,
 				9,
 				11,
-				13
+				12
 			]
 		}
 	],
@@ -136,78 +136,78 @@
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "macro.c",
+			"path" : "scripts/macro.c",
 			"sourceGroupIndex" : 0
 		},
 		{
 			"backtrace" : 1,
-			"path" : "macro.h",
+			"path" : "headers/macro.h",
 			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
-			"path" : "global_vars.h",
+			"path" : "headers/global_vars.h",
 			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
-			"path" : "linkedlist.h",
+			"path" : "headers/linkedlist.h",
 			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "linkedlist.c",
+			"path" : "scripts/linkedlist.c",
 			"sourceGroupIndex" : 0
 		},
 		{
 			"backtrace" : 1,
-			"path" : "shared.h",
+			"path" : "headers/shared.h",
 			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "utils.c",
+			"path" : "scripts/utils.c",
 			"sourceGroupIndex" : 0
 		},
 		{
 			"backtrace" : 1,
-			"path" : "utils.h",
+			"path" : "headers/utils.h",
 			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "assembler.c",
+			"path" : "scripts/assembler.c",
 			"sourceGroupIndex" : 0
 		},
 		{
 			"backtrace" : 1,
-			"path" : "assembler.h",
+			"path" : "headers/assembler.h",
 			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "error.c",
+			"path" : "scripts/parser.c",
 			"sourceGroupIndex" : 0
 		},
 		{
 			"backtrace" : 1,
-			"path" : "error.h",
+			"path" : "headers/parser.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "headers/pass_one.h",
 			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "front.c",
+			"path" : "scripts/pass_one.c",
 			"sourceGroupIndex" : 0
-		},
-		{
-			"backtrace" : 1,
-			"path" : "front.h",
-			"sourceGroupIndex" : 1
 		}
 	],
 	"type" : "EXECUTABLE"

@@ -6,17 +6,17 @@ set(CMAKE_C_STANDARD 90)
 include_directories(.)
 
 add_executable(m14
-        macro.c
-        macro.h
-        global_vars.h
-        linkedlist.h
-        linkedlist.c
-        shared.h
-        utils.c
-        utils.h
-        assembler.c
-        assembler.h
-        error.c
-        error.h
-        front.c
-        front.h)
+        scripts/macro.c
+        headers/macro.h
+        headers/global_vars.h
+        headers/linkedlist.h
+        scripts/linkedlist.c
+        headers/shared.h
+        scripts/utils.c
+        headers/utils.h
+        scripts/assembler.c
+        headers/assembler.h
+        scripts/parser.c
+        headers/parser.h
+        headers/pass_one.h
+        scripts/pass_one.c)

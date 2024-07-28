@@ -1,4 +1,4 @@
-
+BLAH:  mov s1 rt
 macr t1  c
 macr t
 mov r3 r5
@@ -9,10 +9,7 @@ macr v
 mov r19 r71
 endmacr
 v
-macr tt
-mov r3 r4
-cpy r2 r6
-endmacr
+NOTE: .string "abc"
 tt
 
 

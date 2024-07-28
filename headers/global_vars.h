@@ -12,7 +12,7 @@
 typedef enum {
 	mov, cmp, add, sub, lea, clr, not, inc, dec, jmp,
 	bne, red, prn, jsr, rts, stop
-}op_code;
+} op_code;
 
 typedef struct {
 	char line_err[200];
@@ -41,7 +41,7 @@ typedef struct {
 		} operand; /*singular oper*/
 	} directive;
 	struct {
-		enum op_code;
+		op_code n;
 		enum {
 			NO_OPER,
 			NUMBER,
@@ -56,12 +56,7 @@ typedef struct {
 	} operands[2];
 } parser_t;
 
-
-
-
-
-
-
+extern parser_t parser;
 extern FILE *fptr_before;
 extern FILE *fptr_after;
 extern int line_count;

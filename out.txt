@@ -2,47 +2,6 @@ macr t1  c
 mov r3 r5
 mov r99 r33
 mov r19 r71
-move your ass
-macr t1  c
-mov r3 r5
-mov r99 r33
-mov r19 r71
-mov r3 r4
-cpy r2 r6
-macr t1  c
-mov r3 r5
-mov r99 r33
-mov r19 r71
-mov r3 r4
-cpy r2 r6
-macr t1  c
-mov r3 r5
-mov r99 r33
-mov r19 r71
-mov r3 r4
-cpy r2 r6
-macr t1  c
-mov r3 r5
-mov r99 r33
-mov r19 r71
-mov r3 r4
-cpy r2 r6
-r90 r80
-r99 r81
-macr t1  c
-mov r3 r5
-mov r99 r33
-mov r19 r71
-mov r3 r4
-cpy r2 r6
-r90 r80
-r99 r81
-r99 r88
-r99 r899
-macr t1  c
-mov r3 r5
-mov r99 r33
-mov r19 r71
 mov r3 r4
 cpy r2 r6
 r90 r80
@@ -51,3 +10,24 @@ r90 r80
 r99 r81
 r99 r88
 r99 r899
+macr t1  c
+mov r3 r5
+mov r99 r33
+mov r19 r71
+mov r3 r4
+cpy r2 r6
+macr t1  c
+mov r3 r5
+mov r99 r33
+mov r19 r71
+tt
+macr t1  c
+mov r3 r5
+mov r99 r33
+mov r19 r71
+tt
+macr t1  c
+mov r3 r5
+mov r99 r33
+mov r19 r71
+tt

@@ -9,6 +9,7 @@
 
 #define SPACES  " \t\v\f"
 
+typedef enum{ALPHA,ALPHANUM, ALPHANUM_COMBINED}check_legal_name;
 
 
 
@@ -36,7 +37,11 @@ int extra_char_at_end(const char line[], int loc);
  * creates an array of separated strings using strpbrk
  */
 string_separator_t string_sep(char*);
-
+/*purposed to count non null terminated functions*/
+int nonNullTerminatedLength(char *arr);
+/*uses the ENUM CHECK_LEGAL_NAME*/
+/*checks chars containing str, alphanum , alpha*/
+int checkLegalName(char *str, check_legal_name type);
 
 
 

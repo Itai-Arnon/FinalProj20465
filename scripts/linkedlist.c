@@ -1,12 +1,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "linkedlist.h"
-#include "shared.h"
-#include "global_vars.h"
+#include "headers/linkedlist.h"
+#include "headers/shared.h"
+#include "headers/global_vars.h"
 
 
-macro_table_t *initTable(macro_table_t *tbl) {
+macro_table_t *initMacroTable(macro_table_t *tbl) {
 	int i = 0;
 	tbl = (macro_table_t *) malloc(sizeof(macro_table_t));
 
@@ -37,7 +37,7 @@ macro_node_t *constructMacroNode(char *macro_name, char *line, macro_node_t *nex
 }
 
 
-void loadTable(macro_table_t *tbl, char *macro_name, char *line) {
+void loadMacroTable(macro_table_t *tbl, char *macro_name, char *line) {
 	macro_node_t *temp = NULL;
 	macro_node_t *last = NULL;
 	int slot_idx = retSlot(tbl, macro_name);

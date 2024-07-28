@@ -8,6 +8,7 @@
 #define LINE_LENGTH 80
 #define MAX_MACRO_NAME 31
 #define MAX_MACROS 20
+#define MAX_SYMBOL_NAME 20
 
 #define MACRO_START_WORD "macr"
 #define MACRO_END_WORD "endmacr"
@@ -33,7 +34,15 @@
 #define ERR_MACRO_END "Error In Macro End Definition"
 #define ERR_MACRO_EXPAND "Error In Macro Expand Definition"
 #define ERR_MACRO_NAME_DUP "Error Duplicate Macro Name"
+
+/*symbol op code  directive related errors*/
 #define ERR_MACRO_NAME_OP_DIRECT_SYMBOL "Macro name is a opcode, a directive or a symbol"
+#define ERR_FAIL_CREATE_SYMBOL_TBL "Symbol Table Creation Failed"
+#define ERR_FAIL_CREATE_SYMBOL "Symbol  Creating Symbol Node Failed"
+#define ERR_OP_CODE_RECOGNITION "OP CODE NOT RECOGNIZED"
+#define ERR_OP_CODE_FAILED_STRUCTURE "OP Code sturcture Not Legal"
+#define ERR_DIRECTIVE_RECOGNITION "Directive Not Recognized"
+
 
 
 #define ERR_WRITING_MACRO  "Failed to write Macro"
@@ -52,13 +61,14 @@
 
 
 
+
 /**
  * reports of macro_error as well as which line
  */
 void report_error(char* err , int linecount);
 /*check if name is only alpha or alpha ending numerals*/
 /*uses the ENUM CHECK_LEGAL_NAME*/
-int checkLegalName(char* str , int);
+
 
 
 #endif

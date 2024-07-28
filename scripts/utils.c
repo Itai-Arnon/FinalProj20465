@@ -1,6 +1,6 @@
 #include <ctype.h>
 #include <string.h>
-#include "utils.h"
+#include "headers/utils.h"
 
 /*check is the rest of the line is filled with unwanted char*/
 /*the first unwanted char disqualifies the sentence*/
@@ -26,6 +26,12 @@ int findSeperator(char* str, char sep[], int num_of_sep) {
 		}
 	}
 	return 0;
+}
+
+int nonNullTerminatedLength(char *arr) {
+	int count = 0;
+	while (arr[++count] != 0);
+	return count;
 }
 
 
@@ -128,3 +134,34 @@ string_separator_t string_sep(char *line) {
 	ssr_t.strings_count = strings_count;
 	return ssr_t;
 }
+
+int checkLegalName(char *str, check_legal_name type) {
+	int i = 0;
+	int len = nonNullTerminatedLength(str);
+	if(!isalpha(str[0]) ) return 0;
+	str++;
+	switch (type) {
+		case ALPHA:
+			while (i < len && isalpha(str[i])) i++;
+
+			return i == (len - 1) ? 1 : 0;
+		case ALPHANUM:
+
+			while (i < len && isalpha(str[i])) i++;
+			/*check condition where after the alphabet there are digits which is acceptable*/
+			while (i < len && isdigit(str[i])) i++;
+
+			return i ==  (len - 1) ? 1 : 0;
+
+		case ALPHANUM_COMBINED:
+			/*check condition where after the alphabet there are digits which is acceptable*/
+			while (i < len && isalnum(str[i])) i++;
+
+
+			return i ==  (len - 1) ? 1 : 0;
+
+		default:
+			break;
+	}
+}
+

@@ -2,11 +2,11 @@
 #include <string.h>
 #include <stdlib.h>
 #include<ctype.h>
-#include "macro.h"
-#include "linkedlist.h"
-#include "shared.h"
-#include "global_vars.h"
-#include "utils.h"
+#include "headers/macro.h"
+#include "headers/linkedlist.h"
+#include "headers/shared.h"
+#include "headers/global_vars.h"
+#include "headers/utils.h"
 
 
 
@@ -19,6 +19,7 @@ void read_preprocessor( macro_table_t *tbl) {
 	char buffer[LINE_LENGTH];
 	char *macro_name = (char *) calloc(10, sizeof(char));
 	int idx = 0;
+	line_count = 0;
 
 	if (tbl == NULL) {
 		report_error(ERR_MACRO_TABLE_GENERAL_ERROR, line_count);
@@ -68,7 +69,7 @@ void read_preprocessor( macro_table_t *tbl) {
 				break;
 			case LINE_INSIDE:
 				printf("REPORT:line inside %d\n", line_count);
-				loadTable(tbl, macro_name, buffer);
+				loadMacroTable(tbl, macro_name, buffer);
 				break;
 			case LINE_OUTSIDE:
 				printf("REPORT:line outside %d\n", line_count);
@@ -189,11 +190,6 @@ int checkMacroExpand(macro_table_t *tbl, char *line, char *start, char *macro_na
 }
 
 
-int nonNullTerminatedLength(char *arr) {
-	int count = 0;
-	while (arr[++count] != 0);
-	return count;
-}
 
 /*type=0 for input file type =1 for output*/
 FILE *initSourceFiles(int _argc, char **_argv, FILE *fptr, int index) {
@@ -240,35 +236,6 @@ void report_error(char *err, int line_count) {
 }
 /*this function check if the non alpha numeric chars in a given string*/
 /*ALPHA - only alphabets allowed  ALPHANUM alphabets and a number at the end*/
-int checkLegalName(char *str, int type) {
-	int i = 0;
-	int len = nonNullTerminatedLength(str);
-	if(!isalpha(str[0]) ) return 0;
-	str++;
-	switch (type) {
-		case ALPHA:
-			while (i < len && isalpha(str[i])) i++;
-
-			return i == (len - 1) ? 1 : 0;
-		case ALPHANUM:
-
-			while (i < len && isalpha(str[i])) i++;
-			/*check condition where after the alphabet there are digits which is acceptable*/
-			while (i < len && isdigit(str[i])) i++;
-
-			return i ==  (len - 1) ? 1 : 0;
-
-			case ALPHANUM_COMBINED:
-				/*check condition where after the alphabet there are digits which is acceptable*/
-				while (i < len && isalnum(str[i])) i++;
-
-
-			return i ==  (len - 1) ? 1 : 0;
-
-		default:
-			break;
-	}
-}/*TODO:go to utils*/
 
 
 
@@ -284,7 +251,7 @@ int checkEOFInBuffer(char *buffer) {
 }
 
 
-int macro_name_has_opcode_direct_symbol(char* macro_name){
+int macro_name_has_opcode_direct(char* macro_name){
 	int j = 0 ;
 	for ( j = 0; j < 16; ++j) {
 		if(strcmp(macro_name,opcode_names[j])!=0)
