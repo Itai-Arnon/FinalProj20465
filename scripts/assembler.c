@@ -4,12 +4,12 @@
 #include<ctype.h>
 
 #include "headers/macro.h"
-#include "headers/linkedlist.h"
+#include "headers/macro_list.h"
 #include "headers/shared.h"
 #include "headers/global_vars.h"
 #include "headers/utils.h"
 #include "headers/assembler.h"
-#include "headers/pass_one.h"
+#include "headers/symbols.h"
 
 
 FILE *fptr_before;
@@ -18,9 +18,9 @@ FILE *fptr_after;
 
 int main(int argc, char *argv[]) {
 	macro_table_t *mac_tbl = NULL;
-	symbol_table_t *sym_tbl;
+	symbol_table_t *sym_tbl = NULL;
 	mac_tbl = initMacroTable(mac_tbl);
-	sym_tbl = init_symbol_list(sym_tbl);
+	sym_tbl = init_symbol_table(sym_tbl);
 	manage_files(argc ,argv, mac_tbl,sym_tbl);
 
 
@@ -49,7 +49,7 @@ void manage_files(int _argc ,char ** _argv, macro_table_t* macro_tbl, symbol_tab
 	for ( idx = 1; idx < num_files ; ++idx)
 	{
 		fptr_before = initSourceFiles(_argc, _argv, fptr_before, idx);
-		read_preprocessor(macro_tbl);
+		read_preprocessor(macro_tbl,sym_tbl);
 	}
 }
 

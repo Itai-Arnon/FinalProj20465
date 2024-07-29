@@ -9,8 +9,8 @@ add_executable(m14
         scripts/macro.c
         headers/macro.h
         headers/global_vars.h
-        headers/linkedlist.h
-        scripts/linkedlist.c
+        headers/macro_list.h
+        scripts/macro_list.c
         headers/shared.h
         scripts/utils.c
         headers/utils.h
@@ -18,5 +18,5 @@ add_executable(m14
         headers/assembler.h
         scripts/parser.c
         headers/parser.h
-        headers/pass_one.h
-        scripts/pass_one.c)
+        headers/symbols.h
+        scripts/symbols.c)

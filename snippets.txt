@@ -16,3 +16,14 @@ const char *opcode_names[16][3][1] = {
 		{{"rts"}, {"____"}, {"____"}},
 		{{"stop"}, {"____"}, {"____"}}
 };
+
+void initParserStruct()
+{
+	memset(parser.err_buff, 0, sizeof(parser.err_buff));
+
+	parser.oper = ERROR_OPER;
+
+	parser.param.sets[0] = (set*)malloc(sizeof(set));
+	parser.param.sets[1] = (set*)malloc(sizeof(set));
+	parser.param.sets[2] = (set*)malloc(sizeof(set));
+}

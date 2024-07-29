@@ -20,7 +20,7 @@
 #define PATH_BASE "..\\" /*TODO change when moving to linux*/
 #define EXT_BEFORE ".txt" /*TODO change to appropriate extension once in linux*/
 #define EXT_AFTER "out.txt"
-#define SPACES  " \t\v\f"
+
 
 #define MACRO_TABLE_FULL "Macro Table full allocate more place"
 

@@ -2,8 +2,8 @@
 #ifndef MACRO_H
 #define MACRO_H
 
-#include "linkedlist.h"
-
+#include "macro_list.h"
+#include "symbols.h"
 
 
 typedef enum{MACRO_START, MACRO_END , MACRO_EXPAND , LINE_INSIDE , LINE_OUTSIDE, EMPTY_LINE , MACRO_ERROR }MACRO_STATE_T;
@@ -11,7 +11,7 @@ typedef enum{MACRO_START, MACRO_END , MACRO_EXPAND , LINE_INSIDE , LINE_OUTSIDE,
 
 
  /*returns a file ptr based and argv and argc, based on index the last param
-  * require more managament to increment the index*/
+  * require more management to increment the index*/
 FILE* initSourceFiles(int ,char**,FILE*, int );/*returns ptr to current .as  */
 
 /**
@@ -28,7 +28,7 @@ FILE *initDestinationPointer(FILE *fptr, char *filename);
  * manages all the parsing
  * @param receives argc and argv
  */
-void read_preprocessor ( macro_table_t*);
+void read_preprocessor ( macro_table_t*, symbol_table_t *sym_tbl);
 /**
   * @param arr
  *  length of non null terminated strings
@@ -37,33 +37,14 @@ int nonNullTerminatedLength(char* arr);
 /**
  * decides where is the line in pre processor terms
  */
-int typeofline( macro_table_t *tbl, char* line , char* macro_name);
+int typeofline( macro_table_t *tbl, char* line , char* macro_name , symbol_table_t *sym_tbl);
 
 /* checks if macro start, returns 1 or 0
 */
- int checkMacroStart(char* , char *, char *macro_name, int pos);
+ int checkMacroStart(char* , char *, char *macro_name, int pos , symbol_table_t *sym_tbl);
 /* checks if macro ends, returns 1 or 0
 */
 int	checkMacroEnd(char *,char *, int pos);
-
- /*
- * checks if macro line inside , returns 1 or 0
- */
-int checkLineInside(char*,char*,int);
-/*
- * checks if macro line outside , returns 1 or 0
- */
-int checkLineOutside(char*,char*,int);
-/*
- * checks if this is a macro and whether to expand it
- */
-/*int checkMacroExpand(char*,char*,int)*/
-/**
- * reports of macro_error as well as which line
- */
-void macro_error(char* r);
-/*check if name is only alpha or alpha ending numerals*/
-
 
 
  /* checks the line if its a macro and exapnds it*/
@@ -79,7 +60,7 @@ int checkMacroExpand(macro_table_t *tbl, char *line, char *start, char *macro_na
  */
 int checkEOFInBuffer(char* buffer);
 /*check if macro name has opcode directive or  symbol*/
-int macro_name_has_opcode_direct_symbol(char*);
+int macro_name_duplicate(char*, symbol_table_t*);
 
 #endif /*MACRO_H*/
 

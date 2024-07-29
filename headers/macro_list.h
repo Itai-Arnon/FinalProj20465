@@ -1,6 +1,6 @@
 
-#ifndef M14_LINKEDLIST_H
-#define M14_LINKEDLIST_H
+#ifndef M14_MACRO_LIST_H
+#define M14_MACRO_LIST_H
 
 #include "shared.h"
 
@@ -50,4 +50,4 @@ void printMacro(macro_node_t *head );
 void printMacroName(macro_node_t *head);
 /*lock the macro so it would not be accessed accidently*/
 void macro_lock(macro_table_t *tbl, char *macro_name);
-#endif /*M14_LINKEDLIST_H*/
+#endif /*M14_MACRO_LIST_H*/

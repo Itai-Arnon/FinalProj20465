@@ -3,10 +3,12 @@
 #include <stdlib.h>
 #include<ctype.h>
 #include "headers/macro.h"
-#include "headers/linkedlist.h"
+#include "headers/macro_list.h"
 #include "headers/shared.h"
 #include "headers/global_vars.h"
 #include "headers/utils.h"
+#include "headers/symbols.h"
+
 
 
 
@@ -15,14 +17,14 @@ static const char *opcode_names[16] = {"mov", "cmp", "add", "sub", "lea", "clr",
                                 "bne", "red", "prn", "jsr", "rts", "stop"};
 static const char *directives[4] ={".data",".string",".extern",".entry"};
 
-void read_preprocessor( macro_table_t *tbl) {
+void read_preprocessor( macro_table_t *tbl, symbol_table_t *sym_tbl) {
 	char buffer[LINE_LENGTH];
 	char *macro_name = (char *) calloc(10, sizeof(char));
 	int idx = 0;
 	line_count = 0;
 
-	if (tbl == NULL) {
-		report_error(ERR_MACRO_TABLE_GENERAL_ERROR, line_count);
+	if (tbl == NULL || sym_tbl == NULL) {
+		report_error(ERR_MACRO_TABLE_GENERAL_ERROR, line_count);/*TODO: critical*/
 		return;
 	}
 
@@ -45,7 +47,7 @@ void read_preprocessor( macro_table_t *tbl) {
 
 
 
-		switch (typeofline(tbl, buffer, macro_name)) {
+		switch (typeofline(tbl, buffer, macro_name ,sym_tbl)) {
 			case MACRO_START:
 				printf( "REPORT: macro_start %d", line_count);
 
@@ -83,7 +85,7 @@ void read_preprocessor( macro_table_t *tbl) {
 }
 
 
-int typeofline(macro_table_t *tbl, char *line, char *macro_name) {
+int typeofline(macro_table_t *tbl, char *line, char *macro_name , symbol_table_t *sym_tbl) {
 	char *buffer = calloc(LINE_LENGTH, sizeof(char));
 	char *start = calloc(MACRO_END, sizeof(char));
 	int pos = 0;
@@ -98,7 +100,7 @@ int typeofline(macro_table_t *tbl, char *line, char *macro_name) {
 		if (!checkLegalName(start, ALPHANUM_COMBINED)) {
 			report_error(ERR_MACRO_DEFINE, line_count);
 			return (MACRO_ERROR);
-		} else if (checkMacroStart(buffer, start, macro_name, pos))
+		} else if (checkMacroStart(buffer, start, macro_name, pos,sym_tbl))
 			return MACRO_START;
 		else if (checkMacroEnd(buffer, start, pos))
 			return MACRO_END;
@@ -123,7 +125,7 @@ return MACRO_ERROR;
 }*/
 
 
-int checkMacroStart(char *line, char *start, char *macro_name, int pos) {
+int checkMacroStart(char *line, char *start, char *macro_name, int pos , symbol_table_t *sym_tbl) {
 
 	char *str = line;
 	char macro_n[MAX_MACRO_NAME];
@@ -148,6 +150,10 @@ int checkMacroStart(char *line, char *start, char *macro_name, int pos) {
 			printf("REPORT: macro start %d\n", line_count);
 			/*final filtering for isMacroStart*/
 			strcpy(macro_name, macro_n);/*only place in use by typeofline*/
+			if(macro_name_duplicate(macro_name, sym_tbl ) == 1){
+				report_error(ERR_MACRO_NAME_OP_DIRECT_SYMBOL,line_count);
+				return 0;
+			}
 			return 1;/*line with name is correct*/
 		}
 	}
@@ -251,19 +257,33 @@ int checkEOFInBuffer(char *buffer) {
 }
 
 
-int macro_name_has_opcode_direct(char* macro_name){
+int macro_name_duplicate(char* macro_name, symbol_table_t *sym_tbl){
+	symbol_t *head = sym_tbl->symbol_List;
+	char macro_name_c[MAX_SYMBOL_NAME];/*support macro name with colon*/
 	int j = 0 ;
+	int len = 0;
+
 	for ( j = 0; j < 16; ++j) {
-		if(strcmp(macro_name,opcode_names[j])!=0)
+		if(strcmp(macro_name,opcode_names[j]) == 0)
 			return 1;
 	}
 	for ( j = 0; j < 4; ++j) {
-		if(strcmp(macro_name,directives[j])!=0)
+		if(strcmp(macro_name,directives[j]) == 0)
 			return 1;
 	}
-	return 0;
-	/* TODO; later on symbols will come here*/
 
+	/*in case a colon appears in macro_name*/
+
+	while(head!=NULL){
+		len= strlen(macro_name);
+		strncpy(macro_name_c,macro_name,len-1);
+		if( strcmp(macro_name, head->symbol_name ) == 0 || strcmp( macro_name_c,head->symbol_name ) == 0 ) {
+			return 1;
+		}
+		head = head->next_sym;
+		memset(macro_name_c,'\0',sizeof (macro_name_c));
+	}
+	return 0;
 }
 
 

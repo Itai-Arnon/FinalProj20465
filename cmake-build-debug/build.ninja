@@ -84,8 +84,8 @@ build CMakeFiles/m14.dir/scripts/parser.c.obj: C_COMPILER__m14_unscanned_Debug C
   OBJECT_DIR = CMakeFiles\m14.dir
   OBJECT_FILE_DIR = CMakeFiles\m14.dir\scripts
 
-build CMakeFiles/m14.dir/scripts/pass_one.c.obj: C_COMPILER__m14_unscanned_Debug C$:/OPU/20465/m/m14/scripts/pass_one.c || cmake_object_order_depends_target_m14
-  DEP_FILE = CMakeFiles\m14.dir\scripts\pass_one.c.obj.d
+build CMakeFiles/m14.dir/scripts/symbols.c.obj: C_COMPILER__m14_unscanned_Debug C$:/OPU/20465/m/m14/scripts/symbols.c || cmake_object_order_depends_target_m14
+  DEP_FILE = CMakeFiles\m14.dir\scripts\symbols.c.obj.d
   FLAGS = -g -std=gnu90 -fdiagnostics-color=always
   INCLUDES = -IC:/OPU/20465/m/m14/.
   OBJECT_DIR = CMakeFiles\m14.dir
@@ -99,7 +99,7 @@ build CMakeFiles/m14.dir/scripts/pass_one.c.obj: C_COMPILER__m14_unscanned_Debug
 #############################################
 # Link the executable m14.exe
 
-build m14.exe: C_EXECUTABLE_LINKER__m14_Debug CMakeFiles/m14.dir/scripts/macro.c.obj CMakeFiles/m14.dir/scripts/linkedlist.c.obj CMakeFiles/m14.dir/scripts/utils.c.obj CMakeFiles/m14.dir/scripts/assembler.c.obj CMakeFiles/m14.dir/scripts/parser.c.obj CMakeFiles/m14.dir/scripts/pass_one.c.obj
+build m14.exe: C_EXECUTABLE_LINKER__m14_Debug CMakeFiles/m14.dir/scripts/macro.c.obj CMakeFiles/m14.dir/scripts/linkedlist.c.obj CMakeFiles/m14.dir/scripts/utils.c.obj CMakeFiles/m14.dir/scripts/assembler.c.obj CMakeFiles/m14.dir/scripts/parser.c.obj CMakeFiles/m14.dir/scripts/symbols.c.obj
   FLAGS = -g
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\m14.dir

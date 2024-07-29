@@ -18,6 +18,58 @@ typedef struct  {
 	int strings_count;
 }string_separator_t;
 
+typedef
+
+
+sepBase create_sep_arr(char* str)
+{
+	/*type changes between read_set and all other function enum for read_set others*/
+	sepBase sep_res = {0};
+	char* s;
+	int seps_count = 0;
+	/*int comma_count = countCommas(str);
+	printf("%d\n", comma_count);
+*/
+
+	if (*str == '\0')
+	{
+		return sep_res;
+	}
+	do
+	{
+		sep_res.seps[seps_count] = str;
+		seps_count++;
+		s = strchr(str, ',');
+		if (s)
+		{
+			*s = '\0';
+			s++;
+			if (*s == ',')
+			{
+				sep_res.fault_line = 1;
+
+				strcpy(parser.err_buff, ERR_COMMA);
+				printf("%s\n", parser.err_buff);
+				parser.oper = ERROR_OPER;
+				sep_res.seps[seps_count] = '\0';
+				return sep_res;
+			}
+		}
+		str = s;
+	}
+	while (s);
+	sep_res.seps_count = seps_count;
+	if (comma_count + 1 < seps_count)
+	{
+		sep_res.fault_line = 1;
+		strcpy(parser.err_buff, ERR_COMMA);
+		printf("%s\n", parser.err_buff);
+		parser.oper = ERROR_OPER;
+		return sep;
+	}
+
+	return sep_res;
+}
 
 
 /*checks that the tail of a cmd sentence is free of misplaced chars- */
@@ -36,7 +88,7 @@ int extra_char_at_end(const char line[], int loc);
 /**
  * creates an array of separated strings using strpbrk
  */
-string_separator_t string_sep(char*);
+string_separator_t string_sep(char* );
 /*purposed to count non null terminated functions*/
 int nonNullTerminatedLength(char *arr);
 /*uses the ENUM CHECK_LEGAL_NAME*/

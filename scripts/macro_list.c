@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "headers/linkedlist.h"
+#include "headers/macro_list.h"
 #include "headers/shared.h"
 #include "headers/global_vars.h"
 
@@ -89,7 +89,7 @@ int expandMacro(macro_table_t *tbl, char *macro_name) {
 void printMacro(macro_node_t *head) {
 	macro_node_t *temp = head;
 	while (temp != NULL) {
-		printf("%s", temp->macro_line);
+		printf("%s\n", temp->macro_line);
 		fprintf(fptr_after, "%s", temp->macro_line);
 		temp = temp->macro_next;
 	}
@@ -100,7 +100,6 @@ void printMacroName(macro_node_t *head) {
 		printf("%s\n", head->macro_name);
 	} else report_error(ERR_CHK_UNDEFINED_MACRO, line_count);
 }
-
 
 macro_node_t *retEndList(macro_node_t *head) {
 	macro_node_t *temp = head;
@@ -113,7 +112,6 @@ static int retSlot(macro_table_t *tbl, char *macro_name) {
 	int i = 0;
 	int LEN = strlen(macro_name);
 	if (tbl->isEmpty == 1) return 0;
-
 
 	for (i = 0; i < tbl->size; i++) {
 		  if (tbl->slot[i] != NULL) {

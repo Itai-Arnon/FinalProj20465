@@ -1,15 +1,16 @@
 BLAH:  mov s1 rt
+NOTE: .string "abc"
 macr t1  c
-macr t
+macr NOTE:
 mov r3 r5
 mov r99 r33
 endmacr
 t
-macr v
+macr NOTE:
 mov r19 r71
 endmacr
 v
-NOTE: .string "abc"
+
 tt
 
 

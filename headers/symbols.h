@@ -1,10 +1,10 @@
 
 
-#ifndef M14_PASS_ONE_H
-#define M14_PASS_ONE_H
+#ifndef M14_SYMBOLS_H
+#define M14_SYMBOLS_H
 
 #include "shared.h"
-#include "pass_one.h"
+#include "symbols.h"
 
 
 typedef struct symbol_t{
@@ -18,14 +18,19 @@ typedef struct {
 	int size;
 }symbol_table_t;
 
-symbol_table_t * init_symbol_list(symbol_table_t *sym_tbl);
-
-symbol_t *create_symbol_node(char symbol_name[] ,int address);
 
 void collect_symbol_names(symbol_table_t *sym_tbl);
 
 void loadSymbolTable(symbol_table_t *, char [] , int);
 
+void print_symbol_table(symbol_table_t *sym_tbl);
+
+symbol_table_t * init_symbol_table(symbol_table_t *sym_tbl);
+
+symbol_t *create_symbol(char symbol_name[] ,int address);
 
 
-#endif /*M14_PASS_ONE_H*/
+
+
+
+#endif /*M14_SYMBOLS_H*/
