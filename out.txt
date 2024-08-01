@@ -1,30 +1,16 @@
-macr t1  c
-macr NOTE:
-mov r3 r5
-mov r99 r33
-t
-macr NOTE:
-mov r19 r71
-v
-tt
-r90 r80
-r99 r81
-r90 r80
-r99 r81
-r99 r88
-r99 r899
-macr t1  c
-macr NOTE:
-mov r3 r5
-mov r99 r33
-t
-macr NOTE:
-mov r19 r71
-v
-tt
-r90 r80
-r99 r81
-r90 r80
-r99 r81
-r99 r88
-r99 r899
+macr
+mac
+macr
+mac
+macr
+mac
+macr
+mac
+macr
+mac
+
+
+
+
+
+

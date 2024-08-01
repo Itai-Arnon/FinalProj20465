@@ -4,9 +4,9 @@
 
 #include "macro_list.h"
 #include "symbols.h"
+#include "shared.h"
 
 
-typedef enum{MACRO_START, MACRO_END , MACRO_EXPAND , LINE_INSIDE , LINE_OUTSIDE, EMPTY_LINE , MACRO_ERROR }MACRO_STATE_T;
 
 
 

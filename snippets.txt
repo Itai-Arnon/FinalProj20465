@@ -26,4 +26,28 @@ void initParserStruct()
 	parser.param.sets[0] = (set*)malloc(sizeof(set));
 	parser.param.sets[1] = (set*)malloc(sizeof(set));
 	parser.param.sets[2] = (set*)malloc(sizeof(set));
+
+void ret_next_word(char line_text[], int *offset, char line[], char separators[], int separators_amount);
+void jump_spaces_and_tabs(int *offset, char line[]);
+
+void jump_spaces_and_tabs(int *offset, char line[]) {
+	while (line[*offset] == ' ' || line[*offset] == '\t')
+		(*offset)++;
+}
+void ret_next_word(char line_text[], int *offset, char line[], char separators[], int separators_amount){
+	int i = 0;
+
+	while (is_char_separator(line[i+*offset], separators, separators_amount)==0) {
+		line_text[i] = line[i+*offset];
+		i++;
+	}
+
+	line_text[i] = '\0';
+	*offset += i;
+}
+
+void ret_next_word_n_skip(char line_text[], int *offset, char line[], char separators[], int separators_amount){
+	jump_spaces_and_tabs(offset, line);
+	ret_next_word(line_text, offset, line, separators, separators_amount);
+	jump_spaces_and_tabs(offset, line);
 }

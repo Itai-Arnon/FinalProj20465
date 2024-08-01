@@ -1,17 +1,4 @@
-BLAH:  mov s1 rt
-NOTE: .string "abc"
-macr t1  c
-macr NOTE:
-mov r3 r5
-mov r99 r33
-endmacr
-t
-macr NOTE:
-mov r19 r71
-endmacr
-v
-
-tt
-
-
-
+ macr mac
+  mov 3 2
+ macrend
+NOTE:  mov 23 BLOF:

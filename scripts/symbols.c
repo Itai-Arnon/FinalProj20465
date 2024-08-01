@@ -15,6 +15,7 @@ void collect_symbol_names(symbol_table_t *sym_tbl) {
 	char buffer[LINE_LENGTH];
 	char *first_word = (char *) calloc(10, sizeof(char));
 	char *first_word_cut = (char *) calloc(10, sizeof(char));
+	char *str = (char *) calloc(10, sizeof(char));
 	int idx = 0;
 	int len = 0;
 	line_count = 0;
@@ -35,12 +36,13 @@ void collect_symbol_names(symbol_table_t *sym_tbl) {
 		if (buffer[idx] == ';')
 			continue;
 
+
 		if (sscanf(buffer, "%s", first_word) == 1) {
 			len = strlen(first_word);
 			if (first_word[len - 1] == ':') {
 				printf("POSSIBLE LABEL %s\n", first_word);
 
-				strncpy(first_word_cut,first_word,len-1);
+				strncpy(first_word_cut, first_word, len - 1);
 				loadSymbolTable(sym_tbl, first_word_cut, 0);
 
 			}
@@ -51,11 +53,16 @@ void collect_symbol_names(symbol_table_t *sym_tbl) {
 
 void loadSymbolTable(symbol_table_t *sym_tbl, char symbol_name[], int address) {
 	symbol_t *end = sym_tbl->symbol_List;
-	symbol_t *node =  create_symbol(symbol_name, address);/*create symbols takes care of error*/
+	symbol_t *node = create_symbol(symbol_name, address);/*create symbols takes care of error*/
 
 	if (node == NULL) {
 		return;
 	}
+	if (isDuplicateSymbol(sym_tbl, symbol_name) != 0) {
+		report_error(ERR_DUPLICATE_SYMBOL_NAME, line_count);
+		return;
+	}
+
 	if (end != NULL) {
 		while (end->next_sym != NULL) {
 			end = end->next_sym;
@@ -103,15 +110,57 @@ symbol_t *create_symbol(char symbol_name[], int address) {
 		strcpy(node->symbol_name, symbol_name);
 		node->address = 0;
 		node->next_sym = NULL;
-		printf("%s\n",symbol_name);
+		printf("%s\n", symbol_name);
 		return node;
 	}
-		report_error(ERR_FAIL_CREATE_SYMBOL, line_count);
-		return NULL;
+	report_error(ERR_FAIL_CREATE_SYMBOL, line_count);
+	return NULL;
+}
+
+/*-1 symbol list is empty, 0-no duplicants , 1 it is a duplicate*/
+int isDuplicateSymbol(symbol_table_t *sym_tbl, char symbol_name[]) {
+	int LEN = strlen(symbol_name);
+	if (sym_tbl->symbol_List == NULL) return -1; /*empty*/
+	symbol_t *head = sym_tbl->symbol_List;
+
+	while (head != NULL) {
+		if ((strncmp(symbol_name, head->symbol_name, LEN)) == 0) {
+			/*if symbol already exist returns 1*/
+			return 1;
+		}
+		head = head->next_sym;
 	}
+	return 0; /*no duplicate*/
+}
 
 /*pre processor errors are not treated  */
 /*meant to create the symbol table for the purpose of the preprocessor scan */
 
+/*TODO: I used sscanf to remove white space , create util that removes whitspace*/
+void findLabelInSentnce_n_load(symbol_table_t *sym_tbl, char *line, char ch) {
+	char **arr = calloc(5, sizeof(char *));
+	char *s;
+	char no_whites[MAX_SYMBOL_NAME];
+	int idx = 0;
+	int length = 0;
+	if (*line == '\0') return;
+	do {
+		arr[idx] = calloc(MAX_SYMBOL_NAME, sizeof(char));
+		arr[idx] = line;
+		idx++;
+		s = strchr(line, ch);
+		if (s) {
+			*s = '\0';
+			s++;
+		}
+		line = s;
+	} while (s);
+	length = idx;
+	for (idx = 0; idx < length; idx++) {
+		sscanf(arr[idx], "%s", no_whites);
+		loadSymbolTable(sym_tbl, no_whites, 0);
+		printf("%s\n", no_whites);
+	}
+}
 
 

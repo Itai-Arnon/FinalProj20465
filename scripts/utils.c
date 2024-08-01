@@ -2,8 +2,6 @@
 #include <string.h>
 #include "headers/utils.h"
 
-/*check is the rest of the line is filled with unwanted char*/
-/*the first unwanted char disqualifies the sentence*/
 
 int isRestOfLineEmpty(char *line) {
 	int idx = 0;
@@ -36,7 +34,7 @@ int nonNullTerminatedLength(char *arr) {
 
 
 
-int is_char_separator(char c, char separators[], int separators_amount);
+
 
 int int_to_octal(int num) {
 	int answer = 0, y = 1;
@@ -50,30 +48,6 @@ int int_to_octal(int num) {
 	return answer;
 }
 
-void jump_spaces_and_tabs(int *offset, char line[]) {
-	while (line[*offset] == ' ' || line[*offset] == '\t')
-		(*offset)++;
-}
-void ret_next_word(char line_text[], int *offset, char line[], char separators[], int separators_amount){
-	int i = 0;
-
-	while (is_char_separator(line[i+*offset], separators, separators_amount)==0) {
-		line_text[i] = line[i+*offset];
-		i++;
-	}
-
-	line_text[i] = '\0';
-	*offset += i;
-}
-
-
-void ret_next_word_n_skip(char line_text[], int *offset, char line[], char separators[], int separators_amount){
-	jump_spaces_and_tabs(offset, line);
-	ret_next_word(line_text, offset, line, separators, separators_amount);
-	jump_spaces_and_tabs(offset, line);
-}
-
-
 int count_char_until_not_separator(char line[], char c, int *offset, char separators[], int separators_amount){
 	int count = 0;
 	int i = 0;
@@ -86,7 +60,7 @@ int count_char_until_not_separator(char line[], char c, int *offset, char separa
 	return count;
 }
 
-/* seperastor char array checks all given amount by __seperators__amont__ */
+
 int is_char_separator(char c, char separators[], int separators_amount) {
 	int i;
 	for (i = 0; i < separators_amount; i++) {
@@ -107,10 +81,10 @@ int extra_char_at_end(const char line[], int loc){
 	return 1;
 }
 
-string_separator_t string_sep(char *line) {
+sep_whitespace_t string_sep(char *line) {
 	int strings_count = 0;
 	char *s;
-	string_separator_t ssr_t = {0};
+	sep_whitespace_t ssr_t = {0};
 	while (isspace(*line)) line++;
 	if (*line == '\0') {
 		return ssr_t;
@@ -133,6 +107,38 @@ string_separator_t string_sep(char *line) {
 	} while (1);
 	ssr_t.strings_count = strings_count;
 	return ssr_t;
+}
+
+
+
+ sep_commas_t get_comma_seps(char *str)
+{
+	sep_commas_t sep_res = {0};
+	char *s;
+	int seps_count = 0;
+	if (*str == '\0')
+	{
+		return sep_res;
+	}
+	do
+	{
+		sep_res.seps[seps_count] = str;
+		seps_count++;
+		s = strchr(str, ',');
+		if (s)
+		{
+			*s = '\0';
+			s++;
+			if (*s == ',')
+			{
+				sep_res.fault_line = 1;
+				return sep_res;
+			}
+		}
+		str = s;
+	} while (s);
+	sep_res.seps_count = seps_count;
+	return sep_res;
 }
 
 int checkLegalName(char *str, check_legal_name type) {
@@ -164,4 +170,5 @@ int checkLegalName(char *str, check_legal_name type) {
 			break;
 	}
 }
+
 

@@ -17,9 +17,10 @@
 
 
 /*text add in */
-#define PATH_BASE "..\\" /*TODO change when moving to linux*/
+/*#define PATH_BASE "c:\\OPU\\20465\\m\\m14\\"*/          /*TODO change when moving to linux*/
+#define PATH_BASE "..\\"                                           /*ALternate PATH_BASE */
 #define EXT_BEFORE ".txt" /*TODO change to appropriate extension once in linux*/
-#define EXT_AFTER "out.txt"
+#define EXT_AFTER "a.txt"
 
 
 #define MACRO_TABLE_FULL "Macro Table full allocate more place"
@@ -42,7 +43,7 @@
 #define ERR_OP_CODE_RECOGNITION "OP CODE NOT RECOGNIZED"
 #define ERR_OP_CODE_FAILED_STRUCTURE "OP Code sturcture Not Legal"
 #define ERR_DIRECTIVE_RECOGNITION "Directive Not Recognized"
-
+#define ERR_DUPLICATE_SYMBOL_NAME  "DUPLICATE SYMBOL NAME"
 
 
 #define ERR_WRITING_MACRO  "Failed to write Macro"
@@ -54,20 +55,21 @@
 #define ERR_LINE_LENGTH "Line is too long"
 #define ERR_CHK_UNDEFINED_MACRO "Checking Macro that is Undefined"
 
+/*pass1 and pass2*/
+typedef enum {
+	mov, cmp, add, sub, lea, clr, not, inc, dec, jmp,
+	bne, red, prn, jsr, rts, stop
+} op_code;
+
+/*macros*/
+typedef enum{MACRO_START, MACRO_END , MACRO_EXPAND , LINE_INSIDE , LINE_OUTSIDE, EMPTY_LINE , MACRO_ERROR }MACRO_STATE_T;
+/*utils */
+typedef enum{ALPHA,ALPHANUM, ALPHANUM_COMBINED}check_legal_name;
 
 
-
-
-
-
-
-
-/**
- * reports of macro_error as well as which line
+ /* reports of macro_error as well as which line
  */
 void report_error(char* err , int linecount);
-/*check if name is only alpha or alpha ending numerals*/
-/*uses the ENUM CHECK_LEGAL_NAME*/
 
 
 

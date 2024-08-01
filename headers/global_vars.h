@@ -5,18 +5,16 @@
 #define M14_GLOBAL_VARS_H
 
 #include<stdio.h>
+#include "shared.h"
 
 /*extern macro_table_t *tbl;*/
 
 
-typedef enum {
-	mov, cmp, add, sub, lea, clr, not, inc, dec, jmp,
-	bne, red, prn, jsr, rts, stop
-} op_code;
+
 
 typedef struct {
 	char line_err[200];
-	char *label_name;
+	char label_name[MAX_SYMBOL_NAME];
 	enum {
 		OP_CODE,
 		DIRECTIVE,
@@ -57,27 +55,10 @@ typedef struct {
 } parser_t;
 
 
-extern const char *opcode_specs[16][3][1] = {
-		{{"mov"}, {"_123"}, {"0123"}},
-		{{"cmp"}, {"0123"}, {"0123"}},
-		{{"add"}, {"_123"}, {"0123"}},
-		{{"sub"}, {"_123"}, {"0123"}},
-		{{"lea"}, {"_123"}, {"_1__"}},
-		{{"clr"}, {"_123"}, {"____"}},
-		{{"not"}, {"_123"}, {"____"}},
-		{{"inc"}, {"_123"}, {"____"}},
-		{{"dec"}, {"_123"}, {"____"}},
-		{{"jmp"}, {"_12_"}, {"____"}},
-		{{"bne"}, {"_12_"}, {"____"}},
-		{{"red"}, {"_123"}, {"____"}},
-		{{"prn"}, {"0123"}, {"____"}},
-		{{"jsr"}, {"_12_"}, {"____"}},
-		{{"rts"}, {"____"}, {"____"}},
-		{{"stop"}, {"____"}, {"____"}}
-};
 
 
-extern parser_t parser;
+
+extern parser_t parser_s;
 extern FILE *fptr_before;
 extern FILE *fptr_after;
 extern int line_count;

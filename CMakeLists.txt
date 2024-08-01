@@ -19,4 +19,5 @@ add_executable(m14
         scripts/parser.c
         headers/parser.h
         headers/symbols.h
-        scripts/symbols.c)
+        scripts/symbols.c
+)
