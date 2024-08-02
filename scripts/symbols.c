@@ -50,17 +50,17 @@ void collect_symbol_names(symbol_table_t *sym_tbl) {
 		}
 	}
 }
-
-void loadSymbolTable(symbol_table_t *sym_tbl, char symbol_name[], int address) {
+/* todo 0 failure 1:success*/
+int loadSymbolTable(symbol_table_t *sym_tbl, char symbol_name[], int address) {
 	symbol_t *end = sym_tbl->symbol_List;
 	symbol_t *node = create_symbol(symbol_name, address);/*create symbols takes care of error*/
 
 	if (node == NULL) {
-		return;
+		return 0;
 	}
 	if (isDuplicateSymbol(sym_tbl, symbol_name) != 0) {
 		report_error(ERR_DUPLICATE_SYMBOL_NAME, line_count);
-		return;
+		return 0;
 	}
 
 	if (end != NULL) {
@@ -70,7 +70,7 @@ void loadSymbolTable(symbol_table_t *sym_tbl, char symbol_name[], int address) {
 		end->next_sym = node;
 	} else
 		sym_tbl->symbol_List = node;
-	return;
+	return 1;
 }
 
 void print_symbol_table(symbol_table_t *sym_tbl) {
@@ -137,7 +137,7 @@ int isDuplicateSymbol(symbol_table_t *sym_tbl, char symbol_name[]) {
 /*meant to create the symbol table for the purpose of the preprocessor scan */
 
 /*TODO: I used sscanf to remove white space , create util that removes whitspace*/
-void findLabelInSentnce_n_load(symbol_table_t *sym_tbl, char *line, char ch) {
+void findLabel_n_load(symbol_table_t *sym_tbl, char *line, char ch) {
 	char **arr = calloc(5, sizeof(char *));
 	char *s;
 	char no_whites[MAX_SYMBOL_NAME];

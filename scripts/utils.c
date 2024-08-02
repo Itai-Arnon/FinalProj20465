@@ -108,10 +108,18 @@ sep_whitespace_t string_sep(char *line) {
 	ssr_t.strings_count = strings_count;
 	return ssr_t;
 }
+void removeColon(char* symbol_name , char* symbol_name_c){
+	int length = strlen(symbol_name);
+
+	if(symbol_name[length]  == ':'){
+		strncpy(symbol_name_c,symbol_name, length - 1);
+	}
+	else
+		symbol_name_c = symbol_name;
+}
 
 
-
- sep_commas_t get_comma_seps(char *str)
+		sep_commas_t get_comma_seps(char *str)
 {
 	sep_commas_t sep_res = {0};
 	char *s;

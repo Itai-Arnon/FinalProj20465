@@ -2,7 +2,7 @@
 
 #ifndef M14_SHARED_H
 #define M14_SHARED_H
-
+#include <stdlib.h>
 
 
 #define LINE_LENGTH 80
@@ -14,6 +14,7 @@
 #define MACRO_END_WORD "endmacr"
 #define MACRO_END_LEN 7
 #define MACRO_START_LEN 4
+#define MAX_DIRECTIVE_NAME 8
 
 
 /*text add in */
@@ -46,6 +47,7 @@
 #define ERR_DUPLICATE_SYMBOL_NAME  "DUPLICATE SYMBOL NAME"
 
 
+
 #define ERR_WRITING_MACRO  "Failed to write Macro"
 #define EER_MACRO_TABLE_FULL "Error No more space in Macro Table"
 #define EER_MACRO_TABLE_RETREIVE "Error Retreiving From Macro Table"
@@ -54,6 +56,9 @@
 #define ERR_MACRO_NODE_CREATION_FAILED "Macro Node Allocation Failed"
 #define ERR_LINE_LENGTH "Line is too long"
 #define ERR_CHK_UNDEFINED_MACRO "Checking Macro that is Undefined"
+
+
+
 
 /*pass1 and pass2*/
 typedef enum {

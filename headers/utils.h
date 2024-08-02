@@ -56,6 +56,6 @@ int nonNullTerminatedLength(char *arr);
 /*checks chars containing str, alphanum , alpha*/
 int checkLegalName(char *str, check_legal_name type);
 
-
+void removeColon(char* symbol_name , char* symbol_name_c);
 
 #endif /* M14_UTILS_H*/

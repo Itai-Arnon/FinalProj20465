@@ -13,7 +13,6 @@
 
 
 typedef struct {
-	char line_err[200];
 	char label_name[MAX_SYMBOL_NAME];
 	enum {
 		OP_CODE,

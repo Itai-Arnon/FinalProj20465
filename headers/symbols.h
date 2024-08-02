@@ -21,7 +21,7 @@ typedef struct {
 
 void collect_symbol_names(symbol_table_t *sym_tbl);
 
-void loadSymbolTable(symbol_table_t *, char [] , int);
+int loadSymbolTable(symbol_table_t *, char [] , int);
 
 void print_symbol_table(symbol_table_t *sym_tbl);
 
@@ -29,7 +29,7 @@ symbol_table_t * init_symbol_table(symbol_table_t *sym_tbl);
 
 symbol_t *create_symbol(char symbol_name[] ,int address);
 
-void findLabelInSentnce_n_load(symbol_table_t* sym_tbl, char* line , char ch);
+void findLabel_n_load(symbol_table_t* sym_tbl, char* line , char ch);
 
 /*-1 symbol list is empty, 0-no duplicants , 1 it is a duplicate*/
 int isDuplicateSymbol(symbol_table_t *sym_tbl, char symbol_name[]);

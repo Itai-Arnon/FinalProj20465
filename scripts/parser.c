@@ -10,6 +10,8 @@
 #include "headers/symbols.h"
 #include "headers/parser.h"
 
+static const char *directives[4] = {".data", ".string", ".extern", ".entry"};
+
 char *opcode_specs[16][3][1] = {
 		{{"mov"},  {"_123"}, {"0123"}},
 		{{"cmp"},  {"0123"}, {"0123"}},
@@ -40,6 +42,7 @@ void initParser_T() {
 void parse(symbol_table_t *sym_tbl) {
 	char buffer[LINE_LENGTH];
 	char *_line = calloc(LINE_LENGTH, sizeof(char));
+	int *pos = NULL;
 	line_count = 0;
 
 
@@ -51,7 +54,7 @@ void parse(symbol_table_t *sym_tbl) {
 		line_count++;
 		strcpy(_line, buffer);
 		printf("shit");
-		classify_line(_line, sym_tbl);
+		classify_line(_line, sym_tbl , pos);
 
 
 	}
@@ -61,40 +64,69 @@ void parse(symbol_table_t *sym_tbl) {
 	/*function that classify which operation is involved*/
 }
 
-int classify_line(char *buffer, symbol_table_t *sym_tbl) {
+void classify_line(char *buffer, symbol_table_t *sym_tbl, int *pos) {
 	symbol_t *head = sym_tbl->symbol_List;
 	char cmd[MAX_SYMBOL_NAME];/*support macro name with colon*/
+	char cmd_no_colon[MAX_SYMBOL_NAME];
 
 	int j = 0;
 	int len = 0;
-	int pos = 0;
-
+	*pos = 0;
+/*todo check premise of having all/some labels in label LL*/
 	if (sscanf(buffer, "%s%n:", cmd, pos) == 1) {
 		printf("cmd %s, pos %d", cmd, pos);
-		while (head != NULL) {
-				if (strcmp(cmd, head->symbol_name) == 0) {
-				strcpy(parser_s.label_name, cmd);
-				break;
+		for (j = 0; j < 16; ++j) {
+			if (strcmp(cmd, opcode_specs[j][0][0]) == 0) {
+				parser_s.line_type = OP_CODE;
+				return;
 			}
-			head = head->next_sym;
 		}
-		buffer += pos;
-		/*case no label was found*/
-		if(head == NULL)
-
-		return 0;
+		for (j = 0; j < 4; ++j) {
+			if (strcmp(cmd, directives[j]) == 0)
+				parser_s.line_type = DIRECTIVE;
+				return;
+		}
 	}
+	while (head != NULL) {
+		removeColon(cmd, cmd_no_colon);
+		if (strcmp(cmd, head->symbol_name) == 0 || strcmp(cmd_no_colon, head->symbol_name) == 0) {
+			strcpy(parser_s.label_name, cmd);
+			if (loadSymbolTable(sym_tbl,cmd,0) == 1){
+				printf("Symbol Added\n");
+			}
+			break;
+		}
+		head = head->next_sym;
+	}
+	/*todo possible: check if symbol exists - or defer later to entire analsys*/
+
+	/*case  label was found head is not null continue check but advance position*/
+	if (head != NULL) {
+		memset(cmd, '\0', sizeof(cmd));
+		buffer += *pos;
+	}
+	else
+		parser_s.line_type = ERR;
+
+	/*label was found continue scan*/
+	if (sscanf(buffer, "%s%n\n", cmd, pos) == 1) {
+		for (j = 0; j < 16; ++j) {
+			if (strcmp(cmd, opcode_specs[j][0][0]) == 0) {
+				parser_s.line_type = OP_CODE;
+				buffer+=*pos;
+				return;
+			}
+		}
+		for (j = 0; j < 4; ++j) {
+			if (strcmp(cmd, directives[j]) == 0)
+				parser_s.line_type = DIRECTIVE;
+				buffer+=*pos;
+			    return;
+		}
+
+	}
+	parser_s.line_type = ERR;
 }
-/*
-
-	for ( j = 0; j < 16; ++j) {
-		if(strcmp(macro_name,opcode_names[j]) == 0)
-			return 1;
-	}
-	for ( j = 0; j < 4; ++j) {
-		if(strcmp(macro_name,directives[j]) == 0)
-			return 1;
-	}*/
 
 /*in case a colon appears in macro_name*/
 
