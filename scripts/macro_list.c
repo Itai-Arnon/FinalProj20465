@@ -4,6 +4,7 @@
 #include "headers/macro_list.h"
 #include "headers/shared.h"
 #include "headers/global_vars.h"
+#include "headers/error.h"
 
 
 macro_table_t *initMacroTable(macro_table_t *tbl) {
@@ -43,18 +44,18 @@ void loadMacroTable(macro_table_t *tbl, char *macro_name, char *line) {
 	int slot_idx = retSlot(tbl, macro_name);
 
 	if (tbl->amount == tbl->size) {
-		report_error(MACRO_TABLE_FULL, line_count);
+		report_error(MACRO_TABLE_FULL, line_count, NON_CRIT);
 		return;
 	}
 
 	if (tbl->slot[slot_idx] != NULL && tbl->slot[slot_idx]->macro_lock) {
-		report_error(ERR_MACRO_NAME_DUP, line_count);
+		report_error(ERR_MACRO_NAME_DUP, line_count, CRIT);
 		return;
 	}
 
 	/*new Macro Node  */
 	if (!(temp = constructMacroNode(macro_name, line, NULL))) {
-		report_error(ERR_MACRO_NODE_CREATION_FAILED, line_count);
+		report_error(ERR_MACRO_NODE_CREATION_FAILED, line_count , CRIT);
 		return; /*critical error*/
 	}
 
@@ -98,7 +99,7 @@ void printMacro(macro_node_t *head) {
 void printMacroName(macro_node_t *head) {
 	if (head != NULL) {
 		printf("%s\n", head->macro_name);
-	} else report_error(ERR_CHK_UNDEFINED_MACRO, line_count);
+	} else report_error(ERR_MACRO_NOT_FOUND, line_count , NON_CRIT);
 }
 
 macro_node_t *retEndList(macro_node_t *head) {

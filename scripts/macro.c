@@ -8,6 +8,7 @@
 #include "headers/global_vars.h"
 #include "headers/utils.h"
 #include "headers/symbols.h"
+#include "headers/error.h"
 
 #define   FILE_PATH()   printf(__FILE__ );
 
@@ -20,31 +21,18 @@ static const char *directives[4] = {".data", ".string", ".extern", ".entry"};
 void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 	char *buffer = malloc(sizeof(char) * LINE_LENGTH);
 	char *macro_name = (char *) calloc(10, sizeof(char));
-	FILE *fptr_3 = fopen("c:\\opu\\20465\\m\\m14\\a.txt", "r");
+	int idx = 0;
+	int *pos = calloc(1, sizeof(int));
 	memset(buffer, '\0', sizeof(buffer));
 
-	int idx = 0;
 	line_count = 0;
 
 	if (tbl == NULL || sym_tbl == NULL) {
-		report_error(ERR_MACRO_TABLE_GENERAL_ERROR, line_count);/*TODO: critical*/
+		report_error(ERR_MACRO_TABLE_GENERAL_ERROR, line_count, CRIT);
 		return;
 	}
-/*
-	fscanf(fptr_before,"%s\n", buffer);
-	printf("%s\n",buffer);
-	fprintf(fptr_after,"%s\n","choompee");
-	printf("%s\n","choompee");*/
-
-	if (fgets(buffer, LINE_LENGTH, fptr_before) == NULL)
-		if (ferror(fptr_before)) {
-			printf("Error fgets");
-		}
-	fscanf(fptr_3, "%s\n", buffer);
-	printf("%s\n", buffer);
 
 
-	printf("value of fgets %d\n", fgets(buffer, LINE_LENGTH, fptr_before));
 	while (fgets(buffer, LINE_LENGTH, fptr_before) != NULL) {
 		line_count++;
 		idx = 0;
@@ -53,23 +41,26 @@ void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 			continue;
 
 		//removes whitespace
-		while (isspace(buffer[idx]) && idx < LINE_LENGTH) ++idx;
-		if (buffer[idx] == ';')
+		removeFrontalWhitespace(buffer, pos);
+		buffer += *pos; /*advances the pointer to end of whitespace*/
+		if (*buffer == ';' || *buffer == '\0') { /*check for comment ;*/
 			continue;
-		//check if \n in a middle of a sentence
+		}
+		/*check if sentence is too long */
+		/*find \n in mid sentence means lenght illegal*/
 		if (findSeperator(buffer, "\n", 1) == 1) {
-			report_error(ERR_LINE_LENGTH, line_count);
+			report_error(ERR_LINE_LENGTH, line_count, NON_CRIT);
 			continue;
 		}
 
 		switch (typeofline(tbl, buffer, macro_name, sym_tbl)) {
 			case MACRO_START:
-				printf("REPORT: macro_start %d", line_count);
+				printf("REPORT: macro_start  at line %d\n", line_count);
 
 				if (tbl->isMacroOpen == 0 && tbl->amount < tbl->size)
 					tbl->isMacroOpen = 1;
 				else
-					report_error(ERR_MACRO_PERMISSION, line_count);
+					report_error(ERR_MACRO_PERMISSION, line_count, NON_CRIT);
 				break;
 			case MACRO_END:
 				printf("REPORT: macro_end %d\n", line_count);
@@ -98,27 +89,28 @@ void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 	}
 }
 
-
+/*line- fgets scan , macro_name-in charge of tranfering macro name, sym_tbl - symbols are scanned for */
 int typeofline(macro_table_t *tbl, char *line, char *macro_name, symbol_table_t *sym_tbl) {
 	char *buffer = calloc(LINE_LENGTH, sizeof(char));
 	char *start = calloc(MACRO_END, sizeof(char));
 	int pos = 0;
-	int i = 0;
+	int symbol_flag;
 
 	if (*line == '\0') return EMPTY_LINE;
 	strcpy(buffer, line);
 	/*removes white space from the front*/
 
 	if (sscanf(buffer, "%s%n", start, &pos) == 1) {
-
-		if (!checkLegalName(start, ALPHANUM_COMBINED)) {
-			report_error(ERR_MACRO_DEFINE, line_count);
+		symbol_flag = isDuplicateSymbol(sym_tbl, start);
+		if (!symbol_flag && !checkLegalName(start, ALPHANUM_COMBINED)) {
+			report_error(ERR_START_MACRO_DEF, line_count, CRIT);
 			return (MACRO_ERROR);
-		} else if (checkMacroStart(buffer, start, macro_name, pos, sym_tbl))
+		} else if (checkMacroStart(buffer, start, macro_name, pos, sym_tbl) && !symbol_flag)
 			return MACRO_START;
-		else if (checkMacroEnd(buffer, start, pos))
+		else if (checkMacroEnd(buffer, start, pos)&& !symbol_flag)
 			return MACRO_END;
-		else if (checkMacroExpand(tbl, line, start, macro_name, pos))
+
+		else if (checkMacroExpand(tbl, line, start, macro_name, pos) && !symbol_flag)
 			return MACRO_EXPAND;
 		else if (tbl->isMacroOpen == 1)
 			return LINE_INSIDE;
@@ -127,16 +119,6 @@ int typeofline(macro_table_t *tbl, char *line, char *macro_name, symbol_table_t 
 	}
 }
 
-/*else if (tbl->isMacroOpen == 0)
-	return LINE_OUTSIDE;
-else {
-	report_error(ERR_MACRO_DEFINE, line_count);
-	return MACRO_ERROR;
-}		return MACRO_EXPAND;
-}
-return MACRO_ERROR;
-}
-}*/
 
 
 int checkMacroStart(char *line, char *start, char *macro_name, int pos, symbol_table_t *sym_tbl) {
@@ -145,27 +127,28 @@ int checkMacroStart(char *line, char *start, char *macro_name, int pos, symbol_t
 	char macro_n[MAX_MACRO_NAME];
 	memset(macro_n, '\0', sizeof(macro_n));
 
+
 	if (strncmp(MACRO_START_WORD, start, MACRO_START_LEN) == 0) {
 		str = str + pos + 1;
+
 		pos = 0;
 		if (sscanf(str, "%s%n", macro_n, &pos) == 1) {/*check for actual macro name*/
 			/*change the position*/
 			str = str + pos + 1;
 
 			if (strlen(macro_n) >= MAX_MACRO_NAME) {
-				report_error(ERR_MACRO_NAME_LONG, line_count);/*critical error*/
+				report_error(ERR_MACRO_NAME_LONG, line_count, CRIT);/*critical error*/
 				return 0;
 			}
 			/*macro named identified check if contiuation of line is empty*/
 			if (!(isRestOfLineEmpty(str))) {
-				report_error(ERR_MACRO_DEFINE, line_count);  /* critical wait for macro check*/
+				report_error(ERR_START_MACRO_DEF, line_count, CRIT);  /* critical wait for macro check*/
 				return 0;
 			}
-			printf("REPORT: macro start %d\n", line_count);
-			/*final filtering for isMacroStart*/
+			/*final filtering for isMacroStart, test for duplicates*/
 			strcpy(macro_name, macro_n);/*only place in use by typeofline*/
 			if (macro_name_duplicate(macro_name, sym_tbl) == 1) {
-				report_error(ERR_MACRO_NAME_OP_DIRECT_SYMBOL, line_count);
+				report_error(ERR_MACRO_NAME_OP_DIRECT_SYMBOL, line_count, CRIT);
 				return 0;
 			}
 			return 1;/*line with name is correct*/
@@ -180,7 +163,7 @@ int checkMacroEnd(char *line, char *start, int pos) {
 		str = str + pos;
 
 		if (!(isRestOfLineEmpty(str))) {
-			report_error(ERR_MACRO_END, line_count);/*critical*/
+			report_error(ERR_MACRO_END, line_count, CRIT);
 			return 0;
 		} else {
 			return 1;
@@ -202,7 +185,7 @@ int checkMacroExpand(macro_table_t *tbl, char *line, char *start, char *macro_na
 			return 1;
 		else {
 			/*macro name is the single word allowed on macro expand*/
-			report_error(ERR_MACRO_EXPAND, line_count);
+			report_error(ERR_MACRO_EXPAND, line_count, CRIT);
 			return 0;
 		}
 	}
@@ -210,16 +193,7 @@ int checkMacroExpand(macro_table_t *tbl, char *line, char *start, char *macro_na
 }
 
 
-void report_error(char *err, int line_count) {
-
-	printf("%s at line %lu\n", err, line_count);
-
-}
-/*this function check if the non alpha numeric chars in a given string*/
-/*ALPHA - only alphabets allowed  ALPHANUM alphabets and a number at the end*/
-
-
-
+/*todo add more error checking use ifeof*/
 int checkEOFInBuffer(char *buffer) {
 	char *localPtr = buffer;
 

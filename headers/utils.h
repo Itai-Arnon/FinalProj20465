@@ -58,4 +58,6 @@ int checkLegalName(char *str, check_legal_name type);
 
 void removeColon(char* symbol_name , char* symbol_name_c);
 
+void removeFrontalWhitespace(char*buffer , int*pos);
+
 #endif /* M14_UTILS_H*/

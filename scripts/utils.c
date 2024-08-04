@@ -1,6 +1,7 @@
 #include <ctype.h>
 #include <string.h>
 #include "headers/utils.h"
+#include "headers/error.h"
 
 
 int isRestOfLineEmpty(char *line) {
@@ -177,6 +178,12 @@ int checkLegalName(char *str, check_legal_name type) {
 		default:
 			break;
 	}
+}
+
+void removeFrontalWhitespace(char* buffer , int*pos){
+	*pos = 0;
+	while(isspace(buffer[*pos] ))
+		++(*pos);
 }
 
 

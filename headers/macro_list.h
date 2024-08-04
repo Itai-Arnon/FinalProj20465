@@ -14,7 +14,7 @@ typedef struct macro_node_t{
 	struct macro_node_t *macro_next;
 }macro_node_t;
 
-typedef struct {
+typedef struct {/*change to dynmaic allocation*/
 	int isEmpty;
 	int isMacroOpen;
 	int amount;

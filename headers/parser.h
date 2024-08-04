@@ -9,5 +9,5 @@ void parse(symbol_table_t*);
 
 void initParser_T();
 
-void classify_line (char* buffer, symbol_table_t *sym_tbl, int *pos);
+void classify_line (symbol_table_t *sym_tbl, char* buffer,  int *pos);
 #endif /*M14_PARSER_H*/

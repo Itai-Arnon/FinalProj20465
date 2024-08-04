@@ -1,4 +1,0 @@
- macr mac
-  mov 3 2
- macrend
-NOTE:  mov 23 BLOF:

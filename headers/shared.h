@@ -28,34 +28,41 @@
 
 /*writing Macro Error and File Errors*/
 
+
+
+#define ERR_LINE_LENGTH "Line is too long"
 #define ERR_FILE_BEFORE ".as File Failed To Open"
 #define ERR_FILE_AFTER ".am File Failed To Create"
-#define ERR_MACRO_NAME_LONG "Macro Name Too Long"
-#define ERR_NO_FILES "No Files Inserted"
-#define ERR_MACRO_DEFINE "Error In Macro Start Definition"
-#define ERR_MACRO_END "Error In Macro End Definition"
-#define ERR_MACRO_EXPAND "Error In Macro Expand Definition"
-#define ERR_MACRO_NAME_DUP "Error Duplicate Macro Name"
 
-/*symbol op code  directive related errors*/
+/* front: op code  directive related errors*/
 #define ERR_MACRO_NAME_OP_DIRECT_SYMBOL "Macro name is a opcode, a directive or a symbol"
-#define ERR_FAIL_CREATE_SYMBOL_TBL "Symbol Table Creation Failed"
-#define ERR_FAIL_CREATE_SYMBOL "Symbol  Creating Symbol Node Failed"
 #define ERR_OP_CODE_RECOGNITION "OP CODE NOT RECOGNIZED"
 #define ERR_OP_CODE_FAILED_STRUCTURE "OP Code sturcture Not Legal"
 #define ERR_DIRECTIVE_RECOGNITION "Directive Not Recognized"
+
+/* symbol table related , symbol.c */
 #define ERR_DUPLICATE_SYMBOL_NAME  "DUPLICATE SYMBOL NAME"
+#define ERR_FAIL_CREATE_SYMBOL_TBL "Symbol Table Creation Failed"
+#define ERR_FAIL_CREATE_SYMBOL "Symbol  Creating Symbol Node Failed"
+#define ERR_SYMBOL_TABLE_EMPTY "Symbol Table Empty" /*non critial*/
 
-
-
+/*macro related*/
 #define ERR_WRITING_MACRO  "Failed to write Macro"
 #define EER_MACRO_TABLE_FULL "Error No more space in Macro Table"
 #define EER_MACRO_TABLE_RETREIVE "Error Retreiving From Macro Table"
 #define ERR_MACRO_TABLE_GENERAL_ERROR "General Macro Table Error"
 #define ERR_MACRO_PERMISSION "Error  Macro Permission Mistake"
 #define ERR_MACRO_NODE_CREATION_FAILED "Macro Node Allocation Failed"
-#define ERR_LINE_LENGTH "Line is too long"
-#define ERR_CHK_UNDEFINED_MACRO "Checking Macro that is Undefined"
+#define ERR_MACRO_NAME_LONG "Macro Name Too Long"
+#define ERR_NO_FILES "No Files Inserted"
+#define ERR_START_MACRO_DEF "Error In Macro Start Definition"
+#define ERR_MACRO_END "Error In Macro End Definition"
+#define ERR_MACRO_EXPAND "Error In Macro Expand Definition"
+#define ERR_MACRO_NAME_DUP "Error Duplicate Macro Name"
+#define ERR_MACRO_NOT_FOUND "Cannot find Macro"
+
+
+
 
 
 
@@ -71,11 +78,9 @@ typedef enum{MACRO_START, MACRO_END , MACRO_EXPAND , LINE_INSIDE , LINE_OUTSIDE,
 /*utils */
 typedef enum{ALPHA,ALPHANUM, ALPHANUM_COMBINED}check_legal_name;
 
-
+typedef  enum{NO, YES }isUpdate;
  /* reports of macro_error as well as which line
  */
-void report_error(char* err , int linecount);
-
-
+typedef enum{CRIT,NON_CRIT}err_type;
 
 #endif

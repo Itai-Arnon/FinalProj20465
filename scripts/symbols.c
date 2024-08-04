@@ -8,20 +8,23 @@
 #include "headers/shared.h"
 #include "headers/global_vars.h"
 #include "headers/utils.h"
+#include "headers/error.h"
 
 
 void collect_symbol_names(symbol_table_t *sym_tbl) {
 
-	char buffer[LINE_LENGTH];
+	char *buffer = malloc(sizeof(char) * LINE_LENGTH);
 	char *first_word = (char *) calloc(10, sizeof(char));
 	char *first_word_cut = (char *) calloc(10, sizeof(char));
 	char *str = (char *) calloc(10, sizeof(char));
+	int *pos = calloc(1, sizeof(int));
 	int idx = 0;
 	int len = 0;
 	line_count = 0;
 
+
 	if (sym_tbl == NULL) {
-		report_error(ERR_FAIL_CREATE_SYMBOL, line_count);
+		report_error(ERR_FAIL_CREATE_SYMBOL_TBL, line_count, NON_CRIT);
 		return;
 	}
 	while (fgets(buffer, LINE_LENGTH, fptr_before) != NULL) {
@@ -32,8 +35,9 @@ void collect_symbol_names(symbol_table_t *sym_tbl) {
 			continue;
 
 		/*removes whitespace*/
-		while (isspace(buffer[idx]) && idx < LINE_LENGTH) ++idx;
-		if (buffer[idx] == ';')
+		removeFrontalWhitespace(buffer, pos);
+		buffer += *pos; /*advances the pointer to end of whitespace*/
+		if (*buffer == ';' || *buffer == '\0')
 			continue;
 
 
@@ -50,19 +54,22 @@ void collect_symbol_names(symbol_table_t *sym_tbl) {
 		}
 	}
 }
+
 /* todo 0 failure 1:success*/
 int loadSymbolTable(symbol_table_t *sym_tbl, char symbol_name[], int address) {
+	int res = 0;
 	symbol_t *end = sym_tbl->symbol_List;
 	symbol_t *node = create_symbol(symbol_name, address);/*create symbols takes care of error*/
 
 	if (node == NULL) {
 		return 0;
 	}
-	if (isDuplicateSymbol(sym_tbl, symbol_name) != 0) {
-		report_error(ERR_DUPLICATE_SYMBOL_NAME, line_count);
+
+	if (isDuplicateSymbol(sym_tbl, symbol_name)) {
+		report_error(ERR_DUPLICATE_SYMBOL_NAME, line_count,
+		             NON_CRIT);/*todo divide into duplicate and needed duplicate*/
 		return 0;
 	}
-
 	if (end != NULL) {
 		while (end->next_sym != NULL) {
 			end = end->next_sym;
@@ -70,6 +77,7 @@ int loadSymbolTable(symbol_table_t *sym_tbl, char symbol_name[], int address) {
 		end->next_sym = node;
 	} else
 		sym_tbl->symbol_List = node;
+
 	return 1;
 }
 
@@ -100,31 +108,35 @@ symbol_table_t *init_symbol_table(symbol_table_t *sym_tbl) {
 		sym_tbl->symbol_List = NULL;
 		return sym_tbl;
 	} else
-		report_error(ERR_FAIL_CREATE_SYMBOL_TBL, line_count);
+		report_error(ERR_FAIL_CREATE_SYMBOL_TBL, line_count, CRIT);
 	return NULL;
 }
 
 symbol_t *create_symbol(char symbol_name[], int address) {
 	symbol_t *node = NULL;
+	int LEN = strlen(symbol_name);
+	if(symbol_name[LEN-1 == ':'])
+		LEN-=1;
+
 	if (node = malloc(sizeof(symbol_t))) {
-		strcpy(node->symbol_name, symbol_name);
+		strncpy(node->symbol_name, symbol_name,LEN);
 		node->address = 0;
 		node->next_sym = NULL;
 		printf("%s\n", symbol_name);
 		return node;
 	}
-	report_error(ERR_FAIL_CREATE_SYMBOL, line_count);
+	report_error(ERR_FAIL_CREATE_SYMBOL, line_count, CRIT);
 	return NULL;
 }
 
 /*-1 symbol list is empty, 0-no duplicants , 1 it is a duplicate*/
 int isDuplicateSymbol(symbol_table_t *sym_tbl, char symbol_name[]) {
-	int LEN = strlen(symbol_name);
-	if (sym_tbl->symbol_List == NULL) return -1; /*empty*/
 	symbol_t *head = sym_tbl->symbol_List;
+	int LEN = strlen(symbol_name);
+
 
 	while (head != NULL) {
-		if ((strncmp(symbol_name, head->symbol_name, LEN)) == 0) {
+		if (strncmp(symbol_name, head->symbol_name, LEN) == 0 || strncmp(symbol_name, head->symbol_name, LEN -1) == 0) {
 			/*if symbol already exist returns 1*/
 			return 1;
 		}
@@ -133,27 +145,51 @@ int isDuplicateSymbol(symbol_table_t *sym_tbl, char symbol_name[]) {
 	return 0; /*no duplicate*/
 }
 
+int checkForAddress(symbol_table_t *sym_tbl, char *symbol_name, int address, isUpdate n) {
+	symbol_t *head = sym_tbl->symbol_List;
+
+	while (head != NULL) {
+		if ((strcmp(symbol_name, head->symbol_name)) == 0) {
+			/*if symbol already exist returns 1*/
+			if (head->address != 0)
+				if (n == 0)
+					return 1;
+			if (n == 1) {
+				head->address = address;
+				return 1;
+			}
+		}
+		head = head->next_sym;
+	}
+	return 0; /*no duplicate*/
+}
+
+
+
+
+
+
 /*pre processor errors are not treated  */
 /*meant to create the symbol table for the purpose of the preprocessor scan */
 
 /*TODO: I used sscanf to remove white space , create util that removes whitspace*/
-void findLabel_n_load(symbol_table_t *sym_tbl, char *line, char ch) {
+void findLabel_n_load(symbol_table_t *sym_tbl, char *buffer, char ch) {
 	char **arr = calloc(5, sizeof(char *));
 	char *s;
 	char no_whites[MAX_SYMBOL_NAME];
 	int idx = 0;
 	int length = 0;
-	if (*line == '\0') return;
+	if (*buffer == '\0') return;
 	do {
 		arr[idx] = calloc(MAX_SYMBOL_NAME, sizeof(char));
-		arr[idx] = line;
+		arr[idx] = buffer;
 		idx++;
-		s = strchr(line, ch);
+		s = strchr(buffer, ch);
 		if (s) {
 			*s = '\0';
 			s++;
 		}
-		line = s;
+		buffer = s;
 	} while (s);
 	length = idx;
 	for (idx = 0; idx < length; idx++) {

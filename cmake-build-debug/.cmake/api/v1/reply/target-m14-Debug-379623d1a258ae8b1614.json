@@ -71,7 +71,8 @@
 				6,
 				8,
 				10,
-				13
+				13,
+				14
 			]
 		}
 	],
@@ -113,7 +114,8 @@
 				6,
 				8,
 				10,
-				13
+				13,
+				14
 			]
 		},
 		{
@@ -127,7 +129,8 @@
 				7,
 				9,
 				11,
-				12
+				12,
+				15
 			]
 		}
 	],
@@ -208,6 +211,17 @@
 			"compileGroupIndex" : 0,
 			"path" : "scripts/symbols.c",
 			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "scripts/error.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "headers/error.h",
+			"sourceGroupIndex" : 1
 		}
 	],
 	"type" : "EXECUTABLE"

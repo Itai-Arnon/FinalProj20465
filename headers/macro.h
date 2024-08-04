@@ -50,7 +50,7 @@ int	checkMacroEnd(char *,char *, int pos);
  /* checks the line if its a macro and exapnds it*/
 int checkMacroExpand(macro_table_t *tbl, char *line, char *start, char *macro_name, int pos);
 
-#include <stdio.h>
+
 
 /**
  * Checks if the given buffer contains a specific EOF marker.

@@ -20,4 +20,6 @@ add_executable(m14
         headers/parser.h
         headers/symbols.h
         scripts/symbols.c
+        scripts/error.c
+        headers/error.h
 )

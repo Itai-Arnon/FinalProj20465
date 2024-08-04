@@ -23,6 +23,8 @@ void collect_symbol_names(symbol_table_t *sym_tbl);
 
 int loadSymbolTable(symbol_table_t *, char [] , int);
 
+int checkForAddress(symbol_table_t *sym_tbl, char* symbol_name , int address , isUpdate n);
+
 void print_symbol_table(symbol_table_t *sym_tbl);
 
 symbol_table_t * init_symbol_table(symbol_table_t *sym_tbl);
