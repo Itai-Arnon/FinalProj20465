@@ -1,4 +1,3 @@
-
 macr demo
 mov r2 , r3
 endmacr

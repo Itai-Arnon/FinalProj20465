@@ -107,7 +107,7 @@ int typeofline(macro_table_t *tbl, char *line, char *macro_name, symbol_table_t 
 			return (MACRO_ERROR);
 		} else if (checkMacroStart(buffer, start, macro_name, pos, sym_tbl) && !symbol_flag)
 			return MACRO_START;
-		else if (checkMacroEnd(buffer, start, pos)&& !symbol_flag)
+		else if (checkMacroEnd(buffer, start, pos) && !symbol_flag)
 			return MACRO_END;
 
 		else if (checkMacroExpand(tbl, line, start, macro_name, pos) && !symbol_flag)
@@ -118,7 +118,6 @@ int typeofline(macro_table_t *tbl, char *line, char *macro_name, symbol_table_t 
 			return LINE_OUTSIDE;
 	}
 }
-
 
 
 int checkMacroStart(char *line, char *start, char *macro_name, int pos, symbol_table_t *sym_tbl) {
@@ -208,9 +207,9 @@ int checkEOFInBuffer(char *buffer) {
 
 int macro_name_duplicate(char *macro_name, symbol_table_t *sym_tbl) {
 	symbol_t *head = sym_tbl->symbol_List;
-	char macro_name_c[MAX_SYMBOL_NAME];/*support macro name with colon*/
 	int j = 0;
-	int len = 0;
+	int isSymbol = 0;
+
 
 	for (j = 0; j < 16; ++j) {
 		if (strcmp(macro_name, opcode_names[j]) == 0)
@@ -221,17 +220,11 @@ int macro_name_duplicate(char *macro_name, symbol_table_t *sym_tbl) {
 			return 1;
 	}
 
-	/*in case a colon appears in macro_name*/
+	/*isDuplicateSymbol is 1 if true 0 otherwise*/
 
-	while (head != NULL) {
-		len = strlen(macro_name);
-		strncpy(macro_name_c, macro_name, len - 1);
-		if (strcmp(macro_name, head->symbol_name) == 0 || strcmp(macro_name_c, head->symbol_name) == 0) {
-			return 1;
-		}
-		head = head->next_sym;
-		memset(macro_name_c, '\0', sizeof(macro_name_c));
-	}
+	isSymbol = isDuplicateSymbol(sym_tbl, macro_name);
+	if (isSymbol == 1) return 1;
+
 	return 0;
 }
 

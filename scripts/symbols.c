@@ -43,10 +43,11 @@ void collect_symbol_names(symbol_table_t *sym_tbl) {
 
 		if (sscanf(buffer, "%s", first_word) == 1) {
 			len = strlen(first_word);
-			if (first_word[len - 1] == ':') {
+			printf("%c\n",first_word[len-1]);
+			if (first_word[len-1] == ':') {
+				len -= 1;
 				printf("POSSIBLE LABEL %s\n", first_word);
-
-				strncpy(first_word_cut, first_word, len - 1);
+				strncpy(first_word_cut, first_word, len);
 				loadSymbolTable(sym_tbl, first_word_cut, 0);
 
 			}
@@ -70,6 +71,7 @@ int loadSymbolTable(symbol_table_t *sym_tbl, char symbol_name[], int address) {
 		             NON_CRIT);/*todo divide into duplicate and needed duplicate*/
 		return 0;
 	}
+	sym_tbl->size++;
 	if (end != NULL) {
 		while (end->next_sym != NULL) {
 			end = end->next_sym;
@@ -115,11 +117,11 @@ symbol_table_t *init_symbol_table(symbol_table_t *sym_tbl) {
 symbol_t *create_symbol(char symbol_name[], int address) {
 	symbol_t *node = NULL;
 	int LEN = strlen(symbol_name);
-	if(symbol_name[LEN-1 == ':'])
-		LEN-=1;
+	if (symbol_name[LEN-1] == ':')
+		LEN -= 1;
 
 	if (node = malloc(sizeof(symbol_t))) {
-		strncpy(node->symbol_name, symbol_name,LEN);
+		strncpy(node->symbol_name, symbol_name, LEN);
 		node->address = 0;
 		node->next_sym = NULL;
 		printf("%s\n", symbol_name);
@@ -134,9 +136,11 @@ int isDuplicateSymbol(symbol_table_t *sym_tbl, char symbol_name[]) {
 	symbol_t *head = sym_tbl->symbol_List;
 	int LEN = strlen(symbol_name);
 
+	if (symbol_name[LEN - 1 ] == ':')
+		LEN -= 1;
 
 	while (head != NULL) {
-		if (strncmp(symbol_name, head->symbol_name, LEN) == 0 || strncmp(symbol_name, head->symbol_name, LEN -1) == 0) {
+		if (strncmp(symbol_name, head->symbol_name, (LEN)) == 0) {
 			/*if symbol already exist returns 1*/
 			return 1;
 		}
