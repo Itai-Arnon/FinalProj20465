@@ -13,17 +13,6 @@
 
 
 
-typedef struct  {/*struct aids to create strings of whitespaced items*/
-	char *strings[80];
-	int strings_count;
-}sep_whitespace_t;
-
-typedef struct /*struct aid create a string free of commas*/
-{
-	char* seps[50];
-	int seps_count;
-	int fault_line;
-} sep_commas_t;
 
 
 
@@ -46,10 +35,7 @@ int count_char_until_not_separator(char line[], char c, int *offset, char separa
 /* seperastor char array checks all given amount by __seperators__amont__ */
 int is_char_separator(char c, char separators[], int separators_amount);
 int extra_char_at_end(const char line[], int loc);
-/**
- * creates an array of separated strings using strpbrk
- */
-sep_whitespace_t string_sep_white_space(char* );
+
 /*purposed to count non null terminated functions*/
 int nonNullTerminatedLength(char *arr);
 /*uses the ENUM CHECK_LEGAL_NAME*/

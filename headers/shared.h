@@ -54,6 +54,7 @@
 #define ERR_MACRO_PERMISSION "Error  Macro Permission Mistake"
 #define ERR_MACRO_NODE_CREATION_FAILED "Macro Node Allocation Failed"
 #define ERR_MACRO_NAME_LONG "Macro Name Too Long"
+#define ERR_MACRO_NAME_WRONG "Macro Name Illegal"
 #define ERR_NO_FILES "No Files Inserted"
 #define ERR_START_MACRO_DEF "Error In Macro Start Definition"
 #define ERR_MACRO_END "Error In Macro End Definition"

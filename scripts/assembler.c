@@ -27,9 +27,6 @@ int main(int argc, char *argv[]) {
 	sym_tbl = init_symbol_table(sym_tbl);
 	manage_files(argc, argv, mac_tbl, sym_tbl);
 
-	/*fptr_before = initSourceFiles(argc, argv, fptr_before, 1);*/
-	/*printf("fptr_after %p",fptr_after);
-	fprintf(fptr_after,"%s\n","blah");*/
 
 	fclose(fptr_before);
 	fclose(fptr_after);
@@ -50,12 +47,12 @@ void manage_files(int _argc, char **_argv, macro_table_t *macro_tbl, symbol_tabl
 
 	for (idx = 1; idx < num_files; ++idx) {
 		fptr_before = initSourceFiles(_argc, _argv, fptr_before, idx);
-		collect_symbol_names(sym_tbl);
-		rewind(fptr_before);
-		read_preprocessor(macro_tbl, sym_tbl);
-		/*rewind(fptr_before);
-		parse(sym_tbl);*/
 
+	/*	read_preprocessor(macro_tbl, sym_tbl);*/
+		/*rewind(fptr_before);*/
+
+
+		parse(sym_tbl);
 		/*todo last command should be print the final version */
 	}
 }

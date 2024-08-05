@@ -10,6 +10,7 @@
 #include "headers/symbols.h"
 #include "headers/parser.h"
 #include "headers/error.h"
+
 static const char *directives[4] = {".data", ".string", ".extern", ".entry"};
 
 char *opcode_specs[16][3][1] = {
@@ -32,21 +33,25 @@ char *opcode_specs[16][3][1] = {
 };
 
 parser_t parser_s;
-static sep_commas_t sep_s;
+static sep_commas_t sepcomma_s;
+static sep_whitespace_t seperator_s;
 
 void initParser_T() {
 	parser_s.line_type = ERR;
 }
 
-
 void parse(symbol_table_t *sym_tbl) {
 	char buffer[LINE_LENGTH];
 	char *_line = calloc(LINE_LENGTH, sizeof(char));
-	int *pos = NULL;
+	int *pos = calloc(1, sizeof(int));
 	line_count = 0;
 	initParser_T();
 
+	if (ferror(fptr_after)) {
+		printf("ERROR");
+	}
 
+	/*fprintf(fptr_after,"test this\n");*/
 	if (sym_tbl == NULL) {
 		report_error(ERR_FAIL_CREATE_SYMBOL, line_count, CRIT);
 		return;
@@ -54,19 +59,22 @@ void parse(symbol_table_t *sym_tbl) {
 	while (fgets(buffer, LINE_LENGTH, fptr_after) != NULL) {
 		line_count++;
 		strcpy(_line, buffer);
-		printf("shit");
-		classify_line(sym_tbl,_line,  pos);
+		ifSymbol_n_Write(sym_tbl, _line, pos);
+		classify_line(_line, pos);
+		fprintf(fptr_after, "test this\n");
+
+		if (ferror(fptr_after)) {
+			printf("ERROR");
+		}
 
 
+		/*function dividing into sentences*/
+
+		/*function that classify which operation is involved*/
 	}
-
-	/*function dividing into sentences*/
-
-	/*function that classify which operation is involved*/
 }
 
-void classify_line(symbol_table_t *sym_tbl, char *buffer, int *pos) {
-	symbol_t *head = sym_tbl->symbol_List;
+int classify_line(char *buffer, int *pos) {
 	char cmd[MAX_SYMBOL_NAME];/*support macro name with colon*/
 	char cmd_no_colon[MAX_SYMBOL_NAME];
 	int j = 0;
@@ -78,76 +86,97 @@ void classify_line(symbol_table_t *sym_tbl, char *buffer, int *pos) {
 		for (j = 0; j < 16; ++j) {
 			if (strcmp(cmd, opcode_specs[j][0][0]) == 0) {
 				parser_s.line_type = OP_CODE;
-				return;
+				return 1;
 			}
 		}
 		for (j = 0; j < 4; ++j) {
 			if (strcmp(cmd, directives[j]) == 0)
 				parser_s.line_type = DIRECTIVE;
-			return;
+			return 2;
 		}
 	}
+	return 0;
 }
 
-int isLabel(symbol_table_t *sym_tbl, char *buffer, int *pos) {
-	symbol_t *head = sym_tbl->symbol_List;
+int ifSymbol_n_Write(symbol_table_t *sym_tbl, char *buffer, int *pos) {
 	char cmd[MAX_SYMBOL_NAME];/*support macro name with colon*/
-	char cmd_no_colon[MAX_SYMBOL_NAME];
-	*pos = 0;
 	int len = 0;
+	*pos = 0;
 
 	if (sscanf(buffer, "%s%n:", cmd, pos) == 1) {
 		len = strlen(cmd);
-		if(cmd[len-1] !=':')
+		if (cmd[len - 1] != ':')
 			return 0;
 		else {
-			removeColon(cmd,cmd_no_colon);
-		}
-			while (head != NULL) {
-				if (strcmp(cmd_no_colon, head->symbol_name) == 0) {
-					strcpy(parser_s.symbol_name, cmd);
-					if (loadSymbolTable(sym_tbl, cmd, 0) == 1) {
-						printf("Symbol Added\n");
-					}
-					break;
-				}
-				head = head->next_sym;
-			}
-			/*todo possible: check if symbol exists - or defer later to entire analsys*/
-
-			/*case  label was found head is not null continue check but advance position*/
-			if (head != NULL) {
-				memset(cmd, '\0', sizeof(cmd));
+			if (isDuplicateSymbol(sym_tbl, cmd) == 1) {
+				strncpy(parser_s.symbol_name, cmd, len);
+				buffer += *pos;
+				return 1;
+			} else {
+				if (loadSymbolTable(sym_tbl, cmd, 0) == 1)
+					printf("Symbol Added\n");
 				buffer += *pos;
 				return 1;
 			}
 		}
-		parser_s.line_type = ERR;
-	}
-
-
-	/*label was found continue scan*/
-	/*if (sscanf(buffer, "%s%n\n", cmd, pos) == 1) {
-		for (j = 0; j < 16; ++j) {
-			if (strcmp(cmd, opcode_specs[j][0][0]) == 0) {
-				parser_s.line_type = OP_CODE;
-				buffer+=*pos;
-				return;
-			}
-		}
-		for (j = 0; j < 4; ++j) {
-			if (strcmp(cmd, directives[j]) == 0)
-				parser_s.line_type = DIRECTIVE;
-				buffer+=*pos;
-			    return;
-		}
-
 	}
 	parser_s.line_type = ERR;
-}*/
+	return 0;
+}
 
-/*in case a colon appears in macro_name*/
 
+sep_whitespace_t string_sep(char *line) {
+	int strings_count = 0;
+	char *s;
+	sep_whitespace_t seperator = {0};
+	while (isspace(*line)) line++;
+	if (*line == '\0') {
+		return seperator;
+	}
+
+	do {
+		seperator.wString[strings_count++] = line;
+		/*strpbrk refer to the constant SPACES*/
+		s = strpbrk(line, SPACES);
+		if (s) {
+			*s = '\0';
+			s++;
+			while (isspace(*s))s++;
+			if (*s == '\0')
+				break;
+			line = s;
+		} else {
+			break;
+		}
+	} while (1);
+	seperator.counter = strings_count;
+	return seperator;
+}
+
+sep_commas_t get_comma_seps(char *str) {
+	sep_commas_t seperator = {0};
+	char *s;
+	int seps_count = 0;
+	if (*str == '\0') {
+		return seperator;
+	}
+	do {
+		seperator.sString[seps_count] = str;
+		seps_count++;
+		s = strchr(str, ',');
+		if (s) {
+			*s = '\0';
+			s++;
+			if (*s == ',') {
+				seperator.isError = 1;
+				return seperator;
+			}
+		}
+		str = s;
+	} while (s);
+	seperator.counter = seps_count;
+	return seperator;
+}
 
 
 

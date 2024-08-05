@@ -94,23 +94,22 @@ int typeofline(macro_table_t *tbl, char *line, char *macro_name, symbol_table_t 
 	char *buffer = calloc(LINE_LENGTH, sizeof(char));
 	char *start = calloc(MACRO_END, sizeof(char));
 	int pos = 0;
-	int symbol_flag;
+
 
 	if (*line == '\0') return EMPTY_LINE;
 	strcpy(buffer, line);
 	/*removes white space from the front*/
 
 	if (sscanf(buffer, "%s%n", start, &pos) == 1) {
-		symbol_flag = isDuplicateSymbol(sym_tbl, start);
-		if (!symbol_flag && !checkLegalName(start, ALPHANUM_COMBINED)) {
-			report_error(ERR_START_MACRO_DEF, line_count, CRIT);
+		if (!checkLegalName(start, ALPHANUM_COMBINED)) {
+			report_error(ERR_MACRO_NAME_WRONG, line_count, CRIT);
 			return (MACRO_ERROR);
-		} else if (checkMacroStart(buffer, start, macro_name, pos, sym_tbl) && !symbol_flag)
+		} else if (checkMacroStart(buffer, start, macro_name, pos, sym_tbl))
 			return MACRO_START;
-		else if (checkMacroEnd(buffer, start, pos) && !symbol_flag)
+		else if (checkMacroEnd(buffer, start, pos))
 			return MACRO_END;
 
-		else if (checkMacroExpand(tbl, line, start, macro_name, pos) && !symbol_flag)
+		else if (checkMacroExpand(tbl, line, start, macro_name, pos))
 			return MACRO_EXPAND;
 		else if (tbl->isMacroOpen == 1)
 			return LINE_INSIDE;
@@ -120,9 +119,9 @@ int typeofline(macro_table_t *tbl, char *line, char *macro_name, symbol_table_t 
 }
 
 
-int checkMacroStart(char *line, char *start, char *macro_name, int pos, symbol_table_t *sym_tbl) {
+int checkMacroStart(char *buffer, char *start, char *macro_name, int pos, symbol_table_t *sym_tbl) {
 
-	char *str = line;
+	char *str = buffer;
 	char macro_n[MAX_MACRO_NAME];
 	memset(macro_n, '\0', sizeof(macro_n));
 
@@ -139,7 +138,7 @@ int checkMacroStart(char *line, char *start, char *macro_name, int pos, symbol_t
 				report_error(ERR_MACRO_NAME_LONG, line_count, CRIT);/*critical error*/
 				return 0;
 			}
-			/*macro named identified check if contiuation of line is empty*/
+			/*macro named identified check if contiuation of buffer is empty*/
 			if (!(isRestOfLineEmpty(str))) {
 				report_error(ERR_START_MACRO_DEF, line_count, CRIT);  /* critical wait for macro check*/
 				return 0;
@@ -156,8 +155,8 @@ int checkMacroStart(char *line, char *start, char *macro_name, int pos, symbol_t
 	return 0;
 }
 
-int checkMacroEnd(char *line, char *start, int pos) {
-	char *str = line;
+int checkMacroEnd(char *buffer, char *start, int pos) {
+	char *str = buffer;
 	if (strncmp(MACRO_END_WORD, start, MACRO_END_LEN) == 0) {
 		str = str + pos;
 
@@ -170,23 +169,24 @@ int checkMacroEnd(char *line, char *start, int pos) {
 	}
 	/*didn't identify macro_end_word, but we still check for EOF*/
 	/*hence we should close the macro*/
-	return checkEOFInBuffer(line);
+	return checkEOFInBuffer(buffer);
 }
 
 
-int checkMacroExpand(macro_table_t *tbl, char *line, char *start, char *macro_name, int pos) {
-	char *str = line;
+int checkMacroExpand(macro_table_t *tbl, char *buffer, char *start, char *macro_name, int pos) {
 
 	if (tbl->amount > 0 && (checkNameExistsInTable(tbl, start) == 1)) {
 		strcpy(macro_name, start);
-		str += pos;
-		if (isRestOfLineEmpty(str))
+		buffer += pos;
+		if (isRestOfLineEmpty(buffer))
 			return 1;
+
 		else {
 			/*macro name is the single word allowed on macro expand*/
 			report_error(ERR_MACRO_EXPAND, line_count, CRIT);
 			return 0;
 		}
+
 	}
 	return 0;
 }
@@ -221,10 +221,10 @@ int macro_name_duplicate(char *macro_name, symbol_table_t *sym_tbl) {
 	}
 
 	/*isDuplicateSymbol is 1 if true 0 otherwise*/
-
-	isSymbol = isDuplicateSymbol(sym_tbl, macro_name);
-	if (isSymbol == 1) return 1;
-
+	if (sym_tbl != NULL) {
+		isSymbol = isDuplicateSymbol(sym_tbl, macro_name);
+		if (isSymbol == 1) return 1;
+	}
 	return 0;
 }
 

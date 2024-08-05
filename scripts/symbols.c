@@ -34,11 +34,7 @@ void collect_symbol_names(symbol_table_t *sym_tbl) {
 		if (isRestOfLineEmpty(buffer)) /*checks case of empty line*/
 			continue;
 
-		/*removes whitespace*/
-		removeFrontalWhitespace(buffer, pos);
-		buffer += *pos; /*advances the pointer to end of whitespace*/
-		if (*buffer == ';' || *buffer == '\0')
-			continue;
+
 
 
 		if (sscanf(buffer, "%s", first_word) == 1) {
@@ -180,6 +176,7 @@ int checkForAddress(symbol_table_t *sym_tbl, char *symbol_name, int address, isU
 void findLabel_n_load(symbol_table_t *sym_tbl, char *buffer, char ch) {
 	char **arr = calloc(5, sizeof(char *));
 	char *s;
+	int x = 0;
 	char no_whites[MAX_SYMBOL_NAME];
 	int idx = 0;
 	int length = 0;
@@ -196,11 +193,12 @@ void findLabel_n_load(symbol_table_t *sym_tbl, char *buffer, char ch) {
 		buffer = s;
 	} while (s);
 	length = idx;
-	for (idx = 0; idx < length; idx++) {
-		sscanf(arr[idx], "%s", no_whites);
-		loadSymbolTable(sym_tbl, no_whites, 0);
+	/*todo fix this*/
+	/*for (idx = 0; idx < length; idx++) {
+		strcpy(no_whites, arr[idx]);
+		loadSymbolTable(sym_tbl, , 0);
 		printf("%s\n", no_whites);
-	}
+	}*/
 }
 
 

@@ -1,10 +1,1 @@
-macr demo
-mov r2 , r3
-endmacr
-NAME: demo
-mov r2 , r3
-macr bemo
-mov r1 , r2
-endmacr
-bemo
 
