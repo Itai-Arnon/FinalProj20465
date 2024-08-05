@@ -57,7 +57,8 @@ typedef struct {
 }errfunc_t;
 extern errfunc_t errfunc_s;*/
 
-
+extern int *IC;
+extern int *DC;
 extern parser_t parser_s;
 extern FILE *fptr_before;
 extern FILE *fptr_after;

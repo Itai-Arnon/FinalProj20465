@@ -43,7 +43,8 @@ void manage_files(int _argc, char **_argv, macro_table_t *macro_tbl, symbol_tabl
 		report_error(ERR_NO_FILES, line_count,CRIT);
 		return;
 	}
-	fptr_after = initDestinationPointer(fptr_after, "out.txt");
+	fptr_after = initDestinationPointer(fptr_after, "out.txt","a+");
+	parse(sym_tbl);
 
 	for (idx = 1; idx < num_files; ++idx) {
 		fptr_before = initSourceFiles(_argc, _argv, fptr_before, idx);
@@ -52,7 +53,7 @@ void manage_files(int _argc, char **_argv, macro_table_t *macro_tbl, symbol_tabl
 		/*rewind(fptr_before);*/
 
 
-		parse(sym_tbl);
+
 		/*todo last command should be print the final version */
 	}
 }
@@ -81,7 +82,7 @@ void manage_files(int _argc, char **_argv, macro_table_t *macro_tbl, symbol_tabl
 
 	}
 
-	FILE *initDestinationPointer(FILE *fptr, char *filename) {
+	FILE *initDestinationPointer(FILE *fptr, char *filename, char mode[]) {
 		// Construct the file path by prepending the parent directory
 		char fname[64];
 		strcpy(fname, PATH_BASE);//*TODO no need in linux*//
@@ -89,7 +90,7 @@ void manage_files(int _argc, char **_argv, macro_table_t *macro_tbl, symbol_tabl
 		printf("%s\n", fname);
 
 		/* Attempt to open the file for writing*/
-		if (!(fptr = fopen(fname, "a"))) {
+		if (!(fptr = fopen(fname, mode))) {
 			report_error(ERR_FILE_AFTER, line_count, CRIT);
 			exit(0);
 		}

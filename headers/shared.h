@@ -34,17 +34,6 @@
 #define ERR_FILE_BEFORE ".as File Failed To Open"
 #define ERR_FILE_AFTER ".am File Failed To Create"
 
-/* front: op code  directive related errors*/
-#define ERR_MACRO_NAME_OP_DIRECT_SYMBOL "Macro name is a opcode, a directive or a symbol"
-#define ERR_OP_CODE_RECOGNITION "OP CODE NOT RECOGNIZED"
-#define ERR_OP_CODE_FAILED_STRUCTURE "OP Code sturcture Not Legal"
-#define ERR_DIRECTIVE_RECOGNITION "Directive Not Recognized"
-
-/* symbol table related , symbol.c */
-#define ERR_DUPLICATE_SYMBOL_NAME  "DUPLICATE SYMBOL NAME"
-#define ERR_FAIL_CREATE_SYMBOL_TBL "Symbol Table Creation Failed"
-#define ERR_FAIL_CREATE_SYMBOL "Symbol  Creating Symbol Node Failed"
-#define ERR_SYMBOL_TABLE_EMPTY "Symbol Table Empty" /*non critial*/
 
 /*macro related*/
 #define ERR_WRITING_MACRO  "Failed to write Macro"
@@ -62,6 +51,20 @@
 #define ERR_MACRO_NAME_DUP "Error Duplicate Macro Name"
 #define ERR_MACRO_NOT_FOUND "Cannot find Macro"
 
+/* symbol table related , symbol.c */
+#define ERR_DUPLICATE_SYMBOL_NAME  "DUPLICATE SYMBOL NAME"
+#define ERR_FAIL_CREATE_SYMBOL_TBL "Symbol Table Creation Failed"
+#define ERR_FAIL_CREATE_SYMBOL "Symbol  Creating Symbol Node Failed"
+#define ERR_SYMBOL_TABLE_EMPTY "Symbol Table Empty" /*non critial*/
+
+
+
+/* front: op code  directive related errors*/
+#define ERR_MACRO_NAME_OP_DIRECT_SYMBOL "Macro name is a opcode, a directive or a symbol"
+#define ERR_OP_CODE_RECOGNITION "OP CODE NOT RECOGNIZED"
+#define ERR_OP_CODE_FAILED_STRUCTURE "OP Code structure Unrecognized or Not Legal"
+#define ERR_DIRECTIVE_RECOGNITION "Directive Not Recognized or Not Legal"
+#define ERR_LINE_UNRECOGNIZED "Line Not Recognized as OP_CODE or DIRECTIVE"
 
 
 

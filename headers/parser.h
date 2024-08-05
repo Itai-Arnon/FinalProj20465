@@ -14,7 +14,7 @@ typedef struct  {
 
 /* divides strings that have commas b/w them */
 typedef struct{
-	char* sString[20];
+	char* cString[20];
 	int counter;
 	int isError;
 } sep_commas_t;
@@ -34,5 +34,8 @@ int ifSymbol_n_Write(symbol_table_t *sym_tbl, char *buffer, int *pos);
 /* creates an array of separated strings using strpbrk*/
 sep_whitespace_t string_sep_white_space(char* );
 
+void classify_opcode(symbol_table_t *sym_tbl , char *buffer ,int  *pos);
+
+sep_commas_t string_comma_seps(char *str);
 
 #endif /*M14_PARSER_H*/

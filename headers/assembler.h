@@ -9,8 +9,8 @@
 void manage_files(int num_files ,char ** file_list, macro_table_t*, symbol_table_t*);
 
 void move_one_directory_up(char *path);
-FILE *initDestinationPointer(FILE *fptr, char *filename);
 FILE *initSourceFiles(int _argc, char **_argv, FILE *fptr, int index);
+FILE *initDestinationPointer(FILE *fptr, char *filename, char mode[]);
 
 
 

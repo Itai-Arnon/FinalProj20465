@@ -1,6 +1,2 @@
-check:
-mov
-chekc
-
-
-sdfsdf
+mov r1, r2
+.data 1,2,3,4

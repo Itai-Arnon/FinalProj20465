@@ -21,7 +21,7 @@ FILE* initSourceFiles(int ,char**,FILE*, int );/*returns ptr to current .as  */
  * @return FILE* The updated file pointer if successful, NULL if an error occurred.
  */
 
-FILE *initDestinationPointer(FILE *fptr, char *filename);
+FILE *initDestinationPointer(FILE *fptr, char *filename ,char []);
 
 /**
  * prime function of the pre-compiler
