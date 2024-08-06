@@ -70,7 +70,12 @@
 
 
 
-
+typedef enum {
+	DATA,
+	STRING,
+	ENTRY,
+	EXTERN,
+}directive_enums;
 /*pass1 and pass2*/
 typedef enum {
 	mov, cmp, add, sub, lea, clr, not, inc, dec, jmp,

@@ -23,13 +23,9 @@ typedef struct {
 
 	/*first strct meant for directives */
 	struct {
-		enum {
-			external,
-			entry,
-			data,
-			string
-		} directive_type;
+		directive_enums d_enum;
 		struct {/*characterizes the directives*/
+
 			char *symbol;
 			int *data; /*todo:chcek if malloc*/
 			char *str;
@@ -37,7 +33,7 @@ typedef struct {
 		} operand; /*singular oper*/
 	} directive;
 	struct {
-		op_code n; /*the 16 op codes*/
+		op_code op; /*the 16 op codes*/
 		enum { /*characterizes the op code*/
 			NO_OPER,
 			NUMBER,
@@ -45,17 +41,14 @@ typedef struct {
 			REGISTR
 		} type;
 		union {    /* 4 types of  operands*/
-			char *symbol;
-			int num;
-			int regis;
+			char *symbol;/*direct*/
+			int num;/*immediate*/
+			int registry;/*register indirect-e.g pointer or register direct*/
 		} operand;
 	} operands[2];
 } parser_t;
 
-/*typedef struct {
-	void (*err_ptr)(macro_table_t * , symbol_table_t*)
-}errfunc_t;
-extern errfunc_t errfunc_s;*/
+
 
 extern int *IC;
 extern int *DC;
