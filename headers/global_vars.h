@@ -7,10 +7,6 @@
 #include<stdio.h>
 #include "shared.h"
 
-/*extern macro_table_t *tbl;*/
-
-
-
 
 typedef struct {
 	char symbol_name[MAX_SYMBOL_NAME];

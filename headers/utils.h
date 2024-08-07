@@ -46,6 +46,8 @@ void removeColon(char* symbol_name , char* symbol_name_c);
 
 void removeFrontalWhitespace(char*buffer , int*pos);
 /*strips whitespace in both sides*/
-char *strstrip(char *s)
+char *strstrip(char *s);
+/*counts commas to verify separator struct*/
+int countCommas(char* str);
 
 #endif /* M14_UTILS_H*/

@@ -66,7 +66,7 @@
 #define ERR_DIRECTIVE_RECOGNITION "Directive Not Recognized or Not Legal"
 #define ERR_LINE_UNRECOGNIZED "Line Not Recognized as OP_CODE or DIRECTIVE"
 #define ERR_GENERAL_FIRST_PASS_ERROR "General First Pass Erro"
-#define ERR_OP_CODE_REGISTRY_ILLEGAL "Op Code register isn't legal"
+#define ERR_OP_CODE_REGISTRY_ILLEGAL " One or both OP Code register isn't legal"
 #define FAILED_TO_CONVERT_NUMBER "Failed to immediate Number"
 
 

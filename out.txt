@@ -1,2 +1,2 @@
-mov r1, r2
-LA: add r1 ,r2
+HOT: mov r1, r2
+add r1 ,r2
