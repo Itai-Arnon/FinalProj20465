@@ -6,7 +6,7 @@
 #include "macro_list.h"
 #include "symbols.h"
 
-void report_error(char* err , int linecount, err_type type );
+void report_error(char* err , int linecount, err_type_t type );
 void freeTables(  macro_table_t *macro_tbl , symbol_table_t *sym_tbl);
 
 

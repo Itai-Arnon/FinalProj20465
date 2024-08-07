@@ -18,12 +18,13 @@ typedef struct {
 		OP_CODE,
 		DIRECTIVE,
 		ERR,
-		BLANK
+		TBD
 	} line_type;    /*classifies typof line*/
 
 	/*first strct meant for directives */
 	struct {
 		directive_enums d_enum;
+		int symbol_memory;
 		struct {/*characterizes the directives*/
 
 			char *symbol;
@@ -34,7 +35,8 @@ typedef struct {
 	} directive;
 	struct {
 		op_code op; /*the 16 op codes*/
-		typeOfRegister type; /*4 type by orddr*/
+		typeOfRegister_t type_of_register; /*4 type by orddr*/
+		int symbol_memory;
 		union {   /* 4 types of  operands*/
 			int num;/*immediate 0*/
 			char *symbol;/*direct  -1 - aka memory - usually arrays & strings*/

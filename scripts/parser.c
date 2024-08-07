@@ -63,6 +63,10 @@ void classify_opcode(symbol_table_t *sym_tbl, char *buffer);
 
 sep_commas_t string_comma_seps(char *str);
 
+typeOfRegister_t checkRegisters(char *str, int first_or_second_operand);
+
+int convertStringToNum(char *str);
+
 void initEnumArr();
 
 void initDirectiveArray();
@@ -73,9 +77,10 @@ void parse(symbol_table_t *sym_tbl) {
 	char *_line = calloc(LINE_LENGTH, sizeof(char));
 	char *cmd = calloc(MAX_SYMBOL_NAME, sizeof(char));
 	int *pos = calloc(1, sizeof(int));
-	int isSymbol = 0;
+	int isSymbol = 0; /*notes if there is a symbols and he's new or already existed*/
 	line_count = 0;
-	int initVal = 100;
+	int initVal = 100;/*initial value of IC*/
+	int idx = 0;
 	IC = &initVal;
 	initParser();
 	initEnumArr();
@@ -94,7 +99,7 @@ void parse(symbol_table_t *sym_tbl) {
 	/*fgets(buffer, LINE_LENGTH, fptr_after) != NULL*/
 	while (fgets(buffer, LINE_LENGTH, fptr_after) != NULL) {
 		line_count++;
-		*IC++;
+		*IC+=10;
 		strcpy(_line, buffer);
 		if (sscanf(buffer, "%s%n:", cmd, pos) == 1)
 
@@ -106,13 +111,13 @@ void parse(symbol_table_t *sym_tbl) {
 					checkOrUpdateSymbolAddress(sym_tbl, cmd, *IC, YES);
 				}
 				memset(cmd, '\0', sizeof(cmd));
-		if(sscanf(buffer, "%s\n", cmd)== 1) {
+			}
+		if (sscanf(buffer, "%s\n", cmd) == 1) {
 
 			if (classify_line(cmd) > 0)
 				buffer += *pos;
-		}
-		else
-			report_error(ERR_LINE_UNRECOGNIZED, line_count,CRIT);
+		} else
+			report_error(ERR_LINE_UNRECOGNIZED, line_count, CRIT);
 
 
 		printf("%d\n", parser_s.line_type);
@@ -121,7 +126,15 @@ void parse(symbol_table_t *sym_tbl) {
 		switch (parser_s.line_type) {
 
 			case OP_CODE:
-				classify_opcode(sym_tbl, buffer);
+				seperator_c = string_comma_seps(buffer);
+				if (seperator_c.isError == 1 || seperator_c.counter > 2)
+					report_error(ERR_OP_CODE_RECOGNITION, line_count, CRIT);
+
+				for(idx = 0 ; idx < seperator_c.counter , idx++) {
+					seperator_c.cString[idx] = strstrip(seperator_c.cString[idx]);
+					parser_s.operands[idx].type_of_register = (seperator_c.cString[idx],idx);
+				}
+
 				break;
 			case DIRECTIVE:
 				break;
@@ -167,47 +180,68 @@ int classify_line(char *cmd) {
 void classify_opcode(symbol_table_t *sym_tbl, char *buffer) {
 	int i;
 
-	seperator_c = string_comma_seps(buffer);
-	if (seperator_c.isError == 1 || seperator_c.counter > 2)
-		report_error(ERR_OP_CODE_RECOGNITION, line_count, CRIT);
+
 
 	/*todo here will come a function checking validity of each register */
 	/*todo here will come a function classifying */
 
 }
 
-
-typeOfRegister checkRegistrs(char *str) {
+int convertStringToNum(char *str) {
+	char *endtoken;
+	long num = strtol(str, &endtoken, 10);
+	if (*endtoken != '\0') {
+		printf("invalid number '%s' (syntax error)\n", str);
+		report_error(FAILED_TO_CONVERT_NUMBER, line_count, CRIT);
+	}
+	return (int) num;
+}
+/*checks type of registers and validity - sets then in parser_s*/
+/*first or second operands relates to the  parser_s*/
+typeOfRegister_t checkRegisters(char *str, int first_or_second_operand) {
 	int i;
-	char *ptr;
+	char *s_ptr;
+	int len = strlen(str);
+	int number = 0;
 	/* Check if  '#' hence immediate */
 	if (strncmp(str, "#", 1) == 0) {
-		ptr = str + 1;
-		for (i = 0; ptr[i] != '\0'; i++) {
-			if (ptr[0] == '-')
-				continue;
-			if (!isdigit(ptr[i])) {
-				return IMMEDIATE;
-			}
-				/* Check if '*'hence indirect */
-				/* in the reg there's an adddres of the real value */
-			else if (strncmp(str, "*", 1) == 0) {
-				if (str[1] == 'r' && isdigit(str[2]) && str[2] >= '0' && str[2] <= '7') {
-					return INDIRECT; /*number 3*/
-				}
-					/* Check if the string starts with 'r' */
-				else if (strncmp(str, "r", 1) == 0) {
-					if (str[0] == 'r' && isdigit(str[1]) && str[1] >= '0' && str[1] <= '7')
-						return REGULAR;
-				}
-					/* Default case for other characters */
-				else
-					return DIRECT;  /*labels*/
-			}
-
+		s_ptr = str + 1;
+		if (*s_ptr == '-')/*minus is allowed only in the beginning */
+			s_ptr++;
+		while (isdigit(*(s_ptr) && s_ptr++));
+		if (*s_ptr)
+			report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count, CRIT);
+		else {
+			number = convertStringToNum(s_ptr);
+			printf("%d\n", number);
+			parser_s.operands[first_or_second_operand].operand.num = number;
+			return _IMMEDIATE;
 		}
 	}
+		/* Check if '*'hence indirect */
+		/* in the reg there's an adddres of the real value */
+	else if (strncmp(str, "*", 1) == 0) {
+		if (str[1] == 'r' && isdigit(str[2]) && str[2] >= '0' && str[2] <= '7') {
+			parser_s.operands[first_or_second_operand].operand.registry = str[2];
+			return _INDIRECT; /*number 3 pointer type*/
+		}
+	}
+		/* Check if the string starts with 'r' */
+	else if (strncmp(str, "r", 1) == 0) {
+		if (str[0] == 'r' && isdigit(str[1]) && str[1] >= '0' && str[1] <= '7')
+			parser_s.operands[first_or_second_operand].operand.registry = str[1];
+		return _REGULAR; /*Number 4*/
+	}
+		/* Default case for other characters */
+
+	else if (str[len - 1] == ":") {
+		strncpy(parser_s.operands[first_or_second_operand].operand.symbol, str, len - 1);
+		return _DIRECT; /*label*/   /*todo chk if label duplicate and add accordingly*/
+	}
+
+	return _ERROR;
 }
+
 
 sep_whitespace_t string_sep(char *line) {
 	int strings_count = 0;
@@ -284,83 +318,6 @@ void initDirectiveArray() {
 }
 
 
-void printParserContent() {
-	int i = 0;
-	/*Print line type*/
-	printf("Line Type: ");
-	switch (parser_s.line_type) {
-		case OP_CODE:
-			printf("OP_CODE\n");
-			break;
-		case DIRECTIVE:
-			printf("DIRECTIVE\n");
-			break;
-		case ERR:
-			printf("ERR\n");
-			break;
-		case BLANK:
-			printf("BLANK\n");
-			break;
-		default:
-			printf("UNKNOWN\n");
-			break;
-	}
-
-	/*Print symbol name*/
-	printf("Symbol Name: %s\n", parser_s.symbol_name);
-
-	// Print directive details if line type is DIRECTIVE
-	if (parser_s.line_type == DIRECTIVE) {
-		printf("Directive Enum: %d\n", parser_s.directive.d_enum);
-		printf("Directive Operand Symbol: %s\n", parser_s.directive.operand.symbol);
-		printf("Directive Operand Data Length: %d\n", parser_s.directive.operand.data_len);
-		printf("Directive Operand String: %s\n", parser_s.directive.operand.str);
-	}
-
-	/*Print operands details if line type is OP_CODE*/
-	if (parser_s.line_type == OP_CODE) {
-		for (i = 0; i < 2; ++i) {
-			printf("Operand %d Type: ", i);
-			switch (parser_s.operands[i].type) {
-				case NO_OPER:
-					printf("NO_OPER\n");
-					break;
-				case NUMBER:
-					printf("NUMBER\n");
-					break;
-				case LABEL:
-					printf("LABEL\n");
-					break;
-				case REGISTR:
-					printf("REGISTR\n");
-					break;
-				default:
-					printf("UNKNOWN\n");
-					break;
-			}
-			printf("Operand %d Value: ", i);
-			switch (parser_s.operands[i].type) {
-				case NO_OPER:
-					printf("N/A\n");
-					break;
-				case NUMBER:
-					printf("%d\n", parser_s.operands[i].operand.num);
-					break;
-				case LABEL:
-					printf("%s\n", parser_s.operands[i].operand.symbol);
-					break;
-				case REGISTR:
-					printf("%d\n", parser_s.operands[i].operand.registry);
-					break;
-				default:
-					printf("UNKNOWN\n");
-					break;
-			}
-		}
-	}
-}
-
-
 /*
 void compare_commas(int type, int sep_count, int num_in_string)
 {
@@ -412,11 +369,9 @@ void initParser() {
 
 	/* Initialize line type */
 	parser_s.line_type = ERR;
-
 	/* Initialize symbol name */
 	/*memset(parser_s.symbol_name, 0, sizeof(parser_s.symbol_name));*/
 	strcpy(parser_s.symbol_name, "*");
-
 	/* Initialize directive fields */
 	parser_s.directive.d_enum = DATA; /* Assuming DATA is a default value */
 	parser_s.directive.operand.symbol = NULL;
@@ -427,7 +382,7 @@ void initParser() {
 	/* Initialize operands fields */
 	for (i = 0; i < 2; ++i) {
 		parser_s.operands[i].op = mov; /* Assuming mov is a default value */
-		parser_s.operands[i].type = NO_OPER;
+		parser_s.operands[i].type_of_register = _TBD; /*type of register*/
 		parser_s.operands[i].operand.symbol = NULL;
 		parser_s.operands[i].operand.num = 0;
 		parser_s.operands[i].operand.registry = 0;

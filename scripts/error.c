@@ -12,7 +12,7 @@
 #include "headers/error.h"
 
 
-void report_error(char *err, int line_count, err_type type) {
+void report_error(char *err, int line_count, err_type_t type) {
 
 	printf("%s at line %lu\n", err, line_count);
 	if (type == CRIT) {

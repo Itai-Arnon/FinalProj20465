@@ -88,6 +88,23 @@ void removeColon(char *symbol_name, char *symbol_name_c) {
 	} else
 		symbol_name_c = symbol_name;
 }
+/*removes white spaces from noth sides*/
+char *strstrip(char *s)
+{
+	int LEN;
+	char *end;
+	LEN = strlen(s);
+	if (!LEN)
+		return s;
+	end = s + LEN - 1;
+	while (end >= s && isspace(*end))
+		end--;
+	*(end + 1) = '\0';
+	while (*s && isspace(*s))
+		s++;
+
+	return s;
+}
 
 
 
