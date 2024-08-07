@@ -65,7 +65,7 @@
 #define ERR_OP_CODE_FAILED_STRUCTURE "OP Code structure Unrecognized or Not Legal"
 #define ERR_DIRECTIVE_RECOGNITION "Directive Not Recognized or Not Legal"
 #define ERR_LINE_UNRECOGNIZED "Line Not Recognized as OP_CODE or DIRECTIVE"
-
+#define ERR_GENERAL_FIRST_PASS_ERROR "General First Pass Erro"
 
 
 
@@ -92,4 +92,7 @@ typedef  enum{NO, YES }isUpdate;
  */
 typedef enum{CRIT,NON_CRIT}err_type;
 
+/*meant to decipher between reg behvior*/
+
+typedef enum {IMMEDIATE,DIRECT,INDIRECT,REGULAR}typeOfRegister;
 #endif

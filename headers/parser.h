@@ -30,17 +30,13 @@ typedef struct {
 	directive_enums dir_num;
 } direct_arr_t;
 
-void parse(symbol_table_t *);
 
-void initParser_T();
 
-/* fills parser and checks  if concurs with op_code (1) or directive(2) (0) failuter*/
-int classify_line( char* cmd);
+
 
 /* creates an array of separated strings using strpbrk*/
 sep_whitespace_t string_sep_white_space(char *);
 
-void classify_opcode(symbol_table_t *sym_tbl, char *buffer, int *pos);
 
 sep_commas_t string_comma_seps(char *str);
 

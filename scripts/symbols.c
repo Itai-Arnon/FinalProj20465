@@ -145,16 +145,16 @@ int isDuplicateSymbol(symbol_table_t *sym_tbl, char symbol_name[]) {
 	return 0; /*no duplicate*/
 }
 
-int checkForAddress(symbol_table_t *sym_tbl, char *symbol_name, int address, isUpdate n) {
+int checkOrUpdateSymbolAddress(symbol_table_t *sym_tbl, char *symbol_name, int address, isUpdate yes_or_no) {
 	symbol_t *head = sym_tbl->symbol_List;
 
 	while (head != NULL) {
 		if ((strcmp(symbol_name, head->symbol_name)) == 0) {
 			/*if symbol already exist returns 1*/
 			if (head->address != 0)
-				if (n == 0)
+				if (NO == 0)
 					return 1;
-			if (n == 1) {
+			if (YES == 1) {
 				head->address = address;
 				return 1;
 			}
@@ -163,7 +163,26 @@ int checkForAddress(symbol_table_t *sym_tbl, char *symbol_name, int address, isU
 	}
 	return 0; /*no duplicate*/
 }
+/*identifies it's a symbols and reports if it's duplicate or not 1 -dup 2-not dup*/
+int if_Symbol_if_Duplicate(symbol_table_t *sym_tbl, char *cmd) {
+	int len = 0;
+	len = strlen(cmd);
 
+	if (cmd[len - 1] != ':') {
+		parser_s.line_type = ERR;
+		return 0;
+	}
+
+	if (isDuplicateSymbol(sym_tbl, cmd) == 0) {
+		strncpy(parser_s.symbol_name, cmd, len);
+		return 1; /*not dupilcate return 1 */
+	} else {
+		strncpy(parser_s.symbol_name, cmd, len);
+		return 2;/* dupilcate return 2*/
+	}
+
+
+}
 
 
 

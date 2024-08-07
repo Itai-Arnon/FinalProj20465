@@ -17,6 +17,43 @@ const char *opcode_names[16][3][1] = {
 		{{"stop"}, {"____"}, {"____"}}
 };
 
+
+/*******************************************************/
+#define BADKEY -1
+#define A1 1
+#define A2 2
+#define B1 3
+#define B2 4
+
+typedef struct { char *key; int val; } t_symstruct;
+
+static t_symstruct lookuptable[] = {
+    { "A1", A1 }, { "A2", A2 }, { "B1", B1 }, { "B2", B2 }
+};
+
+#define NKEYS (sizeof(lookuptable)/sizeof(t_symstruct))
+
+int keyfromstring(char *key)
+{
+    int i;
+    for (i=0; i < NKEYS; i++) {
+        t_symstruct *sym = lookuptable[i];
+        if (strcmp(sym->key, key) == 0)
+            return sym->val;
+    }
+    return BADKEY;
+}
+
+/* ... */
+switch (keyfromstring(somestring)) {
+case A1: /* ... */ break;
+case A2: /* ... */ break;
+case B1: /* ... */ break;
+case B2: /* ... */ break;
+case BADKEY: /* handle failed lookup */
+}
+/******************************************************/
+
 void initParserStruct()
 {
 	memset(parser.err_buff, 0, sizeof(parser.err_buff));

@@ -34,16 +34,11 @@ typedef struct {
 	} directive;
 	struct {
 		op_code op; /*the 16 op codes*/
-		enum { /*characterizes the op code*/
-			NO_OPER,
-			NUMBER,
-			LABEL,
-			REGISTR
-		} type;
-		union {    /* 4 types of  operands*/
-			char *symbol;/*direct*/
-			int num;/*immediate*/
-			int registry;/*register indirect-e.g pointer or register direct*/
+		typeOfRegister type; /*4 type by orddr*/
+		union {   /* 4 types of  operands*/
+			int num;/*immediate 0*/
+			char *symbol;/*direct  -1 - aka memory - usually arrays & strings*/
+			int registry;/* 3- indirect operand ptr to another reg , 4- direct registet */
 		} operand;
 	} operands[2];
 } parser_t;

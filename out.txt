@@ -1,2 +1,2 @@
 mov r1, r2
-NOTE: .data 1,2,3,4
+LA: add r1 ,r2

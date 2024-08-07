@@ -23,7 +23,9 @@ void collect_symbol_names(symbol_table_t *sym_tbl);
 
 int loadSymbolTable(symbol_table_t *, char [] , int);
 
-int checkForAddress(symbol_table_t *sym_tbl, char* symbol_name , int address , isUpdate n);
+/*check addressYES will update NO will not
+ * returns  0 if zero and 1 if diff from zero but no update 2 if diff and update*/
+int checkOrUpdateSymbolAddress(symbol_table_t *sym_tbl, char* symbol_name , int address , isUpdate n);
 
 void print_symbol_table(symbol_table_t *sym_tbl);
 

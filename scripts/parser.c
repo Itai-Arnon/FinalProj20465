@@ -45,19 +45,21 @@ static sep_whitespace_t seperator_w;
 
 void parse(symbol_table_t *);
 
-void initParser_T();
+void initParser();
 
 /* fills parser and checks  if concurs with op_code (1) or directive(2) (0) failuter*/
-int classify_line(char *cmd );
+int classify_line(char *cmd);
+
+void classify_opcode(symbol_table_t *sym_tbl, char *buffer);
 
 /*fills parser and checks if symbol- then returns 1  non duplicate , 2 for duplicate
  *  0 for fail */
-int if_Symbol_if_Duplicate(symbol_table_t *sym_tbl ,char *cmd);
+int if_Symbol_if_Duplicate(symbol_table_t *sym_tbl, char *cmd);
 
 /* creates an array of separated strings using strpbrk*/
 sep_whitespace_t string_sep_white_space(char *);
 
-void classify_opcode(symbol_table_t *sym_tbl, char *buffer, int *pos);
+void classify_opcode(symbol_table_t *sym_tbl, char *buffer);
 
 sep_commas_t string_comma_seps(char *str);
 
@@ -65,7 +67,7 @@ void initEnumArr();
 
 void initDirectiveArray();
 
-
+/***********************************************************************************************/
 void parse(symbol_table_t *sym_tbl) {
 	char *buffer = calloc(LINE_LENGTH, sizeof(char));
 	char *_line = calloc(LINE_LENGTH, sizeof(char));
@@ -73,8 +75,9 @@ void parse(symbol_table_t *sym_tbl) {
 	int *pos = calloc(1, sizeof(int));
 	int isSymbol = 0;
 	line_count = 0;
-	*IC = 100;
-	initParser_T();
+	int initVal = 100;
+	IC = &initVal;
+	initParser();
 	initEnumArr();
 	initDirectiveArray();/*todo check if needs more*/
 
@@ -95,22 +98,33 @@ void parse(symbol_table_t *sym_tbl) {
 		strcpy(_line, buffer);
 		if (sscanf(buffer, "%s%n:", cmd, pos) == 1)
 
-			if ((isSymbol = if_Symbol_if_Duplicate(sym_tbl,  cmd)) > 0) {
+			if ((isSymbol = if_Symbol_if_Duplicate(sym_tbl, cmd)) > 0) {
 				buffer += *pos;
-				if (isSymbol == 1) loadSymbolTable(sym_tbl,cmd , *IC);
-			}
-		if (classify_line(cmd) > 0)
-			buffer += *pos;
+				if (isSymbol == 1) {
+					loadSymbolTable(sym_tbl, cmd, *IC);
+				} else {
+					checkOrUpdateSymbolAddress(sym_tbl, cmd, *IC, YES);
+				}
+				memset(cmd, '\0', sizeof(cmd));
+		if(sscanf(buffer, "%s\n", cmd)== 1) {
 
-		printf("%s\n", buffer);
+			if (classify_line(cmd) > 0)
+				buffer += *pos;
+		}
+		else
+			report_error(ERR_LINE_UNRECOGNIZED, line_count,CRIT);
+
+
+		printf("%d\n", parser_s.line_type);
+		printf("%s\n", parser_s.symbol_name /*== NULL ? "NOT_DEFINED" : "DEFINED"*/);
 
 		switch (parser_s.line_type) {
+
 			case OP_CODE:
-				classify_opcode(sym_tbl, buffer, pos);
+				classify_opcode(sym_tbl, buffer);
 				break;
 			case DIRECTIVE:
 				break;
-
 			case ERR:
 				report_error(ERR_LINE_UNRECOGNIZED, line_count, CRIT);
 				break;
@@ -119,14 +133,12 @@ void parse(symbol_table_t *sym_tbl) {
 			default:
 				break;
 		}
-
-
 	}
 
 }
 
 
-int classify_line( char *cmd) {
+int classify_line(char *cmd) {
 
 	int j = 0;
 	int len = 0;
@@ -141,42 +153,60 @@ int classify_line( char *cmd) {
 		}
 	}
 	for (j = 0; j < 4; ++j) {
-		if (strcmp(cmd, directArray[j].direct_name) == 0)
+		if (strcmp(cmd, directArray[j].direct_name) == 0) {
 			parser_s.line_type = DIRECTIVE;
-		parser_s.directive.d_enum = directArray[j].dir_num;
-		return 1;
+			parser_s.directive.d_enum = directArray[j].dir_num;
+			return 1;
+		}
 	}
-
 	parser_s.line_type = ERR;
 	return 0;
 }
 
-int if_Symbol_if_Duplicate(symbol_table_t *sym_tbl, char *cmd) {
-	int len = 0;
-	len = strlen(cmd);
 
-	if (cmd[len - 1] != ':') {
-		parser_s.line_type = ERR;
-		return 0;
-	}
+void classify_opcode(symbol_table_t *sym_tbl, char *buffer) {
+	int i;
 
-	if (isDuplicateSymbol(sym_tbl, cmd) == 0) {
-		strncpy(parser_s.symbol_name, cmd, len);
-		return 1; /*not dupilcate return 1 */
-	}else{
-		strncpy(parser_s.symbol_name, cmd, len);
-		return 2;/* dupilcate return 2*/
-	}
+	seperator_c = string_comma_seps(buffer);
+	if (seperator_c.isError == 1 || seperator_c.counter > 2)
+		report_error(ERR_OP_CODE_RECOGNITION, line_count, CRIT);
 
+	/*todo here will come a function checking validity of each register */
+	/*todo here will come a function classifying */
 
 }
 
 
-void classify_opcode(symbol_table_t *sym_tbl, char *buffer, int *pos) {
-	seperator_c = string_comma_seps(buffer);
-	if (seperator_c.isError == 1)
-		report_error(ERR_OP_CODE_RECOGNITION, line_count, CRIT);
+typeOfRegister checkRegistrs(char *str) {
+	int i;
+	char *ptr;
+	/* Check if  '#' hence immediate */
+	if (strncmp(str, "#", 1) == 0) {
+		ptr = str + 1;
+		for (i = 0; ptr[i] != '\0'; i++) {
+			if (ptr[0] == '-')
+				continue;
+			if (!isdigit(ptr[i])) {
+				return IMMEDIATE;
+			}
+				/* Check if '*'hence indirect */
+				/* in the reg there's an adddres of the real value */
+			else if (strncmp(str, "*", 1) == 0) {
+				if (str[1] == 'r' && isdigit(str[2]) && str[2] >= '0' && str[2] <= '7') {
+					return INDIRECT; /*number 3*/
+				}
+					/* Check if the string starts with 'r' */
+				else if (strncmp(str, "r", 1) == 0) {
+					if (str[0] == 'r' && isdigit(str[1]) && str[1] >= '0' && str[1] <= '7')
+						return REGULAR;
+				}
+					/* Default case for other characters */
+				else
+					return DIRECT;  /*labels*/
+			}
 
+		}
+	}
 }
 
 sep_whitespace_t string_sep(char *line) {
@@ -235,10 +265,10 @@ sep_commas_t string_comma_seps(char *str) {
 
 /* Function to initialize and populate an array of enum_arr*/
 void initEnumArr() {
-	/*Declare an array of enum_arr with a length of 16*/
+	int i = 0;
 
 	/*Populate the array*/
-	for (int i = 0; i < 16; ++i) {
+	for (i = 0; i < 16; ++i) {
 		opcodeArray[i].opcode_name = opcode_specs[i][0][0];
 		opcodeArray[i].op_num = op_code_enums[i];
 	}
@@ -246,7 +276,8 @@ void initEnumArr() {
 
 /*Function to initialize and populate the directArray*/
 void initDirectiveArray() {
-	for (int i = 0; i < 4; ++i) {
+	int i;
+	for (i = 0; i < 4; ++i) {
 		directArray[i].direct_name = directives[i];
 		directArray[i].dir_num = direct_enums[i];
 	}
@@ -254,6 +285,7 @@ void initDirectiveArray() {
 
 
 void printParserContent() {
+	int i = 0;
 	/*Print line type*/
 	printf("Line Type: ");
 	switch (parser_s.line_type) {
@@ -287,7 +319,7 @@ void printParserContent() {
 
 	/*Print operands details if line type is OP_CODE*/
 	if (parser_s.line_type == OP_CODE) {
-		for (int i = 0; i < 2; ++i) {
+		for (i = 0; i < 2; ++i) {
 			printf("Operand %d Type: ", i);
 			switch (parser_s.operands[i].type) {
 				case NO_OPER:
@@ -328,9 +360,7 @@ void printParserContent() {
 	}
 }
 
-void initParser_T() {
-	parser_s.line_type = ERR;
-}
+
 /*
 void compare_commas(int type, int sep_count, int num_in_string)
 {
@@ -376,3 +406,30 @@ void compare_commas(int type, int sep_count, int num_in_string)
 	}
 }
 */
+
+void initParser() {
+	int i;
+
+	/* Initialize line type */
+	parser_s.line_type = ERR;
+
+	/* Initialize symbol name */
+	/*memset(parser_s.symbol_name, 0, sizeof(parser_s.symbol_name));*/
+	strcpy(parser_s.symbol_name, "*");
+
+	/* Initialize directive fields */
+	parser_s.directive.d_enum = DATA; /* Assuming DATA is a default value */
+	parser_s.directive.operand.symbol = NULL;
+	parser_s.directive.operand.data = NULL;
+	parser_s.directive.operand.str = NULL;
+	parser_s.directive.operand.data_len = 0;
+
+	/* Initialize operands fields */
+	for (i = 0; i < 2; ++i) {
+		parser_s.operands[i].op = mov; /* Assuming mov is a default value */
+		parser_s.operands[i].type = NO_OPER;
+		parser_s.operands[i].operand.symbol = NULL;
+		parser_s.operands[i].operand.num = 0;
+		parser_s.operands[i].operand.registry = 0;
+	}
+}
