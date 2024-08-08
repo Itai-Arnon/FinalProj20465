@@ -30,8 +30,8 @@ typedef struct {
 		} operand; /*singular oper*/
 	} directive;
 	struct {
-		op_code op; /*the 16 op codes*/
-		typeOfRegister_t type_of_register; /*4 type by orddr*/
+		op_code_t op; /*the 16 op codes*/
+		type_of_register_t type_of_register; /*4 type by order*/
 		int symbol_memory;
 		union {   /* 4 types of  operands*/
 			int num;/*immediate 0*/

@@ -22,7 +22,7 @@ typedef struct {
 
 typedef struct {
 	char *opcode_name;
-	op_code op_num;
+	op_code_t op_num;
 } opcode_arr_t;
 
 typedef struct {

@@ -1,12 +1,20 @@
 # ninja log v6
-197	296	7447550280682402	m14.exe	b5d2ea1cb7fa9655
+129	278	7447551619782541	m14.exe	b5d2ea1cb7fa9655
 11	169	7447550278822420	CMakeFiles/m14.dir/scripts/utils.c.obj	8a06d0441e6691c0
 5	173	7447550278772413	CMakeFiles/m14.dir/scripts/macro.c.obj	db15e3fa2aef6a2e
 15	166	7447550278872420	CMakeFiles/m14.dir/scripts/assembler.c.obj	9fd2cff9530ceeb
-9	570	7444959859653805	build.ninja	2ead2765ff1e103
-19	197	7447550278912408	CMakeFiles/m14.dir/scripts/parser.c.obj	c77b83194f482457
+9	570	7448268537470482	build.ninja	2ead2765ff1e103
+5	129	7447551618534555	CMakeFiles/m14.dir/scripts/parser.c.obj	c77b83194f482457
 24	195	7447550278952409	CMakeFiles/m14.dir/scripts/symbols.c.obj	b85d5381ec65f6da
 36	292	7447490865306316	CMakeFiles/m14.dir/scripts/macro_list.c.obj	8cd300c55a0912bc
 28	171	7447550279002415	CMakeFiles/m14.dir/scripts/error.c.obj	1fc93fa8b0f405e9
-5	129	7447551618534555	CMakeFiles/m14.dir/scripts/parser.c.obj	c77b83194f482457
-129	278	7447551619782541	m14.exe	b5d2ea1cb7fa9655
+54	1529	7448270608236188	CMakeFiles/m14.dir/scripts/utils.c.obj	8a06d0441e6691c0
+69	1556	7448270608376156	CMakeFiles/m14.dir/scripts/assembler.c.obj	9fd2cff9530ceeb
+36	1561	7448270608056174	CMakeFiles/m14.dir/scripts/macro_list.c.obj	8cd300c55a0912bc
+17	1562	7448270607866151	CMakeFiles/m14.dir/scripts/macro.c.obj	db15e3fa2aef6a2e
+120	1563	7448270608896167	CMakeFiles/m14.dir/scripts/symbols.c.obj	b85d5381ec65f6da
+83	1569	7448270608516179	CMakeFiles/m14.dir/scripts/parser.c.obj	c77b83194f482457
+1531	1919	7448270623002555	CMakeFiles/m14.dir/scripts/error.c.obj	1fc93fa8b0f405e9
+1919	2460	7448270626882541	m14.exe	b5d2ea1cb7fa9655
+16	335	7448286691861385	CMakeFiles/m14.dir/scripts/assembler.c.obj	9fd2cff9530ceeb
+336	643	7448286695061411	m14.exe	b5d2ea1cb7fa9655

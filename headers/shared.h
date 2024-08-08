@@ -81,7 +81,7 @@ typedef enum {
 typedef enum {
 	mov, cmp, add, sub, lea, clr, not, inc, dec, jmp,
 	bne, red, prn, jsr, rts, stop
-} op_code;
+} op_code_t;
 
 /*macros*/
 typedef enum{MACRO_START, MACRO_END , MACRO_EXPAND , LINE_INSIDE , LINE_OUTSIDE, EMPTY_LINE , MACRO_ERROR }MACRO_STATE_T;
@@ -95,5 +95,5 @@ typedef enum{CRIT,NON_CRIT}err_type_t;
 
 /*meant to decipher between reg behvior*/
 
-typedef enum {_TBD  , _IMMEDIATE, _DIRECT,_INDIRECT, _REGULAR, _ERROR }typeOfRegister_t;
+typedef enum { _IMMEDIATE, _DIRECT,_INDIRECT, _REGULAR, _ERROR , _TBD  }type_of_register_t;
 #endif

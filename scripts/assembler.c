@@ -44,7 +44,6 @@ void manage_files(int _argc, char **_argv, macro_table_t *macro_tbl, symbol_tabl
 		return;
 	}
 	fptr_after = initDestinationPointer(fptr_after, "out.txt","a+");
-	parse(sym_tbl);
 
 	for (idx = 1; idx < num_files; ++idx) {
 		fptr_before = initSourceFiles(_argc, _argv, fptr_before, idx);
