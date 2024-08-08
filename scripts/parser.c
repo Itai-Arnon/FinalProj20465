@@ -17,7 +17,7 @@ static direct_arr_t directArray[4];
 
 
 static op_code_t op_code_enums[16] = {mov, cmp, add, sub, lea, clr, not, inc, dec, jmp,
-                                    bne, red, prn, jsr, rts, stop};
+                                      bne, red, prn, jsr, rts, stop};
 static opcode_arr_t opcodeArray[16];
 
 static char *opcode_specs[16][3][1] = {
@@ -61,8 +61,10 @@ int if_Symbol_if_Duplicate(symbol_table_t *sym_tbl, char *cmd);
 sep_whitespace_t string_sep_white_space(char *);
 
 void classify_opcode(symbol_table_t *sym_tbl, char *buffer);
+void checkRegisterCompliance();
+int checkRegisterCount(op_code_t op);
 
-sep_commas_t string_comma_seps(char *str);
+		sep_commas_t string_comma_seps(char *str);
 
 type_of_register_t classifyRegisters(char *str, int first_or_second_operand);
 
@@ -256,10 +258,10 @@ type_of_register_t classifyRegisters(char *str, int first_or_second_operand) {
 	return _ERROR;
 }
 
+/*return number of registers allowed*/
+int checkRegisterCount(op_code_t op) {
 
-void checkRegisterOPCodeCount() {
-
-	switch (parser_s.operands[1].op) {/*check if the struct differs b/w oper[1] and oper[2] opcode*/
+	switch (op) {/*check if the struct differs b/w oper[1] and oper[2] opcode*/
 		case mov:/*op codes that have two operands*/
 		case cmp:
 		case add:
@@ -268,8 +270,11 @@ void checkRegisterOPCodeCount() {
 			if (parser_s.operands[1].type_of_register == _ERROR ||
 			    parser_s.operands[1].type_of_register == _TBD &&
 			    parser_s.operands[2].type_of_register == _ERROR ||
-			    parser_s.operands[2].type_of_register == _TBD)
+			    parser_s.operands[2].type_of_register == _TBD) {
 				report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count, CRIT);
+				return -1;
+			} else return 2;
+
 			break;
 
 		case clr: /*op codes that only have a destination operand */
@@ -283,16 +288,20 @@ void checkRegisterOPCodeCount() {
 			if (parser_s.operands[1].type_of_register != _ERROR ||
 			    parser_s.operands[1].type_of_register != _TBD &&
 			    parser_s.operands[2].type_of_register == _ERROR ||
-			    parser_s.operands[2].type_of_register == _TBD)
+			    parser_s.operands[2].type_of_register == _TBD) {
 				report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count, CRIT);
+				return -1;
+			} else return 1; 
 			break;
 		case jsr:/*no operands*/
 		case stop:
 			if (parser_s.operands[1].type_of_register != _ERROR ||
 			    parser_s.operands[1].type_of_register != _TBD &&
 			    parser_s.operands[2].type_of_register != _ERROR ||
-			    parser_s.operands[2].type_of_register != _TBD)
+			    parser_s.operands[2].type_of_register != _TBD) {
 				report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count, CRIT);
+				return -1;
+			} else return 0;
 			break;
 		default:
 			break;
@@ -300,18 +309,20 @@ void checkRegisterOPCodeCount() {
 }
 
 void checkRegisterCompliance() {
-	char* str1 ,str2;
+	char *str1, *str2;
 	int idx = 0;
-	type_of_register_t type1 = parser_s.operands[1].type_of_register;
-	type_of_register_t type2 = parser_s.operands[2].type_of_register;
+	op_code_t opCode = parser_s.operands[0].op;
 
-	switch (parser_s.operands[idx].op) {
+	switch(checkRegisterCount(opCode){}
+	
+	
+	type_of_register_t type1 = parser_s.operands[0].type_of_register;
+	type_of_register_t type2 = parser_s.operands[1].type_of_register;
+	
 
-	/*op codes that have two operands*/
+	if (type1 == opcode_specs[opCode][1][0][type1] &&
+	    type2 == opcode_specs[opCode][1][0][type2])
 
-			str1 = opcode_specs[mov][1][0];
-			str1 = str1 + type1;
-		    if(move)
 
 		case mov:
 
@@ -332,7 +343,8 @@ void checkRegisterCompliance() {
 		case jsr:/*no operands*/
 		case stop:
 
-	}
+}
+
 }
 
 
