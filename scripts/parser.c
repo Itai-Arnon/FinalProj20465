@@ -12,7 +12,7 @@
 #include "headers/error.h"
 
 static char *directives[4] = {".data", ".string", ".extern", ".entry"};
-static directive_enums direct_enums[4] = {DATA, STRING, ENTRY, EXTERN};
+static directive_cmd_t direct_enums[4] = {DATA, STRING, ENTRY, EXTERN};
 static direct_arr_t directArray[4];
 
 
@@ -61,14 +61,20 @@ int if_Symbol_if_Duplicate(symbol_table_t *sym_tbl, char *cmd);
 sep_whitespace_t string_sep_white_space(char *);
 
 void classify_opcode(symbol_table_t *sym_tbl, char *buffer);
-void checkRegisterCompliance();
-int checkRegisterCount(op_code_t op);
-
-		sep_commas_t string_comma_seps(char *str);
 
 type_of_register_t classifyRegisters(char *str, int first_or_second_operand);
 
+void checkRegisterCompliance();
+
+int checkRegisterCount(op_code_t op);
+
 int convertStringToNum(char *str);
+
+int commaValue(op_code_t op);
+
+int countCommas(char *str);
+
+sep_commas_t string_comma_seps(char *str);
 
 void initEnumArr();
 
@@ -80,21 +86,20 @@ void printParser();
 
 /***********************************************************************************************/
 void parse(symbol_table_t *sym_tbl) {
-	char *buffer = calloc(LINE_LENGTH, sizeof(char));
-	char *_line = calloc(LINE_LENGTH, sizeof(char));
+	char *buffer = calloc(LINE_LENGTH, sizeof(char));/*sentence analyzed*/
 	char *cmd = calloc(MAX_SYMBOL_NAME, sizeof(char));
 	char *cmd_extra = calloc(MAX_SYMBOL_NAME, sizeof(char));
-	int *pos = calloc(1, sizeof(int));
-	int isSymbol = 0; /*notes if there is a symbols and he's new or already existed*/
+	int *pos = calloc(1, sizeof(int));/*promotes the buffer*/
+	int idx, isSymbol, scanned, initVal; /*initial value of IC*/
+	idx = isSymbol =  scanned = initVal = 0;
 	line_count = 0;
-	int initVal = 100;/*initial value of IC*/
-	int idx = 0;
-	int scanned;
+
+
 	IC = &initVal;
 	initParser();
 	initEnumArr();
 	initDirectiveArray();/*todo check if needs more*/
-
+/*number of sscanf arguments*/
 
 	if (ferror(fptr_after)) {
 		printf("ERROR");
@@ -108,18 +113,22 @@ void parse(symbol_table_t *sym_tbl) {
 	/*fgets(buffer, LINE_LENGTH, fptr_after) != NULL*/
 	while (fgets(buffer, LINE_LENGTH, fptr_after) != NULL) {
 		line_count++;
-		*IC += 10;
+		*IC += 1;
 
 		buffer = strstrip(buffer);
+		/*option label is at start - will identify both label and opcode*/
+		/*scanned how many succesfuly scanned*/
 		if ((scanned = sscanf(buffer, "%s%s:", cmd, cmd_extra)) == 2) {
 			if ((isSymbol = if_Symbol_if_Duplicate(sym_tbl, cmd)) > 0) {
 				*pos = strlen(cmd);/*jumps over symbol */
 				buffer += *pos;
 				buffer = strstrip(buffer);/*remove excess white*/
 				if (isSymbol == 1)
-					loadSymbolTable(sym_tbl, cmd, *IC);
-				else
-					checkOrUpdateSymbolAddress(sym_tbl, cmd, *IC, YES);
+					loadSymbolTable(sym_tbl, cmd, 0, _INSTRUCTION);
+				else /*isSymbol = 2*/
+					/*if YES it willl update override , NO just checck if addresss*/
+					checkOrUpdateSymbolAddress(sym_tbl, cmd, 0, YES);
+
 				if (classify_line(cmd_extra) > 0) {
 					*pos = strlen(cmd_extra);
 					buffer += *pos;
@@ -129,7 +138,6 @@ void parse(symbol_table_t *sym_tbl) {
 				if (classify_line(cmd) > 0) {
 					*pos = strlen(cmd);
 					buffer += *pos;
-
 				}
 			} else
 				report_error(ERR_LINE_UNRECOGNIZED, line_count, CRIT);
@@ -137,42 +145,46 @@ void parse(symbol_table_t *sym_tbl) {
 
 		buffer = strstrip(buffer);
 		switch (parser_s.line_type) {
-
+			/*|| seperator_c.counter > 2*/
 			case OP_CODE:
 				seperator_c = string_comma_seps(buffer);
-				if (seperator_c.isError == 1 /*|| seperator_c.counter > 2*/)
+				/*isError - too many comma | commaValue-no of comma err*/
+				if (seperator_c.isError == 1 ||
+				     seperator_c.counter != commaValue(parser_s.operands[0].op))
 					report_error(ERR_OP_CODE_RECOGNITION, line_count, CRIT);
-
 				for (idx = 0; idx < seperator_c.counter; idx++) {
 					seperator_c.cString[idx] = strstrip(seperator_c.cString[idx]);
 					parser_s.operands[idx].type_of_register = classifyRegisters(seperator_c.cString[idx], idx);
-					if (parser_s.operands[idx].type_of_register == _DIRECT)    /*_Direct means label*/
-						/*1 is new symbol 2 is duplicant onlt addresss updated*/
-						if ((isSymbol == isDuplicateSymbol(sym_tbl, parser_s.operands[idx].operand.symbol)) > 0) {
-							if (isSymbol == 1)
-								loadSymbolTable(sym_tbl, cmd, *IC);
-							else
-								checkOrUpdateSymbolAddress(sym_tbl, cmd, *IC, YES);
-						}
 				}
-
-
-				/*check complaince of line to the oper code*/
-				/*	checkRegisterCompliance();*/
-
-
-				break;
-			case DIRECTIVE:
-				break;
-			case ERR:
-				report_error(ERR_LINE_UNRECOGNIZED, line_count, CRIT);
-				break;
-			case TBD:
-				break;
-			default:
-				break;
+				checkRegisterCount(parser_s.operands[0].op);
+				if (parser_s.operands[idx].type_of_register == _DIRECT)    /*_Direct means label*/
+					/*1 is new symbol|2 is duplicant only addresss updated*/
+					if ((isSymbol == if_Symbol_if_Duplicate(sym_tbl, parser_s.operands[idx].operand.symbol)) > 0) {
+						if (isSymbol == 1)
+							loadSymbolTable(sym_tbl, cmd, 0, _INSTRUCTION);
+						else
+							checkOrUpdateSymbolAddress(sym_tbl, cmd, 0, YES);
+					}
 		}
+
+
+		/*check complaince of line to the oper code*/
+		/*	checkRegisterCompliance();*/
+
+
+		break;
+		case DIRECTIVE:
+			break;
+		case ERR:
+			report_error(ERR_LINE_UNRECOGNIZED, line_count, CRIT);
+		break;
+		case TBD:
+			break;
+		default:
+			break;
 	}
+}
+
 }
 
 int classify_line(char *cmd) {
@@ -185,6 +197,7 @@ int classify_line(char *cmd) {
 	for (j = 0; j < 16; ++j) {
 		if (strcmp(cmd, opcodeArray[j].opcode_name) == 0) {
 			parser_s.line_type = OP_CODE;
+			/*although only one opcode defines for two operands due to struct structure*/
 			parser_s.operands[0].op = opcodeArray[j].op_num;
 			parser_s.operands[1].op = opcodeArray[j].op_num;
 			return 1;
@@ -193,7 +206,7 @@ int classify_line(char *cmd) {
 	for (j = 0; j < 4; ++j) {
 		if (strcmp(cmd, directArray[j].direct_name) == 0) {
 			parser_s.line_type = DIRECTIVE;
-			parser_s.directive.d_enum = directArray[j].dir_num;
+			parser_s.directive.cmd = directArray[j].cmd;
 			return 1;
 		}
 	}
@@ -258,53 +271,42 @@ type_of_register_t classifyRegisters(char *str, int first_or_second_operand) {
 	return _ERROR;
 }
 
-/*return number of registers allowed*/
+/*return number of registers allowed, -1 means op_code number of registers is wrong*/
+int commaValue(op_code_t op) {
+	if (op >= mov && op <= lea)
+		return 1;
+	else
+		return 0;
+
+}
+
 int checkRegisterCount(op_code_t op) {
 
-	switch (op) {/*check if the struct differs b/w oper[1] and oper[2] opcode*/
-		case mov:/*op codes that have two operands*/
-		case cmp:
-		case add:
-		case sub:
-		case lea:
-			if (parser_s.operands[1].type_of_register == _ERROR ||
-			    parser_s.operands[1].type_of_register == _TBD &&
-			    parser_s.operands[2].type_of_register == _ERROR ||
-			    parser_s.operands[2].type_of_register == _TBD) {
-				report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count, CRIT);
-				return -1;
-			} else return 2;
+	if (op >= mov && op <= lea) {
+		if (parser_s.operands[1].type_of_register == _ERROR ||
+		    parser_s.operands[1].type_of_register == _TBD &&
+		    parser_s.operands[2].type_of_register == _ERROR ||
+		    parser_s.operands[2].type_of_register == _TBD) {
+			report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count, CRIT);
+			return -1;
+		} else return 2;
+	} else if (op >= clr && op <= prn) {
+		if (parser_s.operands[1].type_of_register != _ERROR ||
+		    parser_s.operands[1].type_of_register != _TBD &&
+		    parser_s.operands[2].type_of_register == _ERROR ||
+		    parser_s.operands[2].type_of_register == _TBD) {
+			report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count, CRIT);
+			return -1;
+		} else return 1;
 
-			break;
-
-		case clr: /*op codes that only have a destination operand */
-		case not:
-		case inc:
-		case dec:
-		case jmp:
-		case bne:
-		case red:
-		case prn:
-			if (parser_s.operands[1].type_of_register != _ERROR ||
-			    parser_s.operands[1].type_of_register != _TBD &&
-			    parser_s.operands[2].type_of_register == _ERROR ||
-			    parser_s.operands[2].type_of_register == _TBD) {
-				report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count, CRIT);
-				return -1;
-			} else return 1; 
-			break;
-		case jsr:/*no operands*/
-		case stop:
-			if (parser_s.operands[1].type_of_register != _ERROR ||
-			    parser_s.operands[1].type_of_register != _TBD &&
-			    parser_s.operands[2].type_of_register != _ERROR ||
-			    parser_s.operands[2].type_of_register != _TBD) {
-				report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count, CRIT);
-				return -1;
-			} else return 0;
-			break;
-		default:
-			break;
+	} else {
+		if (parser_s.operands[1].type_of_register != _ERROR ||
+		    parser_s.operands[1].type_of_register != _TBD &&
+		    parser_s.operands[2].type_of_register != _ERROR ||
+		    parser_s.operands[2].type_of_register != _TBD) {
+			report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count, CRIT);
+			return -1;
+		} else return 0;
 	}
 }
 
@@ -313,37 +315,30 @@ void checkRegisterCompliance() {
 	int idx = 0;
 	op_code_t opCode = parser_s.operands[0].op;
 
-	switch(checkRegisterCount(opCode){}
-	
-	
 	type_of_register_t type1 = parser_s.operands[0].type_of_register;
 	type_of_register_t type2 = parser_s.operands[1].type_of_register;
-	
 
+/*
 	if (type1 == opcode_specs[opCode][1][0][type1] &&
-	    type2 == opcode_specs[opCode][1][0][type2])
+	    type2 == opcode_specs[opCode][1][0][type2])*/
 
-
-		case mov:
-
-		case cmp:
-		case add:
-		case sub:
-		case lea:
-
-
-		case clr: /*op codes that only have a destination operand */
+	/*case mov:
+	case cmp:
+	case add:
+	case sub:
+	case lea:
+	case clr: *//*op codes that only have a destination operand *//*
 		case not:
 		case inc:
 		case dec:
 		case jmp:
 		case bne:
-		case red:
-		case prn:
-		case jsr:/*no operands*/
-		case stop:
+		case red:*/
+	/*case prn:
+	case jsr:*//*no operands*//*
+		case stop:*/
 
-}
+
 
 }
 
@@ -358,6 +353,16 @@ int convertStringToNum(char *str) {
 	return (int) num;
 }
 
+int countCommas(char *str) {
+	int count = 0;
+	int i;
+	for (i = 0; str[i] != '\0'; i++) {
+		if (str[i] == ',') {
+			count++;
+		}
+	}
+	return count;
+}
 
 sep_whitespace_t string_sep(char *line) {
 	int strings_count = 0;
@@ -429,7 +434,7 @@ void initDirectiveArray() {
 	int i;
 	for (i = 0; i < 4; ++i) {
 		directArray[i].direct_name = directives[i];
-		directArray[i].dir_num = direct_enums[i];
+		directArray[i].cmd = direct_enums[i];
 	}
 }
 
@@ -449,7 +454,7 @@ void printParser() {
 	printf("Symbol Name: %s\n", parser_s.symbol_name);
 
 	/** Print directive fields */
-	printf("Directive Enum: %d\n", parser_s.directive.d_enum);
+	printf("Directive Enum: %d\n", parser_s.directive.cmd);
 	printf("Directive Symbol: %s\n", parser_s.directive.operand.symbol);
 	printf("Directive Data Length: %d\n", parser_s.directive.operand.data_len);
 	if (parser_s.directive.operand.data != NULL) {
@@ -480,7 +485,7 @@ void initParser() {
 	/*memset(parser_s.symbol_name, 0, sizeof(parser_s.symbol_name));*/
 	strcpy(parser_s.symbol_name, "*");
 	/* Initialize directive fields */
-	parser_s.directive.d_enum = DATA; /* Assuming DATA is a default value */
+	parser_s.directive.cmd = DATA; /* Assuming DATA is a default value */
 	parser_s.directive.operand.symbol = NULL;
 	parser_s.directive.operand.data = NULL;
 	parser_s.directive.operand.str = NULL;

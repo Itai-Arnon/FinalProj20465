@@ -47,6 +47,7 @@ void manage_files(int _argc, char **_argv, macro_table_t *macro_tbl, symbol_tabl
 
 	for (idx = 1; idx < num_files; ++idx) {
 		fptr_before = initSourceFiles(_argc, _argv, fptr_before, idx);
+		parse(sym_tbl);
 
 	/*	read_preprocessor(macro_tbl, sym_tbl);*/
 		/*rewind(fptr_before);*/

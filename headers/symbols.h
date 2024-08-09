@@ -10,6 +10,7 @@
 typedef struct symbol_t{
 	char symbol_name[MAX_SYMBOL_NAME];
 	int address;
+	memory_t type;
 	struct symbol_t *next_sym;
 }symbol_t;
 
@@ -21,7 +22,7 @@ typedef struct {
 
 void collect_symbol_names(symbol_table_t *sym_tbl);
 
-int loadSymbolTable(symbol_table_t *, char [] , int);
+int loadSymbolTable(symbol_table_t *, char [] , int , memory_t);
 
 /*check addressYES will update NO will not
  * returns  0 if zero and 1 if diff from zero but no update 2 if diff and update*/
@@ -31,7 +32,7 @@ void print_symbol_table(symbol_table_t *sym_tbl);
 
 symbol_table_t * init_symbol_table(symbol_table_t *sym_tbl);
 
-symbol_t *create_symbol(char symbol_name[] ,int address);
+symbol_t *create_symbol(char symbol_name[] ,int address ,  memory_t type);
 
 void findLabel_n_load(symbol_table_t* sym_tbl, char* line , char ch);
 

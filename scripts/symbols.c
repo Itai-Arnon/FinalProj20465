@@ -44,7 +44,8 @@ void collect_symbol_names(symbol_table_t *sym_tbl) {
 				len -= 1;
 				printf("POSSIBLE LABEL %s\n", first_word);
 				strncpy(first_word_cut, first_word, len);
-				loadSymbolTable(sym_tbl, first_word_cut, 0);
+				/*set up as instruction memoery */
+				loadSymbolTable(sym_tbl, first_word_cut, 0,0);
 
 			}
 
@@ -53,10 +54,10 @@ void collect_symbol_names(symbol_table_t *sym_tbl) {
 }
 
 /* todo 0 failure 1:success*/
-int loadSymbolTable(symbol_table_t *sym_tbl, char symbol_name[], int address) {
+int loadSymbolTable(symbol_table_t *sym_tbl, char symbol_name[], int address , memory_t type) {
 	int res = 0;
 	symbol_t *end = sym_tbl->symbol_List;
-	symbol_t *node = create_symbol(symbol_name, address);/*create symbols takes care of error*/
+	symbol_t *node = create_symbol(symbol_name, address , type);/*create symbols takes care of error*/
 
 	if (node == NULL) {
 		return 0;
@@ -110,7 +111,7 @@ symbol_table_t *init_symbol_table(symbol_table_t *sym_tbl) {
 	return NULL;
 }
 
-symbol_t *create_symbol(char symbol_name[], int address) {
+symbol_t *create_symbol(char symbol_name[], int address , memory_t type) {
 	symbol_t *node = NULL;
 	int LEN = strlen(symbol_name);
 	if (symbol_name[LEN-1] == ':')
@@ -119,6 +120,7 @@ symbol_t *create_symbol(char symbol_name[], int address) {
 	if (node = malloc(sizeof(symbol_t))) {
 		strncpy(node->symbol_name, symbol_name, LEN);
 		node->address = 0;
+		node->type = type;
 		node->next_sym = NULL;
 		printf("%s\n", symbol_name);
 		return node;
@@ -215,7 +217,7 @@ void findLabel_n_load(symbol_table_t *sym_tbl, char *buffer, char ch) {
 	/*todo fix this*/
 	/*for (idx = 0; idx < length; idx++) {
 		strcpy(no_whites, arr[idx]);
-		loadSymbolTable(sym_tbl, , 0);
+		loadSymbolTable(sym_tbl, , 0. _INSTRUCTION);
 		printf("%s\n", no_whites);
 	}*/
 }

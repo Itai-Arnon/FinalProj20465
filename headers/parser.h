@@ -27,12 +27,12 @@ typedef struct {
 
 typedef struct {
 	char *direct_name;
-	directive_enums dir_num;
+	directive_cmd_t cmd;
 } direct_arr_t;
 
 
 
-
+void parse(symbol_table_t *);
 
 /* creates an array of separated strings using strpbrk*/
 sep_whitespace_t string_sep_white_space(char *);

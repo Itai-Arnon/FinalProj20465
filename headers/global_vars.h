@@ -19,7 +19,7 @@ typedef struct {
 
 	/*first strct meant for directives */
 	struct {
-		directive_enums d_enum;
+		directive_cmd_t cmd;
 		int symbol_memory;
 		struct {/*characterizes the directives*/
 

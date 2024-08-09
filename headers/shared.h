@@ -8,13 +8,14 @@
 #define LINE_LENGTH 80
 #define MAX_MACRO_NAME 31
 #define MAX_MACROS 20
-#define MAX_SYMBOL_NAME 20
+#define MAX_SYMBOL_NAME 31
 
 #define MACRO_START_WORD "macr"
 #define MACRO_END_WORD "endmacr"
 #define MACRO_END_LEN 7
 #define MACRO_START_LEN 4
 #define MAX_DIRECTIVE_NAME 8
+#define IC_SHIFT 100
 
 
 /*text add in */
@@ -76,7 +77,7 @@ typedef enum {
 	STRING,
 	ENTRY,
 	EXTERN,
-}directive_enums;
+}directive_cmd_t;
 /*pass1 and pass2*/
 typedef enum {
 	mov, cmp, add, sub, lea, clr, not, inc, dec, jmp,
@@ -95,5 +96,7 @@ typedef enum{CRIT,NON_CRIT}err_type_t;
 
 /*meant to decipher between reg behvior*/
 
-typedef enum { _IMMEDIATE, _DIRECT,_INDIRECT, _REGULAR, _ERROR , _TBD  }type_of_register_t;
+typedef enum { _IMMEDIATE, _DIRECT,_INDIRECT, _REGULAR, _ERROR , _TBD }type_of_register_t;
+typedef enum{ _INSTRUCTION , _DATA}memory_t;
+
 #endif
