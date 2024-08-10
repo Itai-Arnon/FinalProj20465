@@ -16,7 +16,7 @@ typedef struct {
 		ERR,
 		TBD
 	} line_type;    /*classifies typof line*/
-
+	op_code_t op; /*the 16 op codes*/
 	/*first strct meant for directives */
 	struct {
 		directive_cmd_t cmd;
@@ -30,7 +30,7 @@ typedef struct {
 		} operand; /*singular oper*/
 	} directive;
 	struct {
-		op_code_t op; /*the 16 op codes*/
+
 		type_of_register_t type_of_register; /*4 type by order*/
 		int symbol_memory;
 		union {   /* 4 types of  operands*/

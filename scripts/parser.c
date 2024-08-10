@@ -64,15 +64,19 @@ void classify_opcode(symbol_table_t *sym_tbl, char *buffer);
 
 type_of_register_t classifyRegisters(char *str, int first_or_second_operand);
 
-void checkRegisterCompliance();
+/*checks type of register assigned to register is correct */
+int checkRegisterCompliance();
 
 int checkRegisterCount(op_code_t op);
 
 int convertStringToNum(char *str);
 
-int commaValue(op_code_t op);
+/*check if there's data after the current cmd*/
+char *advance_buffer_if_possible(char *buffer, int *cmd_len);
 
-int countCommas(char *str);
+
+int variable_count_by_op(op_code_t op);
+
 
 sep_commas_t string_comma_seps(char *str);
 
@@ -90,8 +94,8 @@ void parse(symbol_table_t *sym_tbl) {
 	char *cmd = calloc(MAX_SYMBOL_NAME, sizeof(char));
 	char *cmd_extra = calloc(MAX_SYMBOL_NAME, sizeof(char));
 	int *pos = calloc(1, sizeof(int));/*promotes the buffer*/
-	int idx, isSymbol, scanned, initVal; /*initial value of IC*/
-	idx = isSymbol =  scanned = initVal = 0;
+	int idx, isSymbol, scanned, initVal, buff_len; /*initial value of IC*/
+	idx = isSymbol = scanned = initVal = buff_len = 0;
 	line_count = 0;
 
 
@@ -116,75 +120,78 @@ void parse(symbol_table_t *sym_tbl) {
 		*IC += 1;
 
 		buffer = strstrip(buffer);
+
 		/*option label is at start - will identify both label and opcode*/
 		/*scanned how many succesfuly scanned*/
 		if ((scanned = sscanf(buffer, "%s%s:", cmd, cmd_extra)) == 2) {
-			if ((isSymbol = if_Symbol_if_Duplicate(sym_tbl, cmd)) > 0) {
+			if ((isSymbol = if_Symbol_if_Duplicate(sym_tbl, cmd)) > 0) {/*returns 1 if symbol non existent*/
 				*pos = strlen(cmd);/*jumps over symbol */
 				buffer += *pos;
 				buffer = strstrip(buffer);/*remove excess white*/
 				if (isSymbol == 1)
 					loadSymbolTable(sym_tbl, cmd, 0, _INSTRUCTION);
-				else /*isSymbol = 2*/
-					/*if YES it willl update override , NO just checck if addresss*/
-					checkOrUpdateSymbolAddress(sym_tbl, cmd, 0, YES);
-
 				if (classify_line(cmd_extra) > 0) {
 					*pos = strlen(cmd_extra);
-					buffer += *pos;
+					/*advanced the buffer only if doens't emtpy it*/
+					buffer = advance_buffer_if_possible(buffer, pos);
 				} else
 					report_error(ERR_LINE_UNRECOGNIZED, line_count, CRIT);
-			} else if (scanned > 0) {
-				if (classify_line(cmd) > 0) {
-					*pos = strlen(cmd);
-					buffer += *pos;
-				}
-			} else
-				report_error(ERR_LINE_UNRECOGNIZED, line_count, CRIT);
-		}
+			}
+		} else if (scanned > 0) {
+			if (classify_line(cmd) > 0) {
+				*pos = strlen(cmd);
+				/*advanced the buffer only if doens't emtpy it*/
+				buffer = advance_buffer_if_possible(buffer, pos);
+			}
+		} else
+			report_error(ERR_LINE_UNRECOGNIZED, line_count, CRIT);
+
 
 		buffer = strstrip(buffer);
 		switch (parser_s.line_type) {
 			/*|| seperator_c.counter > 2*/
 			case OP_CODE:
 				seperator_c = string_comma_seps(buffer);
-				/*isError - too many comma | commaValue-no of comma err*/
+
+				/*isError - too many comma | variable_count_by_op-no of comma err*/
 				if (seperator_c.isError == 1 ||
-				     seperator_c.counter != commaValue(parser_s.operands[0].op))
+				    seperator_c.counter != variable_count_by_op(parser_s.op))
 					report_error(ERR_OP_CODE_RECOGNITION, line_count, CRIT);
-				for (idx = 0; idx < seperator_c.counter; idx++) {
+				idx = (seperator_c.counter == 2) ? 0 : 1;/*idx takes value 1 if only destination reg exits*/
+				for (; idx < seperator_c.counter; idx++) {/*classifies registers*/
 					seperator_c.cString[idx] = strstrip(seperator_c.cString[idx]);
 					parser_s.operands[idx].type_of_register = classifyRegisters(seperator_c.cString[idx], idx);
 				}
-				checkRegisterCount(parser_s.operands[0].op);
-				if (parser_s.operands[idx].type_of_register == _DIRECT)    /*_Direct means label*/
-					/*1 is new symbol|2 is duplicant only addresss updated*/
-					if ((isSymbol == if_Symbol_if_Duplicate(sym_tbl, parser_s.operands[idx].operand.symbol)) > 0) {
-						if (isSymbol == 1)
-							loadSymbolTable(sym_tbl, cmd, 0, _INSTRUCTION);
-						else
-							checkOrUpdateSymbolAddress(sym_tbl, cmd, 0, YES);
+				if (checkRegisterCount(parser_s.op) == -1 || checkRegisterCompliance() == 0)
+					report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count, CRIT);
+
+				/*in case there a register with direct : labels*/
+				for (idx = 0; idx < seperator_c.counter; idx++) {
+					if (parser_s.operands[idx].type_of_register == _DIRECT) {    /*_Direct means label*/
+						/* if_Symbol_if_Duplicant:chks if symbol| 1 is new symbol|2 is duplicant*/
+						if ((isSymbol == if_Symbol_if_Duplicate(sym_tbl, parser_s.operands[idx].operand.symbol)) > 0) {
+							if (isSymbol == 1)
+								loadSymbolTable(sym_tbl, cmd, 0, _INSTRUCTION);
+						}
 					}
+				}
+
+				/*check complaince of line to the oper code*/
+				/*	checkRegisterCompliance();*/
+
+
+				break;
+			case DIRECTIVE:
+				break;
+			case ERR:
+				report_error(ERR_LINE_UNRECOGNIZED, line_count, CRIT);
+				break;
+			case TBD:
+				break;
+			default:
+				break;
 		}
-
-
-		/*check complaince of line to the oper code*/
-		/*	checkRegisterCompliance();*/
-
-
-		break;
-		case DIRECTIVE:
-			break;
-		case ERR:
-			report_error(ERR_LINE_UNRECOGNIZED, line_count, CRIT);
-		break;
-		case TBD:
-			break;
-		default:
-			break;
 	}
-}
-
 }
 
 int classify_line(char *cmd) {
@@ -198,8 +205,7 @@ int classify_line(char *cmd) {
 		if (strcmp(cmd, opcodeArray[j].opcode_name) == 0) {
 			parser_s.line_type = OP_CODE;
 			/*although only one opcode defines for two operands due to struct structure*/
-			parser_s.operands[0].op = opcodeArray[j].op_num;
-			parser_s.operands[1].op = opcodeArray[j].op_num;
+			parser_s.op = opcodeArray[j].op_num;
 			return 1;
 		}
 	}
@@ -218,8 +224,6 @@ int classify_line(char *cmd) {
 void classify_opcode(symbol_table_t *sym_tbl, char *buffer) {
 	int i;
 
-
-
 	/*todo here will come a function checking validity of each register */
 	/*todo here will come a function classifying */
 
@@ -228,6 +232,7 @@ void classify_opcode(symbol_table_t *sym_tbl, char *buffer) {
 /*checks type of registers and correctnees - sets then in parser_s*/
 /*first or second operands relates to the  parser_s*/
 type_of_register_t classifyRegisters(char *str, int first_or_second_operand) {
+
 	int i;
 	char *s_ptr;
 	int len = strlen(str);
@@ -272,27 +277,28 @@ type_of_register_t classifyRegisters(char *str, int first_or_second_operand) {
 }
 
 /*return number of registers allowed, -1 means op_code number of registers is wrong*/
-int commaValue(op_code_t op) {
+int variable_count_by_op(op_code_t op) {
 	if (op >= mov && op <= lea)
+		return 2;
+	else if (op >= clr && op <= stop)
 		return 1;
 	else
 		return 0;
-
 }
 
 int checkRegisterCount(op_code_t op) {
 
 	if (op >= mov && op <= lea) {
-		if (parser_s.operands[1].type_of_register == _ERROR ||
-		    parser_s.operands[1].type_of_register == _TBD &&
-		    parser_s.operands[2].type_of_register == _ERROR ||
-		    parser_s.operands[2].type_of_register == _TBD) {
+		if ((parser_s.operands[1].type_of_register == _ERROR ||
+		     parser_s.operands[1].type_of_register == _TBD) ||
+		    (parser_s.operands[2].type_of_register == _ERROR ||
+		     parser_s.operands[2].type_of_register == _TBD)) {
 			report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count, CRIT);
 			return -1;
 		} else return 2;
 	} else if (op >= clr && op <= prn) {
-		if (parser_s.operands[1].type_of_register != _ERROR ||
-		    parser_s.operands[1].type_of_register != _TBD &&
+		if ((parser_s.operands[1].type_of_register != _ERROR &&
+		     parser_s.operands[1].type_of_register != _TBD) &&
 		    parser_s.operands[2].type_of_register == _ERROR ||
 		    parser_s.operands[2].type_of_register == _TBD) {
 			report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count, CRIT);
@@ -300,9 +306,9 @@ int checkRegisterCount(op_code_t op) {
 		} else return 1;
 
 	} else {
-		if (parser_s.operands[1].type_of_register != _ERROR ||
+		if (parser_s.operands[1].type_of_register != _ERROR &&
 		    parser_s.operands[1].type_of_register != _TBD &&
-		    parser_s.operands[2].type_of_register != _ERROR ||
+		    parser_s.operands[2].type_of_register != _ERROR &&
 		    parser_s.operands[2].type_of_register != _TBD) {
 			report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count, CRIT);
 			return -1;
@@ -310,38 +316,38 @@ int checkRegisterCount(op_code_t op) {
 	}
 }
 
-void checkRegisterCompliance() {
-	char *str1, *str2;
-	int idx = 0;
-	op_code_t opCode = parser_s.operands[0].op;
+/*checks type of register assigned to register is correct */
+int checkRegisterCompliance() {
+	type_of_register_t type1, type2;
+	op_code_t opCode = parser_s.op;
+	type1 = type2 = 0;
 
-	type_of_register_t type1 = parser_s.operands[0].type_of_register;
-	type_of_register_t type2 = parser_s.operands[1].type_of_register;
-
-/*
-	if (type1 == opcode_specs[opCode][1][0][type1] &&
-	    type2 == opcode_specs[opCode][1][0][type2])*/
-
-	/*case mov:
-	case cmp:
-	case add:
-	case sub:
-	case lea:
-	case clr: *//*op codes that only have a destination operand *//*
-		case not:
-		case inc:
-		case dec:
-		case jmp:
-		case bne:
-		case red:*/
-	/*case prn:
-	case jsr:*//*no operands*//*
-		case stop:*/
-
-
-
+	switch (checkRegisterCount(opCode)) {
+		case -1:/*if error in checkRegisterCount */
+			return -1;
+		case 0:/*case of no operands always correct*/
+			return 1;
+		case 1:
+			/*check destination operands only */
+			type2 = parser_s.operands[0].type_of_register;
+			if (type2 == opcode_specs[opCode][2][0][type1] - '0')
+				return 1;
+			return 0;
+			break;
+		case 2:
+			/*check 2 operands*/
+			type1 = parser_s.operands[0].type_of_register;
+			type2 = parser_s.operands[1].type_of_register;
+			/*comparison based opcpde_specs which defines all possible modes for each reg*/
+			if ((type1 == opcode_specs[opCode][1][0][type1] - '0') &&
+			    (type2 == opcode_specs[opCode][2][0][type2] - '0'))
+				return 1;
+			return 0;
+			break;
+		default:
+			break;
+	}
 }
-
 
 int convertStringToNum(char *str) {
 	char *endtoken;
@@ -353,15 +359,12 @@ int convertStringToNum(char *str) {
 	return (int) num;
 }
 
-int countCommas(char *str) {
-	int count = 0;
-	int i;
-	for (i = 0; str[i] != '\0'; i++) {
-		if (str[i] == ',') {
-			count++;
-		}
+char *advance_buffer_if_possible(char *buffer, int *cmd_len) {
+	if (strlen(buffer) > *cmd_len) {
+		buffer += *cmd_len;
+		return buffer;
 	}
-	return count;
+	return buffer;
 }
 
 sep_whitespace_t string_sep(char *line) {
@@ -466,9 +469,9 @@ void printParser() {
 	}
 	printf("Directive String: %s\n", parser_s.directive.operand.str);
 
+	printf("Operand %d Op Code: %d\n", i, parser_s.op);
 	/** Print operands fields */
 	for (i = 0; i < 2; ++i) {
-		printf("Operand %d Op Code: %d\n", i, parser_s.operands[i].op);
 		printf("Operand %d Type of Register: %d\n", i, parser_s.operands[i].type_of_register);
 		printf("Operand %d Number: %d\n", i, parser_s.operands[i].operand.num);
 		printf("Operand %d Symbol: %s\n", i, parser_s.operands[i].operand.symbol);
@@ -492,8 +495,9 @@ void initParser() {
 	parser_s.directive.operand.data_len = 0;
 
 	/* Initialize operands fields */
+	parser_s.op = mov; /* Assuming mov is a default value */
 	for (i = 0; i < 2; ++i) {
-		parser_s.operands[i].op = mov; /* Assuming mov is a default value */
+
 		parser_s.operands[i].type_of_register = _TBD; /*type of register*/
 		parser_s.operands[i].operand.symbol = NULL;
 		parser_s.operands[i].operand.num = 0;

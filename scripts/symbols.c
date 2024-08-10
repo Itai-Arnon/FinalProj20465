@@ -146,7 +146,7 @@ int isDuplicateSymbol(symbol_table_t *sym_tbl, char symbol_name[]) {
 	}
 	return 0; /*no duplicate*/
 }
-
+/*if YES it willl update override , NO just checck if addresss*/
 int checkOrUpdateSymbolAddress(symbol_table_t *sym_tbl, char *symbol_name, int address, isUpdate yes_or_no) {
 	symbol_t *head = sym_tbl->symbol_List;
 

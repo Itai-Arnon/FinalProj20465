@@ -96,7 +96,7 @@ typedef enum{CRIT,NON_CRIT}err_type_t;
 
 /*meant to decipher between reg behvior*/
 
-typedef enum { _IMMEDIATE, _DIRECT,_INDIRECT, _REGULAR, _ERROR , _TBD }type_of_register_t;
+typedef enum { _IMMEDIATE = 0 , _DIRECT  ,_INDIRECT  , _REGULAR  , _ERROR   , _TBD /*5*/ }type_of_register_t;
 typedef enum{ _INSTRUCTION , _DATA}memory_t;
 
 #endif
