@@ -21,19 +21,21 @@
 /*check is the rest of the line is filled with unwanted char*/
 /*the first unwanted char disqualifies the sentence*/
 int isRestOfLineEmpty(char *);
-/*find the first occurane of chars in sep[]*/
-int findSeperator(char* str, char sep[], int num_of_sep);
 
+/*find the first occurane of chars in sep[]*/
+int findSeperator(char *str, char sep[], int num_of_sep);
 
 
 int int_to_octal(int num);
 
 
-
 void ret_next_word_n_skip(char line_text[], int *offset, char line[], char separators[], int separators_amount);
+
 int count_char_until_not_separator(char line[], char c, int *offset, char separators[], int separators_amount);
+
 /* seperastor char array checks all given amount by __seperators__amont__ */
 int is_char_separator(char c, char separators[], int separators_amount);
+
 int extra_char_at_end(const char line[], int loc);
 
 /*purposed to count non null terminated functions*/
@@ -42,12 +44,18 @@ int nonNullTerminatedLength(char *arr);
 /*checks chars containing str, alphanum , alpha*/
 int checkLegalName(char *str, check_legal_name type);
 
-char *removeColon(char* symbol_name);
+char *removeColon(char *symbol_name);
 
-void removeFrontalWhitespace(char*buffer , int*pos);
+void removeFrontalWhitespace(char *buffer, int *pos);
+
 /*strips whitespace in both sides*/
 char *strstrip(char *s);
+
 /*counts commas to verify separator struct*/
-int countCommas(char* str);
+int countCommas(char *str);
+
+int convertOrCheckStringToNum(char *str, int type);
+
+int countNumbersInString( char *str);
 
 #endif /* M14_UTILS_H*/

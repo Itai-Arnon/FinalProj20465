@@ -2,7 +2,7 @@
 #include <string.h>
 #include "headers/utils.h"
 #include "headers/error.h"
-
+#include "headers/global_vars.h"
 
 int isRestOfLineEmpty(char *line) {
 	int idx = 0;
@@ -162,4 +162,46 @@ int countCommas(char *str) {
 }
 
 
+int convertOrCheckStringToNum(char *str, int type) {
+	char *endtoken;
+	long num = strtol(str, &endtoken, 10);
 
+
+	switch (type) {
+		case 0:
+			if (*endtoken != '\0') {
+				report_error(ERR_FAILED_TO_CONVERT_NUMBER, line_count, CRIT);
+			} else
+				return (int) num;
+		case 1:
+			if (*endtoken != '\0') {
+				return 0;
+			} else
+				return 1;
+	}
+}
+
+
+
+/*count the numbers in a string to check valditiy of .DATA directive */
+int countNumbersInString( char *str) {
+	int count = 0;
+	int i = 0;
+	int inNumber = 0;
+
+	while (str[i] != '\0') {
+		/* Check if the current character is a digit or a minus sign */
+		if (isdigit(str[i]) || (str[i] == '-' && isdigit(str[i + 1]))) {
+			if (!inNumber) {
+				count++;
+				inNumber = 1;
+			}
+		} else {
+			inNumber = 0;
+		}
+		i++;
+	}
+
+
+	return count;
+}

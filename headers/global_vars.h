@@ -22,9 +22,8 @@ typedef struct {
 		directive_cmd_t cmd;
 		int symbol_memory;
 		struct {/*characterizes the directives*/
-
 			char *symbol;
-			int *data; /*todo:chcek if malloc*/
+			int **data; /*todo:chcek if malloc*/
 			char *str;
 			int data_len;
 		} operand; /*singular oper*/

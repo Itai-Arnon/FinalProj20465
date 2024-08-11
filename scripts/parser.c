@@ -37,8 +37,8 @@ static char *opcode_specs[16][3][1] = {
 		{{"jsr"},  {"-12-"}, {"----"}},
 		{{"rts"},  {"----"}, {"----"}},
 		{{"stop"}, {"----"}, {"----"}}};
-int *IC;
-int *DC;
+
+
 parser_t parser_s;
 static sep_commas_t seperator_c;
 static sep_whitespace_t seperator_w;
@@ -49,8 +49,6 @@ void initParser();
 
 /* fills parser and checks  if concurs with op_code_t (1) or directive(2) (0) failuter*/
 int classify_line(char *cmd);
-
-
 
 
 /* creates an array of separated strings using strpbrk*/
@@ -65,14 +63,16 @@ int checkRegisterCompliance();
 
 int checkRegisterCount(op_code_t op);
 
-int convertStringToNum(char *str);
+/*0 - converts string to num 1- check if str is num*/
+int convertOrCheckStringToNum(char *str, int);
 
 /*check if there's data after the current cmd*/
 char *advance_buffer_if_possible(char *buffer, char *cmd);
 
 
-int variable_count_by_op(op_code_t op);
+int register_count_by_op(op_code_t op);
 
+/* identifies  directive returns the Enum and set it in the parser_s*/
 directive_cmd_t identifyDirective(char *str);
 
 
@@ -91,13 +91,13 @@ void parse(symbol_table_t *sym_tbl) {
 	char *buffer = calloc(LINE_LENGTH, sizeof(char));/*sentence analyzed*/
 	char *cmd = calloc(MAX_SYMBOL_NAME, sizeof(char));
 	char *cmd_extra = calloc(MAX_SYMBOL_NAME, sizeof(char));
+	char *directive_str = NULL;
 	int *pos = calloc(1, sizeof(int));/*promotes the buffer*/
-	int idx,  initVal, buff_len; /*initial value of IC*/
-	idx  = initVal = buff_len = 0;
+	int *arr = NULL;
+	int idx, numCount, buff_len, result; /**/
+	idx = numCount = buff_len = 0;
 	line_count = 0;
 
-
-	IC = &initVal;
 
 	initEnumArr();
 	initDirectiveArray();/*todo check if needs more*/
@@ -116,13 +116,14 @@ void parse(symbol_table_t *sym_tbl) {
 	while (fgets(buffer, LINE_LENGTH, fptr_after) != NULL) {
 		initParser();
 		line_count++;
-		*IC += 1;
+
 
 		buffer = strstrip(buffer);
 
 		/*option label is at start - will identify both label and opcode*/
 		/*scanned how many succesfuly scanned*/
 		if (sscanf(buffer, "%s%s:", cmd, cmd_extra) == 2) {
+			char *directive_cmd;
 			if (if_Symbol_if_Duplicate(sym_tbl, cmd, 1) == 1) {/*returns 1 if symbol non existent*/
 				loadSymbolTable(sym_tbl, cmd, 0, _INSTRUCTION);
 				buffer = advance_buffer_if_possible(buffer, cmd);
@@ -137,7 +138,7 @@ void parse(symbol_table_t *sym_tbl) {
 				/*advanced the buffer only if doens't emtpy it*/
 				buffer = advance_buffer_if_possible(buffer, cmd);
 			} else
-				report_error(ERR_OP_CODE_RECOGNITION, line_count, CRIT);
+				report_error(ERR_LINE_UNRECOGNIZED, line_count, CRIT);
 		} else
 			report_error(ERR_LINE_UNRECOGNIZED, line_count, CRIT);
 
@@ -145,13 +146,14 @@ void parse(symbol_table_t *sym_tbl) {
 		switch (parser_s.line_type) {
 			/*|| seperator_c.counter > 2*/
 			case OP_CODE:
+				/*seperates the registers across an array of strings*/
 				seperator_c = string_comma_seps(buffer);
 
-				/*isError - too many comma | variable_count_by_op-no of comma err*/
-				if (seperator_c.isError == 1 ||
-				    seperator_c.counter != variable_count_by_op(parser_s.op))
+				/*isError - too many comma | register_count_by_op - no of registers by opcode definition  */
+				if (seperator_c.isError == 1 || seperator_c.counter != register_count_by_op(parser_s.op))
 					report_error(ERR_OP_CODE_RECOGNITION, line_count, CRIT);
-				idx = (seperator_c.counter == 2) ? 0 : 1;/*idx takes value 1 if only destination reg exits*/
+				/*idx  1 if only destination reg exits , 0 if two regs exist*/
+				idx = (seperator_c.counter == 2) ? 0 : 1;
 				for (; idx < seperator_c.counter; idx++) {/*classifies registers*/
 					seperator_c.cString[idx] = strstrip(seperator_c.cString[idx]);
 					parser_s.operands[idx].type_of_register = classifyRegisters(seperator_c.cString[idx], idx);
@@ -175,7 +177,32 @@ void parse(symbol_table_t *sym_tbl) {
 
 				break;
 			case DIRECTIVE:
-				 parser_s.directive.cmd =  identifyDirective(buffer);
+				if ((result = parser_s.directive.cmd) == DATA) {
+					/*separates the numbers across an array of strings*/
+					numCount = countNumbersInString(buffer);
+					seperator_c = string_comma_seps(buffer);
+					/*check if buffer number count concurs with separator struct*/
+					if (numCount != seperator_c.counter)
+						report_error(ERR_DATA_DIRECTIVE_NUMBER, line_count, CRIT);
+					parser_s.directive.operand.data_len = numCount;
+					arr = (int *) calloc(seperator_c.counter, sizeof(int));
+
+					for (idx = 0; idx < seperator_c.counter; idx++) {
+						directive_str = strstrip(seperator_c.cString[idx]);
+						arr[idx] = convertOrCheckStringToNum(directive_str, 0);
+					}
+					(parser_s.directive.operand.data) = &arr;
+
+				} else if (result == STRING) {}
+
+				else if (result == STRING) {}
+
+				else if (result == ENTRY || result == EXTERN) {}
+
+
+				else
+					report_error(ERR_DIRECTIVE_RECOGNITION, line_count, CRIT);
+
 				break;
 			case ERR:
 				report_error(ERR_LINE_UNRECOGNIZED, line_count, CRIT);
@@ -233,7 +260,7 @@ type_of_register_t classifyRegisters(char *str, int first_or_second_operand) {
 		if (*s_ptr)
 			report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count, CRIT);
 		else {
-			number = convertStringToNum(s_ptr);
+			number = convertOrCheckStringToNum(s_ptr, 0);
 			printf("%d\n", number);
 			parser_s.operands[first_or_second_operand].operand.num = number;
 			return _IMMEDIATE;
@@ -265,7 +292,7 @@ type_of_register_t classifyRegisters(char *str, int first_or_second_operand) {
 }
 
 /*return number of registers allowed, -1 means op_code number of registers is wrong*/
-int variable_count_by_op(op_code_t op) {
+int register_count_by_op(op_code_t op) {
 	if (op >= mov && op <= lea)
 		return 2;
 	else if (op >= clr && op <= stop)
@@ -337,15 +364,6 @@ int checkRegisterCompliance() {
 	}
 }
 
-int convertStringToNum(char *str) {
-	char *endtoken;
-	long num = strtol(str, &endtoken, 10);
-	if (*endtoken != '\0') {
-		printf("invalid number '%s' (syntax error)\n", str);
-		report_error(FAILED_TO_CONVERT_NUMBER, line_count, CRIT);
-	}
-	return (int) num;
-}
 
 char *advance_buffer_if_possible(char *buffer, char *cmd) {
 	int cmd_len = strlen(cmd);
@@ -356,37 +374,9 @@ char *advance_buffer_if_possible(char *buffer, char *cmd) {
 	return buffer;
 }
 
-#include <string.h>
-#include "headers/global_vars.h"
 
 /* identifies  directive and set it in parser_s ,*/
-directive_cmd_t identifyDirective(char *str) {
-	directive_cmd_t directive;
 
-	if (strcmp(str, ".data") == 0) {
-		directive = DATA;
-	}
-	else if (strcmp(str, ".string") == 0) {
-		directive = STRING;
-	}
-	else if (strcmp(str, ".extern") == 0) {
-		directive = EXTERN;
-	}
-
-	else if (strcmp(str, ".entry") == 0) {
-		directive = ENTRY;
-	}
-		/** Default case */
-	else {
-		directive = -1; // Invalid directive
-	}
-
-	/** Set the directive in parser_s */
-	parser_s.directive.cmd = directive;
-
-	/** Return the directive */
-	return directive;
-}
 
 sep_whitespace_t string_sep(char *line) {
 	int strings_count = 0;

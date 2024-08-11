@@ -64,11 +64,12 @@
 #define ERR_MACRO_NAME_OP_DIRECT_SYMBOL "Macro name is a opcode, a directive or a symbol"
 #define ERR_OP_CODE_RECOGNITION "OP CODE NOT RECOGNIZED"
 #define ERR_OP_CODE_FAILED_STRUCTURE "OP Code structure Unrecognized or Not Legal"
-#define ERR_DIRECTIVE_RECOGNITION "Directive Not Recognized or Not Legal"
+#define ERR_DIRECTIVE_RECOGNITION "Directive Not Recognized"
 #define ERR_LINE_UNRECOGNIZED "Line Not Recognized as OP_CODE or DIRECTIVE"
 #define ERR_GENERAL_FIRST_PASS_ERROR "General First Pass Erro"
 #define ERR_OP_CODE_REGISTRY_ILLEGAL " One or both OP Code register isn't legal"
-#define FAILED_TO_CONVERT_NUMBER "Failed to immediate Number"
+#define ERR_FAILED_TO_CONVERT_NUMBER "Failed to convert Number"
+#define ERR_DATA_DIRECTIVE_NUMBER "Data Directive Number or Numbers Invalid"
 
 
 
