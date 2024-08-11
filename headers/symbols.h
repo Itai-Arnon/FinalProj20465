@@ -26,13 +26,19 @@ int loadSymbolTable(symbol_table_t *, char [] , int , memory_t);
 
 /*check addressYES will update NO will not
  * returns  0 if zero and 1 if diff from zero but no update 2 if diff and update*/
-int checkOrUpdateSymbolAddress(symbol_table_t *sym_tbl, char* symbol_name , int address , isUpdate n);
+int checkOrUpdateSymbolAddress(symbol_table_t *sym_tbl, char* symbol_name , int address , isUpdate_t n);
 
 void print_symbol_table(symbol_table_t *sym_tbl);
 
 symbol_table_t * init_symbol_table(symbol_table_t *sym_tbl);
 
 symbol_t *create_symbol(char symbol_name[] ,int address ,  memory_t type);
+
+
+/*fills parser and checks if symbol- then returns 1  non duplicate , 2 for duplicate
+ *  0 for fail ||if isStartOrMid == 1 will not allow symbol w/o ':"*/
+int if_Symbol_if_Duplicate(symbol_table_t *sym_tbl, char *cmd ,int startOrMid );
+
 
 void findLabel_n_load(symbol_table_t* sym_tbl, char* line , char ch);
 

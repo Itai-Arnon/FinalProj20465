@@ -50,11 +50,7 @@ void initParser();
 /* fills parser and checks  if concurs with op_code_t (1) or directive(2) (0) failuter*/
 int classify_line(char *cmd);
 
-void classify_opcode(symbol_table_t *sym_tbl, char *buffer);
 
-/*fills parser and checks if symbol- then returns 1  non duplicate , 2 for duplicate
- *  0 for fail */
-int if_Symbol_if_Duplicate(symbol_table_t *sym_tbl, char *cmd);
 
 
 /* creates an array of separated strings using strpbrk*/
@@ -72,10 +68,12 @@ int checkRegisterCount(op_code_t op);
 int convertStringToNum(char *str);
 
 /*check if there's data after the current cmd*/
-char *advance_buffer_if_possible(char *buffer, int *cmd_len);
+char *advance_buffer_if_possible(char *buffer, char *cmd);
 
 
 int variable_count_by_op(op_code_t op);
+
+directive_cmd_t identifyDirective(char *str);
 
 
 sep_commas_t string_comma_seps(char *str);
@@ -94,13 +92,13 @@ void parse(symbol_table_t *sym_tbl) {
 	char *cmd = calloc(MAX_SYMBOL_NAME, sizeof(char));
 	char *cmd_extra = calloc(MAX_SYMBOL_NAME, sizeof(char));
 	int *pos = calloc(1, sizeof(int));/*promotes the buffer*/
-	int idx, isSymbol, scanned, initVal, buff_len; /*initial value of IC*/
-	idx = isSymbol = scanned = initVal = buff_len = 0;
+	int idx,  initVal, buff_len; /*initial value of IC*/
+	idx  = initVal = buff_len = 0;
 	line_count = 0;
 
 
 	IC = &initVal;
-	initParser();
+
 	initEnumArr();
 	initDirectiveArray();/*todo check if needs more*/
 /*number of sscanf arguments*/
@@ -116,6 +114,7 @@ void parse(symbol_table_t *sym_tbl) {
 	}
 	/*fgets(buffer, LINE_LENGTH, fptr_after) != NULL*/
 	while (fgets(buffer, LINE_LENGTH, fptr_after) != NULL) {
+		initParser();
 		line_count++;
 		*IC += 1;
 
@@ -123,29 +122,24 @@ void parse(symbol_table_t *sym_tbl) {
 
 		/*option label is at start - will identify both label and opcode*/
 		/*scanned how many succesfuly scanned*/
-		if ((scanned = sscanf(buffer, "%s%s:", cmd, cmd_extra)) == 2) {
-			if ((isSymbol = if_Symbol_if_Duplicate(sym_tbl, cmd)) > 0) {/*returns 1 if symbol non existent*/
-				*pos = strlen(cmd);/*jumps over symbol */
-				buffer += *pos;
+		if (sscanf(buffer, "%s%s:", cmd, cmd_extra) == 2) {
+			if (if_Symbol_if_Duplicate(sym_tbl, cmd, 1) == 1) {/*returns 1 if symbol non existent*/
+				loadSymbolTable(sym_tbl, cmd, 0, _INSTRUCTION);
+				buffer = advance_buffer_if_possible(buffer, cmd);
 				buffer = strstrip(buffer);/*remove excess white*/
-				if (isSymbol == 1)
-					loadSymbolTable(sym_tbl, cmd, 0, _INSTRUCTION);
 				if (classify_line(cmd_extra) > 0) {
-					*pos = strlen(cmd_extra);
 					/*advanced the buffer only if doens't emtpy it*/
-					buffer = advance_buffer_if_possible(buffer, pos);
+					buffer = advance_buffer_if_possible(buffer, cmd_extra);
 				} else
 					report_error(ERR_LINE_UNRECOGNIZED, line_count, CRIT);
-			}
-		} else if (scanned > 0) {
-			if (classify_line(cmd) > 0) {
-				*pos = strlen(cmd);
+
+			} else if (classify_line(cmd) > 0) {
 				/*advanced the buffer only if doens't emtpy it*/
-				buffer = advance_buffer_if_possible(buffer, pos);
-			}
+				buffer = advance_buffer_if_possible(buffer, cmd);
+			} else
+				report_error(ERR_OP_CODE_RECOGNITION, line_count, CRIT);
 		} else
 			report_error(ERR_LINE_UNRECOGNIZED, line_count, CRIT);
-
 
 		buffer = strstrip(buffer);
 		switch (parser_s.line_type) {
@@ -165,13 +159,12 @@ void parse(symbol_table_t *sym_tbl) {
 				if (checkRegisterCount(parser_s.op) == -1 || checkRegisterCompliance() == 0)
 					report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count, CRIT);
 
-				/*in case there a register with direct : labels*/
+				/*Creat symbol a register with direct : labels*/
 				for (idx = 0; idx < seperator_c.counter; idx++) {
 					if (parser_s.operands[idx].type_of_register == _DIRECT) {    /*_Direct means label*/
-						/* if_Symbol_if_Duplicant:chks if symbol| 1 is new symbol|2 is duplicant*/
-						if ((isSymbol == if_Symbol_if_Duplicate(sym_tbl, parser_s.operands[idx].operand.symbol)) > 0) {
-							if (isSymbol == 1)
-								loadSymbolTable(sym_tbl, cmd, 0, _INSTRUCTION);
+						/* if_Symbol_if_Duplicant:chks if symbol| 1 is new symbol|2 is duplicant|last arg decides if symbol is start/middle */
+						if (if_Symbol_if_Duplicate(sym_tbl, parser_s.operands[idx].operand.symbol, 0) == 1) {
+							loadSymbolTable(sym_tbl, parser_s.operands[idx].operand.symbol, 0, _INSTRUCTION);
 						}
 					}
 				}
@@ -182,6 +175,7 @@ void parse(symbol_table_t *sym_tbl) {
 
 				break;
 			case DIRECTIVE:
+				 parser_s.directive.cmd =  identifyDirective(buffer);
 				break;
 			case ERR:
 				report_error(ERR_LINE_UNRECOGNIZED, line_count, CRIT);
@@ -192,6 +186,7 @@ void parse(symbol_table_t *sym_tbl) {
 				break;
 		}
 	}
+
 }
 
 int classify_line(char *cmd) {
@@ -220,14 +215,6 @@ int classify_line(char *cmd) {
 	return 0;
 }
 
-
-void classify_opcode(symbol_table_t *sym_tbl, char *buffer) {
-	int i;
-
-	/*todo here will come a function checking validity of each register */
-	/*todo here will come a function classifying */
-
-}
 
 /*checks type of registers and correctnees - sets then in parser_s*/
 /*first or second operands relates to the  parser_s*/
@@ -268,8 +255,9 @@ type_of_register_t classifyRegisters(char *str, int first_or_second_operand) {
 	}
 		/* Default case for other characters */
 
-	else if (str[len - 1] == ':') {
-		strncpy(parser_s.operands[first_or_second_operand].operand.symbol, str, len - 1);
+	else if (checkLegalName(str, ALPHANUM_COMBINED)) {
+		str = removeColon(str);
+		strcpy(parser_s.operands[first_or_second_operand].operand.symbol, str);
 		return _DIRECT; /*label*/   /*todo chk if label duplicate and add accordingly*/
 	}
 
@@ -359,12 +347,45 @@ int convertStringToNum(char *str) {
 	return (int) num;
 }
 
-char *advance_buffer_if_possible(char *buffer, int *cmd_len) {
-	if (strlen(buffer) > *cmd_len) {
-		buffer += *cmd_len;
+char *advance_buffer_if_possible(char *buffer, char *cmd) {
+	int cmd_len = strlen(cmd);
+	if (strlen(buffer) > cmd_len) {
+		buffer += cmd_len;
 		return buffer;
 	}
 	return buffer;
+}
+
+#include <string.h>
+#include "headers/global_vars.h"
+
+/* identifies  directive and set it in parser_s ,*/
+directive_cmd_t identifyDirective(char *str) {
+	directive_cmd_t directive;
+
+	if (strcmp(str, ".data") == 0) {
+		directive = DATA;
+	}
+	else if (strcmp(str, ".string") == 0) {
+		directive = STRING;
+	}
+	else if (strcmp(str, ".extern") == 0) {
+		directive = EXTERN;
+	}
+
+	else if (strcmp(str, ".entry") == 0) {
+		directive = ENTRY;
+	}
+		/** Default case */
+	else {
+		directive = -1; // Invalid directive
+	}
+
+	/** Set the directive in parser_s */
+	parser_s.directive.cmd = directive;
+
+	/** Return the directive */
+	return directive;
 }
 
 sep_whitespace_t string_sep(char *line) {
@@ -489,7 +510,7 @@ void initParser() {
 	strcpy(parser_s.symbol_name, "*");
 	/* Initialize directive fields */
 	parser_s.directive.cmd = DATA; /* Assuming DATA is a default value */
-	parser_s.directive.operand.symbol = NULL;
+	parser_s.directive.operand.symbol = NULL; /*array dynamic alloc*/
 	parser_s.directive.operand.data = NULL;
 	parser_s.directive.operand.str = NULL;
 	parser_s.directive.operand.data_len = 0;
@@ -499,7 +520,7 @@ void initParser() {
 	for (i = 0; i < 2; ++i) {
 
 		parser_s.operands[i].type_of_register = _TBD; /*type of register*/
-		parser_s.operands[i].operand.symbol = NULL;
+		parser_s.operands[i].operand.symbol;
 		parser_s.operands[i].operand.num = 0;
 		parser_s.operands[i].operand.registry = 0;
 	}

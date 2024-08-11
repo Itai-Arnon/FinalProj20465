@@ -89,7 +89,8 @@ typedef enum{MACRO_START, MACRO_END , MACRO_EXPAND , LINE_INSIDE , LINE_OUTSIDE,
 /*utils */
 typedef enum{ALPHA,ALPHANUM, ALPHANUM_COMBINED}check_legal_name;
 
-typedef  enum{NO, YES }isUpdate;
+typedef  enum{NO, YES }isUpdate_t;
+
 
 /*CRIT -terminates NON_CRIT doesn't*/
 typedef enum{CRIT,NON_CRIT}err_type_t;

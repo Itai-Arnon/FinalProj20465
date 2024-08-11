@@ -147,7 +147,7 @@ int isDuplicateSymbol(symbol_table_t *sym_tbl, char symbol_name[]) {
 	return 0; /*no duplicate*/
 }
 /*if YES it willl update override , NO just checck if addresss*/
-int checkOrUpdateSymbolAddress(symbol_table_t *sym_tbl, char *symbol_name, int address, isUpdate yes_or_no) {
+int checkOrUpdateSymbolAddress(symbol_table_t *sym_tbl, char *symbol_name, int address, isUpdate_t yes_or_no) {
 	symbol_t *head = sym_tbl->symbol_List;
 
 	while (head != NULL) {
@@ -166,11 +166,11 @@ int checkOrUpdateSymbolAddress(symbol_table_t *sym_tbl, char *symbol_name, int a
 	return 0; /*no duplicate*/
 }
 /*identifies it's a symbols and reports if it's duplicate or not 1 -dup 2-not dup*/
-int if_Symbol_if_Duplicate(symbol_table_t *sym_tbl, char *cmd) {
+int if_Symbol_if_Duplicate(symbol_table_t *sym_tbl, char *cmd , int isStartOrMid) {
 	int len = 0;
 	len = strlen(cmd);
-
-	if (cmd[len - 1] != ':') {
+/*if isStartOrMid == 1 will not allow symbol w/o ':"*/
+	if (cmd[len - 1] != ':' && isStartOrMid) {
 		parser_s.line_type = ERR;
 		return 0;
 	}

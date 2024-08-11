@@ -80,14 +80,18 @@ int extra_char_at_end(const char line[], int loc) {
 }
 
 
-void removeColon(char *symbol_name, char *symbol_name_c) {
+char * removeColon(char *symbol_name) {
 	int length = strlen(symbol_name);
-
+	char *symbol_name_c = malloc(sizeof(char));
 	if (symbol_name[length] == ':') {
-		strncpy(symbol_name_c, symbol_name, length - 1);
-	} else
-		symbol_name_c = symbol_name;
+		strncat(symbol_name_c, symbol_name, length - 1);
+		return symbol_name_c;
+	}
+	return symbol_name;
 }
+
+
+
 
 /*removes white spaces from noth sides*/
 
@@ -96,30 +100,30 @@ void removeColon(char *symbol_name, char *symbol_name_c) {
 
 int checkLegalName(char *str, check_legal_name type) {
 	int i = 0;
-	int len = nonNullTerminatedLength(str) ;
+	int len = nonNullTerminatedLength(str);
 	if (!isalpha(str[0])) return 0;
 	switch (type) {
 		case ALPHA:
-			while (i < (len - 1)  && isalpha(str[i])) ++i;
+			while (i < (len - 1) && isalpha(str[i])) ++i;
 			break;
 		case ALPHANUM:
-			while (i < (len-1) && isalpha(str[i])) ++i;
+			while (i < (len - 1) && isalpha(str[i])) ++i;
 			/*check condition where after the alphabet there are digits which is acceptable*/
-			while (i < (len-1) && isdigit(str[i])) ++i;
+			while (i < (len - 1) && isdigit(str[i])) ++i;
 			break;
 
 
 		case ALPHANUM_COMBINED:
 			/*check condition where after the alphabet there are digits which is acceptable*/
-			while (i < (len -1) && isalnum(str[i])) ++i;
+			while (i < (len - 1) && isalnum(str[i])) ++i;
 			break;
 
 		default:
 			break;
 	}
 
-	if(isalnum(str[i]) || str[i] == ':' )
-			return i == (len - 1) ? 1 : 0;
+	if (isalnum(str[i]) || str[i] == ':')
+		return i == (len - 1) ? 1 : 0;
 	else
 		return 0;
 }
@@ -130,8 +134,7 @@ void removeFrontalWhitespace(char *buffer, int *pos) {
 		++(*pos);
 }
 
-char *strstrip(char *s)
-{
+char *strstrip(char *s) {
 	int LEN;
 	char *end;
 	LEN = strlen(s);
@@ -147,14 +150,11 @@ char *strstrip(char *s)
 	return s;
 }
 
-int countCommas(char* str)
-{
+int countCommas(char *str) {
 	int count = 0;
 	int i;
-	for (i = 0; str[i] != '\0'; i++)
-	{
-		if (str[i] == ',')
-		{
+	for (i = 0; str[i] != '\0'; i++) {
+		if (str[i] == ',') {
 			count++;
 		}
 	}

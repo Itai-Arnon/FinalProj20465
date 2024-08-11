@@ -35,7 +35,7 @@ typedef struct {
 		int symbol_memory;
 		union {   /* 4 types of  operands*/
 			int num;/*immediate 0*/
-			char *symbol;/*direct  -1 - aka memory - usually arrays & strings*/
+			char symbol[MAX_SYMBOL_NAME];/*direct   - aka memory - usually  alphanumeric string */
 			int registry;/* 3- indirect operand ptr to another reg , 4- direct registet */
 		} operand;
 	} operands[2];
