@@ -89,13 +89,13 @@ void printParser();
 /***********************************************************************************************/
 void parse(symbol_table_t *sym_tbl) {
 	char *buffer = calloc(LINE_LENGTH, sizeof(char));/*sentence analyzed*/
-	char *cmd = calloc(MAX_SYMBOL_NAME, sizeof(char));
-	char *cmd_extra = calloc(MAX_SYMBOL_NAME, sizeof(char));
-	char *directive_str = NULL;
+	char *cmd = calloc(MAX_SYMBOL_NAME, sizeof(char));/*cmd parse*/
+	char *cmd_extra = calloc(MAX_SYMBOL_NAME, sizeof(char)); /* 2nd cmd parse*/
+	char *directive_str = NULL;/*auxialry var*/
+	char *sArr = calloc(MAX_SYMBOL_NAME, sizeof(char));/*.string array*/
 	int *pos = calloc(1, sizeof(int));/*promotes the buffer*/
-	int *arr = NULL;
-	int idx, numCount, buff_len, scanned, result; /**/
-	idx = numCount = buff_len, scanned, result = 0;
+	int idx, numCount, buff_len, scanned, result, isExtern , isSymbol; /*auxiliary vars*/
+	idx = numCount = buff_len, scanned, result, isExtern, isSymbol = 0;
 	line_count = 0;
 
 
@@ -121,22 +121,29 @@ void parse(symbol_table_t *sym_tbl) {
 		/*option label is at start - will identify both label and opcode*/
 		/*scanned how many succesfuly scanned*/
 		if (sscanf(buffer, "%s", cmd) == 1) {
-			if ((result = if_Symbol_if_Duplicate(sym_tbl, cmd, HEAD)) == 1) {
+			if (if_Symbol_if_Duplicate(sym_tbl, cmd, HEAD) == 1) {
 				/*returns 1 if symbol non existent*/
 				loadSymbolTable(sym_tbl, cmd, 0, _INSTRUCTION);
 				buffer = advance_buffer_if_possible(buffer, cmd);
 				buffer = strstrip(buffer);/*remove excess white*/
-				(scanned = (sscanf(buffer, "%s", cmd_extra)) == 1);
-				if (scanned && result && classify_line(cmd_extra) > 0)
+				sscanf(buffer, "%s", cmd_extra);
+				(scanned = classify_line(cmd_extra));
+				if (scanned == -1)
+					report_error(ERR_EXTERN_ENTRY_ILLEGAL, line_count, CRIT);
+				if (scanned > 0)
 					/*advanced the buffer only if doens't emtpy it*/
 					buffer = advance_buffer_if_possible(buffer, cmd_extra);
-			} else if (!result && (classify_line(cmd)) > 0)
+				else
+					report_error(ERR_DIRECTIVE_RECOGNITION, line_count, CRIT);
+			} else if (classify_line(cmd) > 0)
 				buffer = advance_buffer_if_possible(buffer, cmd);
-		}	else    report_error(ERR_LINE_UNRECOGNIZED, line_count, CRIT);
+		} else report_error(ERR_LINE_UNRECOGNIZED, line_count, CRIT);
 
 
-		result = scanned = 0;
+		result = scanned = buff_len = 0;
 		buffer = strstrip(buffer);
+		memset(cmd, '\0', sizeof(cmd));
+		memset(cmd, '\0', sizeof(cmd_extra));
 		switch (parser_s.line_type) {
 			case OP_CODE:
 				/*seperates the registers across an array of strings*/
@@ -171,34 +178,55 @@ void parse(symbol_table_t *sym_tbl) {
 					seperator_c = string_comma_seps(buffer);
 					/*check if buffer number count concurs with separator struct|isErrpr has
 					 * error ocuured*/
-					if(seperator_c.isError || seperator_c.counter != numCount )
+					if (seperator_c.isError || seperator_c.counter != numCount)
 						report_error(ERR_DATA_DIRECTIVE_NUMBER, line_count, CRIT);
 
 					parser_s.directive.operand.data_len = numCount;
-					parser_s.directive.operand.data = (int *) calloc(seperator_c.counter, sizeof(int ));
+					parser_s.directive.operand.data = (int *) calloc(seperator_c.counter, sizeof(int));
 
 					for (idx = 0; idx < seperator_c.counter; idx++) {
 						directive_str = strstrip(seperator_c.cString[idx]);
 						*pos = convertOrCheckStringToNum(directive_str, 0);
-
+						if (*pos < MIN_15Bit_NUM || *pos > MAX_15Bit_NUM)
+							report_error(ERR_DATA_DIRECTIVE_NUMBER, line_count, CRIT);
+						/*assigning  the number to the parser*/
 						parser_s.directive.operand.data[idx] = *pos;
-						printf("%ld\t"), parser_s.directive.operand.data[idx];
 					}
-				} else if (result == STRING) {}
-
-				else if (result == STRING) {}
-
-				else if (result == ENTRY || result == EXTERN) {}
-
-
-				else
-					report_error(ERR_DIRECTIVE_RECOGNITION, line_count, CRIT);
-
+					break;
+				} else if (result == STRING) {
+					buff_len = strlen(buffer) - 2;
+					if (processString(buffer, sArr) == 0)
+						report_error(ERR_STRING_QUOTATION_MISSING, line_count, CRIT);
+					else {
+						parser_s.directive.operand.str = (char *) calloc(buff_len, sizeof(char));
+						parser_s.directive.operand.data_len = buff_len;
+					}
+					for (idx = 0; idx < buff_len; idx++) {
+						parser_s.directive.operand.str[idx] = sArr[idx];
+						printf("%c\n", parser_s.directive.operand.str[idx]);
+					}
+					break;
+				} else if (result == ENTRY || result == EXTERN) {
+					if (sscanf(buffer, "%s%n", cmd , pos) == 1) {
+						buffer +=* pos;
+						if(isRestOfLineEmpty(buffer) == 0)
+							report_error(ERR_OP_CODE_FAILED_STRUCTURE,line_count,CRIT);
+						if ((isSymbol = if_Symbol_if_Duplicate(sym_tbl, cmd, MIDDLE)) == 1) {
+							loadSymbolTable(sym_tbl, buffer, 0, _INSTRUCTION);
+							parser_s.directive.operand.symbol = calloc(MAX_SYMBOL_NAME, sizeof(char));
+							strcpy(parser_s.directive.operand.symbol, cmd);
+							parser_s.directive.operand.data_len = 1;
+							printf("blah");
+						}
+					} else
+						report_error(ERR_DIRECTIVE_RECOGNITION, line_count, CRIT);
+				}
 				break;
 			case ERR:
 				report_error(ERR_LINE_UNRECOGNIZED, line_count, CRIT);
 				break;
 			case TBD:
+				report_error(ERR_DIRECTIVE_RECOGNITION, line_count, CRIT);
 				break;
 			default:
 				break;
@@ -212,6 +240,9 @@ int classify_line(char *cmd) {
 	int j = 0;
 	int len = 0;
 
+	if (*cmd == '\0') return -1;
+
+
 	for (j = 0; j < 16; ++j) {
 		if (strcmp(cmd, opcodeArray[j].opcode_name) == 0) {
 			parser_s.line_type = OP_CODE;
@@ -224,6 +255,11 @@ int classify_line(char *cmd) {
 		if (strcmp(cmd, directArray[j].direct_name) == 0) {
 			parser_s.line_type = DIRECTIVE;
 			parser_s.directive.cmd = directArray[j].cmd;
+			/*extern and entry can't have a label before them*/
+			if (parser_s.directive.cmd == EXTERN || parser_s.directive.cmd == ENTRY) {
+				if (strcmp(parser_s.symbol_name, "TBD") != 0)
+					return -1;
+			}
 			return 1;
 		}
 	}
@@ -364,7 +400,29 @@ char *advance_buffer_if_possible(char *buffer, char *cmd) {
 }
 
 
-/* identifies  directive and set it in parser_s ,*/
+/* process .string  string  0 : non printable asciis  1: success   */
+int processString(char *str, char *sArr) {
+	int len = strlen(str);
+	int idx, i;
+	i = idx = 0;
+
+	if (len < 2) return 0;
+
+	if (str[0] == '\"' && str[len - 1] == '\"') {
+		str++;
+		len -= 2;
+	} else return 0;
+
+	/* check each character using isprint that check for printable chars */
+	for (i = 0; i < len; i++) {
+		if (isprint(str[i])) {
+			sArr[idx++] = str[i];
+		} else
+			return 0;
+	}
+	sArr[idx] = '\0';
+	return 1;
+}
 
 
 sep_whitespace_t string_sep(char *line) {
@@ -486,7 +544,7 @@ void initParser() {
 	parser_s.line_type = ERR;
 	/* Initialize symbol name */
 	/*memset(parser_s.symbol_name, 0, sizeof(parser_s.symbol_name));*/
-	strcpy(parser_s.symbol_name, "*");
+	strcpy(parser_s.symbol_name, "TBD");
 	/* Initialize directive fields */
 	parser_s.directive.cmd = DATA; /* Assuming DATA is a default value */
 	parser_s.directive.operand.symbol = NULL; /*array dynamic alloc*/

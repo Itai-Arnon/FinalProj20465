@@ -37,7 +37,7 @@ symbol_t *create_symbol(char symbol_name[] ,int address ,  memory_t type);
 
 /*fills parser and checks if symbol- then returns 1  non duplicate , 2 for duplicate
  *  0 for fail ||if isStartOrMid == 1 will not allow symbol w/o ':"*/
-int if_Symbol_if_Duplicate(symbol_table_t *, char * , sticker_loci_t );
+int if_Symbol_if_Duplicate(symbol_table_t *, char * , symbol_loci_t );
 
 
 void findLabel_n_load(symbol_table_t* sym_tbl, char* line , char ch);

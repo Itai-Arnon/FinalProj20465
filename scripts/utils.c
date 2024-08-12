@@ -7,9 +7,13 @@
 int isRestOfLineEmpty(char *line) {
 	int idx = 0;
 	int LEN = strlen(line);
-	for (idx = 0; idx < LEN; idx++)
-		if (!isspace(line[idx]) && line[idx] != '\0' && LEN > 1)
-			return 0;
+	if (*line == '\0' || LEN == 0)
+		return 1;
+
+	for (idx = 0; idx < LEN; idx++) {
+	if (*line && !isspace(line[idx]))
+		return 0;
+}
 	return 1;
 }
 
@@ -69,7 +73,7 @@ int is_char_separator(char c, char separators[], int separators_amount) {
 	return 0;
 }
 
-int extra_char_at_end(const char line[], int loc) {
+int extra_char_at_end( char line[], int loc) {
 	while (line[loc] == ' ' || line[loc] == '\t')
 		loc++;
 
@@ -201,7 +205,18 @@ int countNumbersInString( char *str) {
 		}
 		i++;
 	}
-
-
 	return count;
 }
+/*under the premise that in the string there is no whitespace before or after*/
+int checkQuotes(char *str) {
+	/*check if string is not empty*/
+	int len = strlen(str);
+	if (len < 2) {
+		return 0;
+	}
+	if (str[0] == '\"' && str[len - 1] == '\"') {
+		return 1;
+	}
+	return 0;
+}
+

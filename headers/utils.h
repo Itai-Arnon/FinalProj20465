@@ -36,7 +36,7 @@ int count_char_until_not_separator(char line[], char c, int *offset, char separa
 /* seperastor char array checks all given amount by __seperators__amont__ */
 int is_char_separator(char c, char separators[], int separators_amount);
 
-int extra_char_at_end(const char line[], int loc);
+int extra_char_at_end( char line[], int loc);
 
 /*purposed to count non null terminated functions*/
 int nonNullTerminatedLength(char *arr);
@@ -57,5 +57,7 @@ int countCommas(char *str);
 int convertOrCheckStringToNum(char *str, convert_func_t type);
 
 int countNumbersInString( char *str);
+
+int checkQuotes(char *str);
 
 #endif /* M14_UTILS_H*/

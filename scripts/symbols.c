@@ -35,17 +35,15 @@ void collect_symbol_names(symbol_table_t *sym_tbl) {
 			continue;
 
 
-
-
 		if (sscanf(buffer, "%s", first_word) == 1) {
 			len = strlen(first_word);
-			printf("%c\n",first_word[len-1]);
-			if (first_word[len-1] == ':') {
+			printf("%c\n", first_word[len - 1]);
+			if (first_word[len - 1] == ':') {
 				len -= 1;
 				printf("POSSIBLE LABEL %s\n", first_word);
 				strncpy(first_word_cut, first_word, len);
 				/*set up as instruction memoery */
-				loadSymbolTable(sym_tbl, first_word_cut, 0,0);
+				loadSymbolTable(sym_tbl, first_word_cut, 0, 0);
 
 			}
 
@@ -54,10 +52,10 @@ void collect_symbol_names(symbol_table_t *sym_tbl) {
 }
 
 /* todo 0 failure 1:success*/
-int loadSymbolTable(symbol_table_t *sym_tbl, char symbol_name[], int address , memory_t type) {
+int loadSymbolTable(symbol_table_t *sym_tbl, char symbol_name[], int address, memory_t type) {
 	int res = 0;
 	symbol_t *end = sym_tbl->symbol_List;
-	symbol_t *node = create_symbol(symbol_name, address , type);/*create symbols takes care of error*/
+	symbol_t *node = create_symbol(symbol_name, address, type);/*create symbols takes care of error*/
 
 	if (node == NULL) {
 		return 0;
@@ -111,10 +109,10 @@ symbol_table_t *init_symbol_table(symbol_table_t *sym_tbl) {
 	return NULL;
 }
 
-symbol_t *create_symbol(char symbol_name[], int address , memory_t type) {
+symbol_t *create_symbol(char symbol_name[], int address, memory_t type) {
 	symbol_t *node = NULL;
 	int LEN = strlen(symbol_name);
-	if (symbol_name[LEN-1] == ':')
+	if (symbol_name[LEN - 1] == ':')
 		LEN -= 1;
 
 	if (node = malloc(sizeof(symbol_t))) {
@@ -134,7 +132,7 @@ int isDuplicateSymbol(symbol_table_t *sym_tbl, char symbol_name[]) {
 	symbol_t *head = sym_tbl->symbol_List;
 	int LEN = strlen(symbol_name);
 
-	if (symbol_name[LEN - 1 ] == ':')
+	if (symbol_name[LEN - 1] == ':')
 		LEN -= 1;
 
 	while (head != NULL) {
@@ -149,24 +147,26 @@ int isDuplicateSymbol(symbol_table_t *sym_tbl, char symbol_name[]) {
 /*if YES it willl update override , NO just checck if addresss*/
 /*identifies it's a symbols and reports if it's duplicate or not 1 -dup 2-not dup
  * isHeadOrMid selects between beginning label or those that are inside */
-int if_Symbol_if_Duplicate(symbol_table_t *sym_tbl, char *cmd , sticker_loci_t isHEadOrMid) {
+int if_Symbol_if_Duplicate(symbol_table_t *sym_tbl, char *cmd, symbol_loci_t isHEadOrMid) {
 	int len = 0;
 	len = strlen(cmd);
 /*if isStartOrMid == 1 will not allow symbol w/o ':"*/
-	if (cmd[len - 1] != ':' && HEAD) {
-		parser_s.line_type = ERR;
-		return 0;
+/*HEAD includes MIDDLE*/
+	switch (isHEadOrMid) {
+		case HEAD:
+			if (cmd[len - 1] != ':') {
+				parser_s.line_type = ERR;
+				return 0;
+			}
+		case MIDDLE:
+			if (isDuplicateSymbol(sym_tbl, cmd) == 0) {
+				strncpy(parser_s.symbol_name, cmd, len);
+				return 1; /*not dupilcate return 1 */
+			} else {
+				strncpy(parser_s.symbol_name, cmd, len);
+				return 2;/* dupilcate return 2*/
+			}
 	}
-
-	if (isDuplicateSymbol(sym_tbl, cmd) == 0) {
-		strncpy(parser_s.symbol_name, cmd, len);
-		return 1; /*not dupilcate return 1 */
-	} else {
-		strncpy(parser_s.symbol_name, cmd, len);
-		return 2;/* dupilcate return 2*/
-	}
-
-
 }
 
 

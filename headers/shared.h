@@ -4,6 +4,10 @@
 #define M14_SHARED_H
 #include <stdlib.h>
 
+#define MAX_15Bit_NUM 16382
+#define MIN_15Bit_NUM -16383
+#define MAX_12Bit_NUM 2047
+#define MIN_12Bit_NUM -2048
 
 #define LINE_LENGTH 80
 #define MAX_MACRO_NAME 31
@@ -67,9 +71,12 @@
 #define ERR_DIRECTIVE_RECOGNITION "Directive Not Recognized"
 #define ERR_LINE_UNRECOGNIZED "Line Not Recognized as OP_CODE or DIRECTIVE"
 #define ERR_GENERAL_FIRST_PASS_ERROR "General First Pass Erro"
-#define ERR_OP_CODE_REGISTRY_ILLEGAL " One or both OP Code register isn't legal"
+#define ERR_OP_CODE_REGISTRY_ILLEGAL "One or both OP Code register isn't legal"
 #define ERR_FAILED_TO_CONVERT_NUMBER "Failed to convert Number"
 #define ERR_DATA_DIRECTIVE_NUMBER "Data Directive Number or Numbers Invalid"
+#define ERR_STRING_QUOTATION_MISSING "String Quotations missing or characters invalid"
+#define ERR_STRING_INVALID  "String Line not recognized"
+#define ERR_EXTERN_ENTRY_ILLEGAL "Illegal Extern or Entry Line"
 
 
 
@@ -92,7 +99,7 @@ typedef enum{ALPHA,ALPHANUM, ALPHANUM_COMBINED}check_legal_name;
 
 typedef  enum{NO, YES }update_address_t;
 typedef enum {CONVERT  , CHECK} convert_func_t;
-typedef enum{HEAD , MIDDLE}sticker_loci_t;
+typedef enum{  MIDDLE, HEAD}symbol_loci_t;
 
 
 
