@@ -54,7 +54,7 @@ char *strstrip(char *s);
 /*counts commas to verify separator struct*/
 int countCommas(char *str);
 
-int convertOrCheckStringToNum(char *str, int type);
+int convertOrCheckStringToNum(char *str, convert_func_t type);
 
 int countNumbersInString( char *str);
 

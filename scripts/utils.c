@@ -162,9 +162,9 @@ int countCommas(char *str) {
 }
 
 
-int convertOrCheckStringToNum(char *str, int type) {
+int convertOrCheckStringToNum(char *str, convert_func_t type) {
 	char *endtoken;
-	long num = strtol(str, &endtoken, 10);
+	unsigned long num = strtol(str, &endtoken, 10);
 
 
 	switch (type) {

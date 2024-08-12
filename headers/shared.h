@@ -90,7 +90,11 @@ typedef enum{MACRO_START, MACRO_END , MACRO_EXPAND , LINE_INSIDE , LINE_OUTSIDE,
 /*utils */
 typedef enum{ALPHA,ALPHANUM, ALPHANUM_COMBINED}check_legal_name;
 
-typedef  enum{NO, YES }isUpdate_t;
+typedef  enum{NO, YES }update_address_t;
+typedef enum {CONVERT  , CHECK} convert_func_t;
+typedef enum{HEAD , MIDDLE}sticker_loci_t;
+
+
 
 
 /*CRIT -terminates NON_CRIT doesn't*/

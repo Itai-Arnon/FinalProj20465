@@ -64,7 +64,7 @@ int checkRegisterCompliance();
 int checkRegisterCount(op_code_t op);
 
 /*0 - converts string to num 1- check if str is num*/
-int convertOrCheckStringToNum(char *str, int);
+int convertOrCheckStringToNum(char *str, convert_func_t);
 
 /*check if there's data after the current cmd*/
 char *advance_buffer_if_possible(char *buffer, char *cmd);
@@ -94,8 +94,8 @@ void parse(symbol_table_t *sym_tbl) {
 	char *directive_str = NULL;
 	int *pos = calloc(1, sizeof(int));/*promotes the buffer*/
 	int *arr = NULL;
-	int idx, numCount, buff_len, result; /**/
-	idx = numCount = buff_len = 0;
+	int idx, numCount, buff_len, scanned, result; /**/
+	idx = numCount = buff_len, scanned, result = 0;
 	line_count = 0;
 
 
@@ -116,35 +116,28 @@ void parse(symbol_table_t *sym_tbl) {
 	while (fgets(buffer, LINE_LENGTH, fptr_after) != NULL) {
 		initParser();
 		line_count++;
-
-
 		buffer = strstrip(buffer);
 
 		/*option label is at start - will identify both label and opcode*/
 		/*scanned how many succesfuly scanned*/
-		if (sscanf(buffer, "%s%s:", cmd, cmd_extra) == 2) {
-			char *directive_cmd;
-			if (if_Symbol_if_Duplicate(sym_tbl, cmd, 1) == 1) {/*returns 1 if symbol non existent*/
+		if (sscanf(buffer, "%s", cmd) == 1) {
+			if ((result = if_Symbol_if_Duplicate(sym_tbl, cmd, HEAD)) == 1) {
+				/*returns 1 if symbol non existent*/
 				loadSymbolTable(sym_tbl, cmd, 0, _INSTRUCTION);
 				buffer = advance_buffer_if_possible(buffer, cmd);
 				buffer = strstrip(buffer);/*remove excess white*/
-				if (classify_line(cmd_extra) > 0) {
+				(scanned = (sscanf(buffer, "%s", cmd_extra)) == 1);
+				if (scanned && result && classify_line(cmd_extra) > 0)
 					/*advanced the buffer only if doens't emtpy it*/
 					buffer = advance_buffer_if_possible(buffer, cmd_extra);
-				} else
-					report_error(ERR_LINE_UNRECOGNIZED, line_count, CRIT);
-
-			} else if (classify_line(cmd) > 0) {
-				/*advanced the buffer only if doens't emtpy it*/
+			} else if (!result && (classify_line(cmd)) > 0)
 				buffer = advance_buffer_if_possible(buffer, cmd);
-			} else
-				report_error(ERR_LINE_UNRECOGNIZED, line_count, CRIT);
-		} else
-			report_error(ERR_LINE_UNRECOGNIZED, line_count, CRIT);
+		}	else    report_error(ERR_LINE_UNRECOGNIZED, line_count, CRIT);
 
+
+		result = scanned = 0;
 		buffer = strstrip(buffer);
 		switch (parser_s.line_type) {
-			/*|| seperator_c.counter > 2*/
 			case OP_CODE:
 				/*seperates the registers across an array of strings*/
 				seperator_c = string_comma_seps(buffer);
@@ -165,34 +158,32 @@ void parse(symbol_table_t *sym_tbl) {
 				for (idx = 0; idx < seperator_c.counter; idx++) {
 					if (parser_s.operands[idx].type_of_register == _DIRECT) {    /*_Direct means label*/
 						/* if_Symbol_if_Duplicant:chks if symbol| 1 is new symbol|2 is duplicant|last arg decides if symbol is start/middle */
-						if (if_Symbol_if_Duplicate(sym_tbl, parser_s.operands[idx].operand.symbol, 0) == 1) {
+						if (if_Symbol_if_Duplicate(sym_tbl, parser_s.operands[idx].operand.symbol, MIDDLE) == 1) {
 							loadSymbolTable(sym_tbl, parser_s.operands[idx].operand.symbol, 0, _INSTRUCTION);
 						}
 					}
 				}
-
-				/*check complaince of line to the oper code*/
-				/*	checkRegisterCompliance();*/
-
-
 				break;
 			case DIRECTIVE:
 				if ((result = parser_s.directive.cmd) == DATA) {
 					/*separates the numbers across an array of strings*/
 					numCount = countNumbersInString(buffer);
 					seperator_c = string_comma_seps(buffer);
-					/*check if buffer number count concurs with separator struct*/
-					if (numCount != seperator_c.counter)
+					/*check if buffer number count concurs with separator struct|isErrpr has
+					 * error ocuured*/
+					if(seperator_c.isError || seperator_c.counter != numCount )
 						report_error(ERR_DATA_DIRECTIVE_NUMBER, line_count, CRIT);
+
 					parser_s.directive.operand.data_len = numCount;
-					arr = (int *) calloc(seperator_c.counter, sizeof(int));
+					parser_s.directive.operand.data = (int *) calloc(seperator_c.counter, sizeof(int ));
 
 					for (idx = 0; idx < seperator_c.counter; idx++) {
 						directive_str = strstrip(seperator_c.cString[idx]);
-						arr[idx] = convertOrCheckStringToNum(directive_str, 0);
-					}
-					(parser_s.directive.operand.data) = &arr;
+						*pos = convertOrCheckStringToNum(directive_str, 0);
 
+						parser_s.directive.operand.data[idx] = *pos;
+						printf("%ld\t"), parser_s.directive.operand.data[idx];
+					}
 				} else if (result == STRING) {}
 
 				else if (result == STRING) {}
@@ -213,15 +204,13 @@ void parse(symbol_table_t *sym_tbl) {
 				break;
 		}
 	}
+} /*END OF PARSE*/
 
-}
+
 
 int classify_line(char *cmd) {
-
 	int j = 0;
 	int len = 0;
-
-/*todo check premise of having all/some labels in label LL*/
 
 	for (j = 0; j < 16; ++j) {
 		if (strcmp(cmd, opcodeArray[j].opcode_name) == 0) {
