@@ -97,6 +97,10 @@ typedef enum{MACRO_START, MACRO_END , MACRO_EXPAND , LINE_INSIDE , LINE_OUTSIDE,
 /*utils */
 typedef enum{ALPHA,ALPHANUM, ALPHANUM_COMBINED}check_legal_name;
 
+typedef enum{DESTINATION , SOURCE}operand_t;
+
+typedef enum {	A,R,E } ARE;
+
 typedef  enum{NO, YES }update_address_t;
 typedef enum {CONVERT  , CHECK} convert_func_t;
 typedef enum{  MIDDLE, HEAD}symbol_loci_t;

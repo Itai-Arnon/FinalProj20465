@@ -5,6 +5,10 @@
 #include "shared.h"
 #include "symbols.h"
 
+#define opcode_shift 11
+#define operand_shift 3
+#define operand_size 4
+
 typedef unsigned short word_t;
 
 typedef struct line_t{

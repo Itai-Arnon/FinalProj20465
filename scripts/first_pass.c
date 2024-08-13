@@ -18,6 +18,13 @@ int setOPCODE(symbol_table_t *, int);
 
 line_t *create_line(int  ,symbol_t * , line_t *);
 
+void set_opcode_into_word(word_t *word, op_code_t op_code);
+void set_ARE_into_word(word_t *word, ARE are);
+
+void insert_operand_into_word(word_t *word, int value);
+void set_value_to_word(word_t *word, int value);
+void pass_one(symbol_table_t *sym_tbl);
+
 void pass_one(symbol_table_t *sym_tbl) {
 	int initVal = 100;
 	line_count = 0;
@@ -70,7 +77,31 @@ line_t *create_line(int line_num ,symbol_t *symbol , line_t *next){
 		return node;
 	}
 	return NULL;
+
 }
+/*set the opcode into word*/
+void set_opcode_into_word(word_t *word, op_code_t op_code){
+	*word |= op_code<<opcode_shift;
+}
+/*insert operand type into instruction - otype:direct/indirect |type_of_register immdediate/direct/.. */
+void insert_operand_type_into_word(word_t *word, operand_t otype, type_of_register_t type){
+	set_value_to_word(word, (1<<type)<<(operand_shift+operand_size*otype));
+}
+
+void set_ARE_into_word(word_t *word, ARE are){
+	set_value_to_word(word, 1<<are);
+}
+/*insert operand into new empty word*/
+void insert_operand_into_word(word_t *word, int value){
+	set_value_to_word(word, value<<operand_shift);
+}
+/*elementry handling of the shift*/
+void set_value_to_word(word_t *word, int value){
+	*word |= value & 0x7FFF;
+}
+
+
+
 
 
 
