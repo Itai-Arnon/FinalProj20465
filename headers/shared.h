@@ -99,7 +99,7 @@ typedef enum{ALPHA,ALPHANUM, ALPHANUM_COMBINED}check_legal_name;
 
 typedef enum{DESTINATION , SOURCE}operand_t;
 
-typedef enum {	A,R,E } ARE;
+typedef enum {	A,R,E } ARE_T;
 
 typedef  enum{NO, YES }update_address_t;
 typedef enum {CONVERT  , CHECK} convert_func_t;

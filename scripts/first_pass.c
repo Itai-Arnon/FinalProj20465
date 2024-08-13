@@ -19,7 +19,7 @@ int setOPCODE(symbol_table_t *, int);
 line_t *create_line(int  ,symbol_t * , line_t *);
 
 void set_opcode_into_word(word_t *word, op_code_t op_code);
-void set_ARE_into_word(word_t *word, ARE are);
+void set_ARE_into_word(word_t *word, ARE_T are);
 
 void insert_operand_into_word(word_t *word, int value);
 void set_value_to_word(word_t *word, int value);
@@ -34,7 +34,7 @@ void pass_one(symbol_table_t *sym_tbl) {
 
 	switch (parser_s.line_type) {
 		case OP_CODE:
-			setOPCODE(IC);
+			setOPCODE(sym_tbl,*IC);
 
 
 		case DIRECTIVE:
@@ -87,9 +87,9 @@ void set_opcode_into_word(word_t *word, op_code_t op_code){
 void insert_operand_type_into_word(word_t *word, operand_t otype, type_of_register_t type){
 	set_value_to_word(word, (1<<type)<<(operand_shift+operand_size*otype));
 }
-
-void set_ARE_into_word(word_t *word, ARE are){
-	set_value_to_word(word, 1<<are);
+/* Set ARE in first 3 bits */
+void set_ARE_into_word(word_t *word, ARE_T ARE){
+	set_value_to_word(word, 1<<ARE);
 }
 /*insert operand into new empty word*/
 void insert_operand_into_word(word_t *word, int value){
