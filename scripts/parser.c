@@ -11,13 +11,12 @@
 #include "headers/parser.h"
 #include "headers/error.h"
 
-static char *directives[4] = {".data", ".string", ".extern", ".entry"};
+
 static directive_cmd_t direct_enums[4] = {DATA, STRING, ENTRY, EXTERN};
 static direct_arr_t directArray[4];
 
 
-static op_code_t op_code_enums[16] = {mov, cmp, add, sub, lea, clr, not, inc, dec, jmp,
-                                      bne, red, prn, jsr, rts, stop};
+
 static opcode_arr_t opcodeArray[16];
 
 static char *opcode_specs[16][3][1] = {
@@ -43,50 +42,6 @@ parser_t parser_s;
 static sep_commas_t seperator_c;
 static sep_whitespace_t seperator_w;
 
-void parse(symbol_table_t *);
-
-void initParser();
-
-/* fills parser and checks  if concurs with op_code_t (1) or directive(2) (0) failuter*/
-int classify_line(char *cmd);
-
-
-/* creates an array of separated strings using strpbrk*/
-sep_whitespace_t string_sep_white_space(char *);
-
-void classify_opcode(symbol_table_t *sym_tbl, char *buffer);
-
-type_of_register_t classifyRegisters(char *str, int first_or_second_operand);
-
-/*checks type of register assigned to register is correct */
-int checkRegisterCompliance();
-
-int checkRegisterCount(op_code_t op);
-
-/*0 - converts string to num 1- check if str is num*/
-int convertOrCheckStringToNum(char *str, convert_func_t);
-
-/*check if there's data after the current cmd*/
-char *advance_buffer_if_possible(char *buffer, char *cmd);
-
-
-int register_count_by_op(op_code_t op);
-
-/* identifies  directive returns the Enum and set it in the parser_s*/
-directive_cmd_t identifyDirective(char *str);
-
-
-sep_commas_t string_comma_seps(char *str);
-
-void initEnumArr();
-
-void initDirectiveArray();
-
-void printParser();
-/*check complaince of line to the oper code*/
-
-
-/***********************************************************************************************/
 void parse(symbol_table_t *sym_tbl) {
 	char *buffer = calloc(LINE_LENGTH, sizeof(char));/*sentence analyzed*/
 	char *cmd = calloc(MAX_SYMBOL_NAME, sizeof(char));/*cmd parse*/
@@ -247,7 +202,7 @@ int classify_line(char *cmd) {
 		if (strcmp(cmd, opcodeArray[j].opcode_name) == 0) {
 			parser_s.line_type = OP_CODE;
 			/*although only one opcode defines for two operands due to struct structure*/
-			parser_s.op = opcodeArray[j].op_num;
+			parser_s.op = opcodeArray[j].op_enum;
 			return 1;
 		}
 	}
@@ -415,9 +370,9 @@ int processString(char *str, char *sArr) {
 
 	/* check each character using isprint that check for printable chars */
 	for (i = 0; i < len; i++) {
-		if (isprint(str[i])) {
-			sArr[idx++] = str[i];
-		} else
+		 if(isprint(str[i])){
+		          sArr[idx++] = str[i];
+			} else
 			return 0;
 	}
 	sArr[idx] = '\0';
@@ -482,11 +437,12 @@ sep_commas_t string_comma_seps(char *str) {
 /* Function to initialize and populate an array of enum_arr*/
 void initEnumArr() {
 	int i = 0;
-
+	op_code_t arr[16]= 	{mov, cmp, add, sub, lea, clr, not, inc, dec, jmp,
+			bne, red, prn, jsr, rts, stop};
 	/*Populate the array*/
 	for (i = 0; i < 16; ++i) {
-		opcodeArray[i].opcode_name = opcode_specs[i][0][0];
-		opcodeArray[i].op_num = op_code_enums[i];
+		opcodeArray[i].opcode_name = opcode_names[i];
+		opcodeArray[i].op_enum =arr[i];
 	}
 }
 

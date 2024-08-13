@@ -23,5 +23,5 @@ add_executable(m14
         scripts/error.c
         headers/error.h
         scripts/first_pass.c
-        scripts/first_pass.h
+        headers/first_pass.h
 )

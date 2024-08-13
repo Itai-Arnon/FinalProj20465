@@ -14,9 +14,6 @@
 
 
 int line_count;
-static const char *opcode_names[16] = {"mov", "cmp", "add", "sub", "lea", "clr", "not", "inc", "dec", "jmp",
-                                       "bne", "red", "prn", "jsr", "rts", "stop"};
-static const char *directives[4] = {".data", ".string", ".extern", ".entry"};
 
 void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 	char *buffer = malloc(sizeof(char) * LINE_LENGTH);
@@ -210,6 +207,11 @@ int macro_name_duplicate(char *macro_name, symbol_table_t *sym_tbl) {
 	int j = 0;
 	int isSymbol = 0;
 
+	/*isDuplicateSymbol is 1 if true 0 otherwise*/
+	if (sym_tbl != NULL) {
+		isSymbol = isDuplicateSymbol(sym_tbl, macro_name);
+		if (isSymbol == 1) return 1;
+	}
 
 	for (j = 0; j < 16; ++j) {
 		if (strcmp(macro_name, opcode_names[j]) == 0)

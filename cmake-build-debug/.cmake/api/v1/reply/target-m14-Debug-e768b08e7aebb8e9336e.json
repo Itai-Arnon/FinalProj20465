@@ -234,7 +234,7 @@
 		},
 		{
 			"backtrace" : 1,
-			"path" : "scripts/first_pass.h",
+			"path" : "headers/first_pass.h",
 			"sourceGroupIndex" : 1
 		}
 	],

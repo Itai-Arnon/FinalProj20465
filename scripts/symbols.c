@@ -11,6 +11,11 @@
 #include "headers/error.h"
 
 
+char *opcode_names[16] = {"mov", "cmp", "add", "sub", "lea", "clr", "not", "inc", "dec", "jmp",
+                          "bne", "red", "prn", "jsr", "rts", "stop"};
+
+char *directives[4] = {".data", ".string", ".extern", ".entry"};
+
 void collect_symbol_names(symbol_table_t *sym_tbl) {
 
 	char *buffer = malloc(sizeof(char) * LINE_LENGTH);
@@ -55,17 +60,13 @@ void collect_symbol_names(symbol_table_t *sym_tbl) {
 int loadSymbolTable(symbol_table_t *sym_tbl, char symbol_name[], int address, memory_t type) {
 	int res = 0;
 	symbol_t *end = sym_tbl->symbol_List;
-	symbol_t *node = create_symbol(symbol_name, address, type);/*create symbols takes care of error*/
+	symbol_t *node = create_symbol(sym_tbl , symbol_name, address, type);/*create symbols takes care of error*/
 
 	if (node == NULL) {
 		return 0;
 	}
 
-	if (isDuplicateSymbol(sym_tbl, symbol_name)) {
-		report_error(ERR_DUPLICATE_SYMBOL_NAME, line_count,
-		             NON_CRIT);/*todo divide into duplicate and needed duplicate*/
-		return 0;
-	}
+
 	sym_tbl->size++;
 	if (end != NULL) {
 		while (end->next_sym != NULL) {
@@ -109,11 +110,34 @@ symbol_table_t *init_symbol_table(symbol_table_t *sym_tbl) {
 	return NULL;
 }
 
-symbol_t *create_symbol(char symbol_name[], int address, memory_t type) {
+symbol_t*  findSymbol(symbol_table_t *sym_tbl , char symbol_name[]){
+	symbol_t *head;
+	int LEN = strlen(symbol_name);
+
+	if(sym_tbl != NULL){
+		LEN = (symbol_name[LEN - 1] == ":" ) ? LEN - 1 : LEN;
+		head = sym_tbl->symbol_List;
+		LEN = LEN - 1;
+		while (head != NULL) {
+			if (strncmp(head->symbol_name, symbol_name, LEN))
+				return head;
+			else
+				head = head->next_sym;
+		}
+	}
+	return NULL;
+}
+
+symbol_t *create_symbol(symbol_table_t *sym_tbl , symbol_name[], int address, memory_t type) {
 	symbol_t *node = NULL;
 	int LEN = strlen(symbol_name);
 	if (symbol_name[LEN - 1] == ':')
 		LEN -= 1;
+	/*check similarity with opcodes and directives*/
+	if (is_symbol_name_duplicate(sym_tbl, symbol_name) == 1) {
+	report_error(ERR_DUPLICATE_SYMBOL_NAME, line_count, CRIT);
+	return NULL;
+}
 
 	if (node = malloc(sizeof(symbol_t))) {
 		strncpy(node->symbol_name, symbol_name, LEN);
@@ -127,7 +151,7 @@ symbol_t *create_symbol(char symbol_name[], int address, memory_t type) {
 	return NULL;
 }
 
-/*-1 symbol list is empty, 0-no duplicants , 1 it is a duplicate*/
+/*general func |-1 symbol list is empty, 0-no duplicants , 1 it is a duplicate*/
 int isDuplicateSymbol(symbol_table_t *sym_tbl, char symbol_name[]) {
 	symbol_t *head = sym_tbl->symbol_List;
 	int LEN = strlen(symbol_name);
@@ -169,13 +193,39 @@ int if_Symbol_if_Duplicate(symbol_table_t *sym_tbl, char *cmd, symbol_loci_t isH
 	}
 }
 
+/*meant to detect if name is a duplicate directive or opcode or prior labels are */
+int is_symbol_name_duplicate(symbol_table_t *sym_tbl , char *symbol_name) {
+	symbol_t *head;
+	int LEN = strlen(symbol_name);
+	int j = 0;
 
+	for (j = 0; j < 16; ++j) {
+		if (strcmp(symbol_name, opcode_names[j]) == 0)
+			return 1;
+	}
+	for (j = 0; j < 4; ++j) {
+		if (strcmp(symbol_name, directives[j]) == 0)
+			return 1;
+	}
+	if(sym_tbl != NULL){
+		LEN = (symbol_name[LEN - 1] == ":" ) ? LEN - 1 : LEN;
+		head = sym_tbl->symbol_List;
+		LEN = LEN - 1;
+		while (head != NULL) {
+			if (strncmp(head->symbol_name, symbol_name, LEN))
+				return 1;
+			else
+				head = head->next_sym;
+		}
+	}
+	return 0;
+}
 
 
 
 /*pre processor errors are not treated  */
 /*meant to create the symbol table for the purpose of the preprocessor scan */
-
+/*todo probably erase*/
 /*TODO: I used sscanf to remove white space , create util that removes whitspace*/
 void findLabel_n_load(symbol_table_t *sym_tbl, char *buffer, char ch) {
 	char **arr = calloc(5, sizeof(char *));

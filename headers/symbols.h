@@ -30,9 +30,11 @@ int checkOrUpdateSymbolAddress(symbol_table_t *sym_tbl, char* symbol_name , int 
 
 void print_symbol_table(symbol_table_t *sym_tbl);
 
+symbol_t  *findSymbol(symbol_table_t *sym_tbl , char symbol_name[]);
+
 symbol_table_t * init_symbol_table(symbol_table_t *sym_tbl);
 
-symbol_t *create_symbol(char symbol_name[] ,int address ,  memory_t type);
+symbol_t *create_symbol(symbol_table_t *sym_tbl , symbol_name[] ,int address ,  memory_t type);
 
 
 /*fills parser and checks if symbol- then returns 1  non duplicate , 2 for duplicate
@@ -44,5 +46,6 @@ void findLabel_n_load(symbol_table_t* sym_tbl, char* line , char ch);
 
 /*-1 symbol list is empty, 0-no duplicants , 1 it is a duplicate*/
 int isDuplicateSymbol(symbol_table_t *sym_tbl, char symbol_name[]);
-
+/*check similarity of name with opcodes and directives*/
+int is_symbol_name_duplicate(symbol_table_t * ,char *);
 #endif /*M14_SYMBOLS_H*/

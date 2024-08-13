@@ -40,7 +40,9 @@ typedef struct {
 	} operands[2];
 } parser_t;
 
-
+extern char *opcode_names[16];
+extern char *directives[4];
+ /*extern char *directives[4] = {".data", ".string", ".extern", ".entry"};*/
 
 extern int *IC;
 extern int *DC;

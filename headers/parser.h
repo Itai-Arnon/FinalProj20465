@@ -15,17 +15,17 @@ typedef struct {
 
 /* divides strings that have commas b/w them */
 typedef struct {
-	char *cString[20];
+	char *cString[10];/*each comma separated string inserted by index to arr*/
 	int counter;
 	int isError;
 } sep_commas_t;
 
-typedef struct {
+typedef struct {/*array*/
 	char *opcode_name;
-	op_code_t op_num;
+	op_code_t op_enum;
 } opcode_arr_t;
 
-typedef struct {
+typedef struct {/*array*/
 	char *direct_name;
 	directive_cmd_t cmd;
 } direct_arr_t;
