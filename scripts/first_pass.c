@@ -19,45 +19,13 @@ word_table_t *wordTable;
 word_table_t *dataTable;
 
 
-void pass_one(symbol_table_t *sym_tbl);
-
-int setOPCODE(symbol_table_t *);
-
-int convertToTwoComp(int num);
-
-/*sets opcode type in instruction word |op_code - 0 to 15 */
-void set_opcode_into_word(word_t *word, op_code_t op_code);
-
-/*sets operand type in instruction word |operand_t: destination or source */
-void set_operand_type_into_word(word_t *word, operand_t otype, type_of_register_t type);
-
-/*insert register into new empty word| isSource - shift 3 bit more*/
-void set_register_into_empty_word(word_t *word, int value, int isSource);
-
-/*insert label into new empty word|  shift 3 bit */
-void set_label_into_empty_word(word_t *word, int value);
-
-/*insert immediate into new empty word| shift 3 bit */
-void set_immediate_into_empty_word(word_t *word, int value);
-
-/*insert ARE into instruction word */
-void set_ARE_into_word(word_t *word, ARE_T are);
-
-/*insert final computed value */
-void set_value_to_word(word_t *word, int value);
-
-/*initiate word or data table*/
-word_table_t *initTable(word_table_t *table);
-
-/*reallocate more places in table*/
-line_t *add_line(word_table_t *, ic_num, symbol_t *symbol);
-
 void pass_one(symbol_table_t *sym_tbl) {
 	int initVal = 100;
+	int result = 0;
+
 	line_count = 0;
 	IC = initVal;
 	DC = 0;
-	int result = 0;
 
 	wordTable = initTable(wordTable);
 	dataTable = initTable(dataTable);
@@ -65,8 +33,7 @@ void pass_one(symbol_table_t *sym_tbl) {
 
 	switch (parser.line_type) {
 		case OP_CODE:
-			setOPCODE(sym_tbl);
-
+			setOPCODE_INSTRUCTION(sym_tbl);
 
 		case DIRECTIVE:
 			if ((result = parser.directive.cmd) == DATA) {
@@ -86,132 +53,105 @@ void pass_one(symbol_table_t *sym_tbl) {
 			break;
 	}
 
-	IC++;
+}
+void set_number_data_word(word_t *word,  int value ){
+	value = convertToTwoComp(value);
+	set_value_to_word(word,value);
+}
+
+void set_char_string_word(word_t *word,  char value ){
+	int ascii_value = (int)value;
+	set_value_to_word(word, ascii_value);
+
+}
+
+void set_DIRECTIVES_WORDS(symbol_table_t *){
+
+	symbol_t *symbol = findSymbol(sym_tbl, parser.symbol_name);
+	line_t *line = NULL;
+	int i = 0;
+
+
+		line = add_line(wordTable, DC++, symbol);
+
+		for(i = 1 ; i < parser.directive.operand.data_len ; i++){}
+
 }
 
 
-int setOPCODE_DIRECT_AND_LABEL(symbol_table_t *sym_tbl) {
+/*sets the instruction word and the send to othre func to set other words*/
+void setOPCODE_INSTRUCTION(symbol_table_t *sym_tbl) {
 	symbol_t *symbol = findSymbol(sym_tbl, parser.symbol_name);
-	symbol_t *symbol2;
-	line_t *line1, *line2;
-	int num;
-	line1 = line2 =  NULL;
-	symbol2  = NULL;
-
-	if (symbol != NULL)
-		symbol->address = IC;
-	line1 = add_line(wordTable, IC, symbol);
-	set_opcode_into_word(line1->word, parser.op);
-	set_ARE_into_word(line1->word, A);
+	line_t *line1 = add_line(wordTable, IC, symbol);;
 	IC++;
-
-	switch(parser.operands[0].operand.registry){
-		case _IMMEDIATE:
-			num = parser.operands[0].operand.num;
-			num = convertToTwoComp(num);
-			line2 = add_line(wordTable, IC, NULL);
-			set_immediate_into_empty_word(line2 ->word, num);
-			set_ARE_into_word(line2->word, A);
-			IC++;
-			break;
-
-			case _DIRECT:
-				line2 = add_line(wordTable, IC, NULL);
-			symbol2 = findSymbol(sym_tbl, parser.operands[0].operand.symbol);
-			(symbol2!=NULL) ? :report_error(ERR_SYMBOL_NOT_FOUND,line_count,CRIT);
-			set_label_into_empty_word(line2->word,symbol2->address);
-			set_ARE_into_word(line2->word, A);
-			IC++;
-			break;
-
-
-
-	}
-
-
-
-
 
 	switch (register_count_by_op(parser.op)) {
 		case 0:
-			if (symbol != NULL)
+			if (symbol != NULL) {
 				symbol->address = IC;
-			line1 = add_line(wordTable, IC, symbol);
+			}
 			set_opcode_into_word(line1->word, parser.op);
 			set_ARE_into_word(line1->word, A);
-
 			break;
 		case 1:
 			if (symbol != NULL)
 				symbol->address = IC;
-			line1 = add_line(wordTable, IC, symbol);
 			set_opcode_into_word(line1->word, parser.op);
 			set_ARE_into_word(line1->word, A);
 			set_operand_type_into_word(line1->word, DESTINATION, parser.operands[1].type_of_register);
-			IC++;
-			line2 = add_line(wordTable, IC, NULL);
-
-			set_register_into_empty_word(line2->word, parser.operands[1].operand.registry, 0);
-			set_ARE_into_word(line2->word, A);
-
+			setOPCODE_WORDS(sym_tbl, 1);
 			break;
 		case 2:
 			if (symbol != NULL)
 				symbol->address = IC;
-			line1 = add_line(wordTable, IC, symbol);
 			set_opcode_into_word(line1->word, parser.op);
 			set_ARE_into_word(line1->word, A);
+			set_operand_type_into_word(line1->word, DESTINATION, parser.operands[0].type_of_register);
+			setOPCODE_WORDS(sym_tbl, 0);
+			set_operand_type_into_word(line1->word, SOURCE, parser.operands[1].type_of_register);
+			setOPCODE_WORDS(sym_tbl, 1);
+	}
+}
 
-			IC++;
-			line2 = add_line(wordTable, IC, NULL);
+	void setOPCODE_WORDS(symbol_table_t *sym_tbl, int idx) {
+		symbol_t *symbol2 = NULL;
+		line_t *line2 = add_line(wordTable, IC, NULL);
+		int num;
 
-			if (parser.operands[0].operand.registry == _DIRECT) {
+		IC++;
+		switch (parser.operands[idx].type_of_register) {
+			case _IMMEDIATE:
+				num = parser.operands[idx].operand.num;
+				/*conversion to two complement*/
+				num = convertToTwoComp(num);
+				set_immediate_into_empty_word(line2->word, num);
+				set_ARE_into_word(line2->word, A);
+				break;
 
+			case _DIRECT:
+				symbol2 = findSymbol(sym_tbl, parser.operands[idx].operand.symbol);
+				(symbol2 != NULL) ?: report_error(ERR_SYMBOL_NOT_FOUND, line_count, CRIT);
+				set_label_into_empty_word(line2->word, symbol2->address);
+				set_ARE_into_word(line2->word, A);
+				break;
 
+			case _INDIRECT:/*here a check is made if there are two regiters or not*/
+			case _REGULAR:
 
-				if(parser.operands[1].operand.registry==_DIRECT){
-
-					line3 = add_line(wordTable, IC, NULL);
-					symbol3 = findSymbol(sym_tbl, parser.operands[1].operand.symbol);
-					(symbol3!=NULL) ? :report_error(ERR_SYMBOL_NOT_FOUND,line_count,CRIT);
-					set_label_into_empty_word(line3->word,symbol3->address);
-					set_ARE_into_word(line3->word, A);
+				/*sign there is only one registry*/
+				if (parser.operands[0].type_of_register == _TBD) {
+					set_register_into_empty_word(line2->word, parser.operands[1].operand.registry, 0);
+					set_ARE_into_word(line2->word, A);
+				} else {
+					set_register_into_empty_word(line2->word, parser.operands[0].operand.registry, 1);
+					set_register_into_empty_word(line2->word, parser.operands[1].operand.registry, 0);
+					set_ARE_into_word(line2->word, A);
 				}
-				else{
-					/*line 3 set operand for word 1 and  3rd word set register num and A */
-					line3 = add_line(wordTable, IC, NULL);
-
-
-
-
-				}
-			} else if (parser.operands[0].operand.registry != _DIRECT) {
-
-				if (parser.operands[1].operand.registry == _DIRECT) {
-					/*line 2 here */
-
-					line3 = add_line(wordTable, IC, NULL);
-					symbol3 = findSymbol(sym_tbl, parser.operands[1].operand.symbol);
-					(symbol3!=NULL) ? :report_error(ERR_SYMBOL_NOT_FOUND,line_count,CRIT);
-					set_label_into_empty_word(line3->word,symbol3->address);
-					set_ARE_into_word(line3->word, A);
-
-				}
-				else{/*both no direct*/
-
-				}
-			}
-				set_register_into_empty_word(line2->word, parser.operands[1].operand.registry, 0);
-			set_ARE_into_word(line2->word, A);
-
-
-			break;
-		default:
-			break;
+				break;
+		}
 	}
 
 
-}
 
 line_t *add_line(word_table_t *table, int ic_num, symbol_t *symbol) {
 	line_t *new_ptr = NULL;
@@ -234,20 +174,16 @@ line_t *add_line(word_table_t *table, int ic_num, symbol_t *symbol) {
 	/*data assignmet to new member */
 	table->lines[table->size - 1].line_num = ic_num;
 	memset(table->lines[table->size - 1].word, 0, word_t_size);
-	table->lines[table->size - 1].symbol = symbol;
+	table->lines[table->size - 1].symbol = symbol;/*pointer to symbol*/
 
 	return &(table->lines[table->size - 1]);
 }
 
-int convertToTwoComp(int num){
-
-	if( num > 0 ) return num;
-	return (~num)+1;
-
-
-	}
-
+int convertToTwoComp(int num) {
+	if (num > 0) return num;
+	return (~num) + 1;
 }
+
 
 
 /*set the opcode into word*/
