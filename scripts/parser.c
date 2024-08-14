@@ -38,7 +38,7 @@ static char *opcode_specs[16][3][1] = {
 		{{"stop"}, {"----"}, {"----"}}};
 
 
-parser_t parser_s;
+parser_t parser;
 static sep_commas_t seperator_c;
 static sep_whitespace_t seperator_w;
 
@@ -99,35 +99,35 @@ void parse(symbol_table_t *sym_tbl) {
 		buffer = strstrip(buffer);
 		memset(cmd, '\0', sizeof(cmd));
 		memset(cmd, '\0', sizeof(cmd_extra));
-		switch (parser_s.line_type) {
+		switch (parser.line_type) {
 			case OP_CODE:
 				/*seperates the registers across an array of strings*/
 				seperator_c = string_comma_seps(buffer);
 
 				/*isError - too many comma | register_count_by_op - no of registers by opcode definition  */
-				if (seperator_c.isError == 1 || seperator_c.counter != register_count_by_op(parser_s.op))
+				if (seperator_c.isError == 1 || seperator_c.counter != register_count_by_op(parser.op))
 					report_error(ERR_OP_CODE_RECOGNITION, line_count, CRIT);
 				/*idx  1 if only destination reg exits , 0 if two regs exist*/
 				idx = (seperator_c.counter == 2) ? 0 : 1;
 				for (; idx < seperator_c.counter; idx++) {/*classifies registers*/
 					seperator_c.cString[idx] = strstrip(seperator_c.cString[idx]);
-					parser_s.operands[idx].type_of_register = classifyRegisters(seperator_c.cString[idx], idx);
+					parser.operands[idx].type_of_register = classifyRegisters(seperator_c.cString[idx], idx);
 				}
-				if (checkRegisterCount(parser_s.op) == -1 || checkRegisterCompliance() == 0)
+				if (checkRegisterCount(parser.op) == -1 || checkRegisterCompliance() == 0)
 					report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count, CRIT);
 
 				/*Creat symbol a register with direct : labels*/
 				for (idx = 0; idx < seperator_c.counter; idx++) {
-					if (parser_s.operands[idx].type_of_register == _DIRECT) {    /*_Direct means label*/
+					if (parser.operands[idx].type_of_register == _DIRECT) {    /*_Direct means label*/
 						/* if_Symbol_if_Duplicant:chks if symbol| 1 is new symbol|2 is duplicant|last arg decides if symbol is start/middle */
-						if (if_Symbol_if_Duplicate(sym_tbl, parser_s.operands[idx].operand.symbol, MIDDLE) == 1) {
-							loadSymbolTable(sym_tbl, parser_s.operands[idx].operand.symbol, 0, _INSTRUCTION);
+						if (if_Symbol_if_Duplicate(sym_tbl, parser.operands[idx].operand.symbol, MIDDLE) == 1) {
+							loadSymbolTable(sym_tbl, parser.operands[idx].operand.symbol, 0, _INSTRUCTION);
 						}
 					}
 				}
 				break;
 			case DIRECTIVE:
-				if ((result = parser_s.directive.cmd) == DATA) {
+				if ((result = parser.directive.cmd) == DATA) {
 					/*separates the numbers across an array of strings*/
 					numCount = countNumbersInString(buffer);
 					seperator_c = string_comma_seps(buffer);
@@ -136,8 +136,8 @@ void parse(symbol_table_t *sym_tbl) {
 					if (seperator_c.isError || seperator_c.counter != numCount)
 						report_error(ERR_DATA_DIRECTIVE_NUMBER, line_count, CRIT);
 
-					parser_s.directive.operand.data_len = numCount;
-					parser_s.directive.operand.data = (int *) calloc(seperator_c.counter, sizeof(int));
+					parser.directive.operand.data_len = numCount;
+					parser.directive.operand.data = (int *) calloc(seperator_c.counter, sizeof(int));
 
 					for (idx = 0; idx < seperator_c.counter; idx++) {
 						directive_str = strstrip(seperator_c.cString[idx]);
@@ -145,7 +145,7 @@ void parse(symbol_table_t *sym_tbl) {
 						if (*pos < MIN_15Bit_NUM || *pos > MAX_15Bit_NUM)
 							report_error(ERR_DATA_DIRECTIVE_NUMBER, line_count, CRIT);
 						/*assigning  the number to the parser*/
-						parser_s.directive.operand.data[idx] = *pos;
+						parser.directive.operand.data[idx] = *pos;
 					}
 					break;
 				} else if (result == STRING) {
@@ -153,12 +153,12 @@ void parse(symbol_table_t *sym_tbl) {
 					if (processString(buffer, sArr) == 0)
 						report_error(ERR_STRING_QUOTATION_MISSING, line_count, CRIT);
 					else {
-						parser_s.directive.operand.str = (char *) calloc(buff_len, sizeof(char));
-						parser_s.directive.operand.data_len = buff_len;
+						parser.directive.operand.str = (char *) calloc(buff_len, sizeof(char));
+						parser.directive.operand.data_len = buff_len;
 					}
 					for (idx = 0; idx < buff_len; idx++) {
-						parser_s.directive.operand.str[idx] = sArr[idx];
-						printf("%c\n", parser_s.directive.operand.str[idx]);
+						parser.directive.operand.str[idx] = sArr[idx];
+						printf("%c\n", parser.directive.operand.str[idx]);
 					}
 					break;
 				} else if (result == ENTRY || result == EXTERN) {
@@ -168,9 +168,9 @@ void parse(symbol_table_t *sym_tbl) {
 							report_error(ERR_OP_CODE_FAILED_STRUCTURE,line_count,CRIT);
 						if ((isSymbol = if_Symbol_if_Duplicate(sym_tbl, cmd, MIDDLE)) == 1) {
 							loadSymbolTable(sym_tbl, buffer, 0, _INSTRUCTION);
-							parser_s.directive.operand.symbol = calloc(MAX_SYMBOL_NAME, sizeof(char));
-							strcpy(parser_s.directive.operand.symbol, cmd);
-							parser_s.directive.operand.data_len = 1;
+							parser.directive.operand.symbol = calloc(MAX_SYMBOL_NAME, sizeof(char));
+							strcpy(parser.directive.operand.symbol, cmd);
+							parser.directive.operand.data_len = 1;
 							printf("blah");
 						}
 					} else
@@ -200,31 +200,31 @@ int classify_line(char *cmd) {
 
 	for (j = 0; j < 16; ++j) {
 		if (strcmp(cmd, opcodeArray[j].opcode_name) == 0) {
-			parser_s.line_type = OP_CODE;
+			parser.line_type = OP_CODE;
 			/*although only one opcode defines for two operands due to struct structure*/
-			parser_s.op = opcodeArray[j].op_enum;
+			parser.op = opcodeArray[j].op_enum;
 			return 1;
 		}
 	}
 	for (j = 0; j < 4; ++j) {
 		if (strcmp(cmd, directArray[j].direct_name) == 0) {
-			parser_s.line_type = DIRECTIVE;
-			parser_s.directive.cmd = directArray[j].cmd;
+			parser.line_type = DIRECTIVE;
+			parser.directive.cmd = directArray[j].cmd;
 			/*extern and entry can't have a label before them*/
-			if (parser_s.directive.cmd == EXTERN || parser_s.directive.cmd == ENTRY) {
-				if (strcmp(parser_s.symbol_name, "TBD") != 0)
+			if (parser.directive.cmd == EXTERN || parser.directive.cmd == ENTRY) {
+				if (strcmp(parser.symbol_name, "TBD") != 0)
 					return -1;
 			}
 			return 1;
 		}
 	}
-	parser_s.line_type = ERR;
+	parser.line_type = ERR;
 	return 0;
 }
 
 
-/*checks type of registers and correctnees - sets then in parser_s*/
-/*first or second operands relates to the  parser_s*/
+/*checks type of registers and correctnees - sets then in parser*/
+/*first or second operands relates to the  parser*/
 type_of_register_t classifyRegisters(char *str, int first_or_second_operand) {
 
 	int i;
@@ -242,7 +242,7 @@ type_of_register_t classifyRegisters(char *str, int first_or_second_operand) {
 		else {
 			number = convertOrCheckStringToNum(s_ptr, 0);
 			printf("%d\n", number);
-			parser_s.operands[first_or_second_operand].operand.num = number;
+			parser.operands[first_or_second_operand].operand.num = number;
 			return _IMMEDIATE;
 		}
 	}
@@ -250,21 +250,21 @@ type_of_register_t classifyRegisters(char *str, int first_or_second_operand) {
 		/* in the reg there's an adddres of the real value */
 	else if (strncmp(str, "*", 1) == 0) {
 		if (str[1] == 'r' && isdigit(str[2]) && str[2] >= '0' && str[2] <= '7') {
-			parser_s.operands[first_or_second_operand].operand.registry = str[2];
+			parser.operands[first_or_second_operand].operand.registry = str[2];
 			return _INDIRECT; /*number 3 pointer type*/
 		}
 	}
 		/* Check if the string starts with 'r' */
 	else if (strncmp(str, "r", 1) == 0) {
 		if (str[0] == 'r' && isdigit(str[1]) && str[1] >= '0' && str[1] <= '7')
-			parser_s.operands[first_or_second_operand].operand.registry = str[1];
+			parser.operands[first_or_second_operand].operand.registry = str[1];
 		return _REGULAR; /*Number 4*/
 	}
 		/* Default case for other characters */
 
 	else if (checkLegalName(str, ALPHANUM_COMBINED)) {
 		str = removeColon(str);
-		strcpy(parser_s.operands[first_or_second_operand].operand.symbol, str);
+		strcpy(parser.operands[first_or_second_operand].operand.symbol, str);
 		return _DIRECT; /*label*/   /*todo chk if label duplicate and add accordingly*/
 	}
 
@@ -284,27 +284,27 @@ int register_count_by_op(op_code_t op) {
 int checkRegisterCount(op_code_t op) {
 
 	if (op >= mov && op <= lea) {
-		if ((parser_s.operands[1].type_of_register == _ERROR ||
-		     parser_s.operands[1].type_of_register == _TBD) ||
-		    (parser_s.operands[2].type_of_register == _ERROR ||
-		     parser_s.operands[2].type_of_register == _TBD)) {
+		if ((parser.operands[1].type_of_register == _ERROR ||
+		     parser.operands[1].type_of_register == _TBD) ||
+		    (parser.operands[2].type_of_register == _ERROR ||
+		     parser.operands[2].type_of_register == _TBD)) {
 			report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count, CRIT);
 			return -1;
 		} else return 2;
 	} else if (op >= clr && op <= prn) {
-		if ((parser_s.operands[1].type_of_register != _ERROR &&
-		     parser_s.operands[1].type_of_register != _TBD) &&
-		    parser_s.operands[2].type_of_register == _ERROR ||
-		    parser_s.operands[2].type_of_register == _TBD) {
+		if ((parser.operands[1].type_of_register != _ERROR &&
+		     parser.operands[1].type_of_register != _TBD) &&
+		    parser.operands[2].type_of_register == _ERROR ||
+		    parser.operands[2].type_of_register == _TBD) {
 			report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count, CRIT);
 			return -1;
 		} else return 1;
 
 	} else {
-		if (parser_s.operands[1].type_of_register != _ERROR &&
-		    parser_s.operands[1].type_of_register != _TBD &&
-		    parser_s.operands[2].type_of_register != _ERROR &&
-		    parser_s.operands[2].type_of_register != _TBD) {
+		if (parser.operands[1].type_of_register != _ERROR &&
+		    parser.operands[1].type_of_register != _TBD &&
+		    parser.operands[2].type_of_register != _ERROR &&
+		    parser.operands[2].type_of_register != _TBD) {
 			report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count, CRIT);
 			return -1;
 		} else return 0;
@@ -314,7 +314,7 @@ int checkRegisterCount(op_code_t op) {
 /*checks type of register assigned to register is correct */
 int checkRegisterCompliance() {
 	type_of_register_t type1, type2;
-	op_code_t opCode = parser_s.op;
+	op_code_t opCode = parser.op;
 	type1 = type2 = 0;
 
 	switch (checkRegisterCount(opCode)) {
@@ -324,15 +324,15 @@ int checkRegisterCompliance() {
 			return 1;
 		case 1:
 			/*check destination operands only */
-			type2 = parser_s.operands[0].type_of_register;
+			type2 = parser.operands[0].type_of_register;
 			if (type2 == opcode_specs[opCode][2][0][type1] - '0')
 				return 1;
 			return 0;
 			break;
 		case 2:
 			/*check 2 operands*/
-			type1 = parser_s.operands[0].type_of_register;
-			type2 = parser_s.operands[1].type_of_register;
+			type1 = parser.operands[0].type_of_register;
+			type2 = parser.operands[1].type_of_register;
 			/*comparison based opcpde_specs which defines all possible modes for each reg*/
 			if ((type1 == opcode_specs[opCode][1][0][type1] - '0') &&
 			    (type2 == opcode_specs[opCode][2][0][type2] - '0'))
@@ -458,38 +458,38 @@ void initDirectiveArray() {
 
 
 
-/** Function to print the values of parser_s variables */
+/** Function to print the values of parser variables */
 /** meant for development only */
 void printParser() {
 	/** Declare necessary variables */
 	int i;
 
 	/** Print line type */
-	printf("Line Type: %d\n", parser_s.line_type);
+	printf("Line Type: %d\n", parser.line_type);
 
 	/** Print symbol name */
-	printf("Symbol Name: %s\n", parser_s.symbol_name);
+	printf("Symbol Name: %s\n", parser.symbol_name);
 
 	/** Print directive fields */
-	printf("Directive Enum: %d\n", parser_s.directive.cmd);
-	printf("Directive Symbol: %s\n", parser_s.directive.operand.symbol);
-	printf("Directive Data Length: %d\n", parser_s.directive.operand.data_len);
-	if (parser_s.directive.operand.data != NULL) {
+	printf("Directive Enum: %d\n", parser.directive.cmd);
+	printf("Directive Symbol: %s\n", parser.directive.operand.symbol);
+	printf("Directive Data Length: %d\n", parser.directive.operand.data_len);
+	if (parser.directive.operand.data != NULL) {
 		printf("Directive Data: ");
-		for (i = 0; i < parser_s.directive.operand.data_len; i++) {
-			printf("%d ", parser_s.directive.operand.data[i]);
+		for (i = 0; i < parser.directive.operand.data_len; i++) {
+			printf("%d ", parser.directive.operand.data[i]);
 		}
 		printf("\n");
 	}
-	printf("Directive String: %s\n", parser_s.directive.operand.str);
+	printf("Directive String: %s\n", parser.directive.operand.str);
 
-	printf("Operand %d Op Code: %d\n", i, parser_s.op);
+	printf("Operand %d Op Code: %d\n", i, parser.op);
 	/** Print operands fields */
 	for (i = 0; i < 2; ++i) {
-		printf("Operand %d Type of Register: %d\n", i, parser_s.operands[i].type_of_register);
-		printf("Operand %d Number: %d\n", i, parser_s.operands[i].operand.num);
-		printf("Operand %d Symbol: %s\n", i, parser_s.operands[i].operand.symbol);
-		printf("Operand %d Registry: %d\n", i, parser_s.operands[i].operand.registry);
+		printf("Operand %d Type of Register: %d\n", i, parser.operands[i].type_of_register);
+		printf("Operand %d Number: %d\n", i, parser.operands[i].operand.num);
+		printf("Operand %d Symbol: %s\n", i, parser.operands[i].operand.symbol);
+		printf("Operand %d Registry: %d\n", i, parser.operands[i].operand.registry);
 	}
 }
 
@@ -497,25 +497,25 @@ void initParser() {
 	int i;
 
 	/* Initialize line type */
-	parser_s.line_type = ERR;
+	parser.line_type = ERR;
 	/* Initialize symbol name */
-	/*memset(parser_s.symbol_name, 0, sizeof(parser_s.symbol_name));*/
-	strcpy(parser_s.symbol_name, "TBD");
+	/*memset(parser.symbol_name, 0, sizeof(parser.symbol_name));*/
+	strcpy(parser.symbol_name, "TBD");
 	/* Initialize directive fields */
-	parser_s.directive.cmd = DATA; /* Assuming DATA is a default value */
-	parser_s.directive.operand.symbol = NULL; /*array dynamic alloc*/
-	parser_s.directive.operand.data = NULL;
-	parser_s.directive.operand.str = NULL;
-	parser_s.directive.operand.data_len = 0;
+	parser.directive.cmd = DATA; /* Assuming DATA is a default value */
+	parser.directive.operand.symbol = NULL; /*array dynamic alloc*/
+	parser.directive.operand.data = NULL;
+	parser.directive.operand.str = NULL;
+	parser.directive.operand.data_len = 0;
 
 	/* Initialize operands fields */
-	parser_s.op = mov; /* Assuming mov is a default value */
+	parser.op = mov; /* Assuming mov is a default value */
 	for (i = 0; i < 2; ++i) {
 
-		parser_s.operands[i].type_of_register = _TBD; /*type of register*/
-		parser_s.operands[i].operand.symbol;
-		parser_s.operands[i].operand.num = 0;
-		parser_s.operands[i].operand.registry = 0;
+		parser.operands[i].type_of_register = _TBD; /*type of register*/
+		parser.operands[i].operand.symbol;
+		parser.operands[i].operand.num = 0;
+		parser.operands[i].operand.registry = 0;
 	}
 }
 

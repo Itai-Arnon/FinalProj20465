@@ -30,7 +30,6 @@ typedef struct {
 		} operand; /*singular oper*/
 	} directive;
 	struct {
-
 		type_of_register_t type_of_register; /*4 type by order*/
 		int symbol_memory;
 		union {   /* 4 types of  operands*/
@@ -46,9 +45,10 @@ extern char *directives[4];
  /*extern char *directives[4] = {".data", ".string", ".extern", ".entry"};*/
 
 extern word_table_t *wordTable;
+extern word_table_t *dataTable;
 extern int IC;
 extern int DC;
-extern parser_t parser_s;
+extern parser_t parser;
 extern FILE *fptr_before;
 extern FILE *fptr_after;
 extern int line_count;

@@ -61,7 +61,7 @@ char *advance_buffer_if_possible(char *buffer, char *cmd);
 
 int register_count_by_op(op_code_t op);
 
-/* identifies  directive returns the Enum and set it in the parser_s*/
+/* identifies  directive returns the Enum and set it in the parser*/
 directive_cmd_t identifyDirective(char *str);
 
 

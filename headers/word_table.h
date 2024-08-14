@@ -19,7 +19,6 @@ typedef struct line_t{
 typedef struct word_table_t{
 	line_t *lines;
 	int size;
-	line_t *end;
 	struct word_table_t *next;
 }word_table_t;
 

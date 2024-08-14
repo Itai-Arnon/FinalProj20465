@@ -179,15 +179,15 @@ int if_Symbol_if_Duplicate(symbol_table_t *sym_tbl, char *cmd, symbol_loci_t isH
 	switch (isHEadOrMid) {
 		case HEAD:
 			if (cmd[len - 1] != ':') {
-				parser_s.line_type = ERR;
+				parser.line_type = ERR;
 				return 0;
 			}
 		case MIDDLE:
 			if (isDuplicateSymbol(sym_tbl, cmd) == 0) {
-				strncpy(parser_s.symbol_name, cmd, len);
+				strncpy(parser.symbol_name, cmd, len);
 				return 1; /*not dupilcate return 1 */
 			} else {
-				strncpy(parser_s.symbol_name, cmd, len);
+				strncpy(parser.symbol_name, cmd, len);
 				return 2;/* dupilcate return 2*/
 			}
 	}

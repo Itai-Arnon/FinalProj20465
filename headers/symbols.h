@@ -9,7 +9,7 @@
 
 typedef struct symbol_t{
 	char symbol_name[MAX_SYMBOL_NAME];
-	int address;
+	unsigned short address;
 	memory_t type;
 	struct symbol_t *next_sym;
 }symbol_t;

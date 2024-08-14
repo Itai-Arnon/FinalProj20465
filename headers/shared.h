@@ -60,7 +60,7 @@
 #define ERR_DUPLICATE_SYMBOL_NAME  "DUPLICATE SYMBOL NAME"
 #define ERR_FAIL_CREATE_SYMBOL_TBL "Symbol Table Creation Failed"
 #define ERR_FAIL_CREATE_SYMBOL "Symbol  Creating Symbol Node Failed"
-#define ERR_SYMBOL_TABLE_EMPTY "Symbol Table Empty" /*non critial*/
+#define ERR_SYMBOL_NOT_FOUND "Symbol Not Found" /*non critial*/
 
 
 
@@ -101,7 +101,7 @@ typedef enum{MACRO_START, MACRO_END , MACRO_EXPAND , LINE_INSIDE , LINE_OUTSIDE,
 /*utils */
 typedef enum{ALPHA,ALPHANUM, ALPHANUM_COMBINED}check_legal_name;
 
-typedef enum{DESTINATION , SOURCE}operand_t;
+
 
 typedef enum {E, R,	A } ARE_T;
 
@@ -110,7 +110,7 @@ typedef enum {CONVERT  , CHECK} convert_func_t;
 typedef enum{  MIDDLE, HEAD}symbol_loci_t;
 
 
-
+typedef enum{DESTINATION , SOURCE}operand_t;
 
 /*CRIT -terminates NON_CRIT doesn't*/
 typedef enum{CRIT,NON_CRIT}err_type_t;
