@@ -78,6 +78,10 @@
 #define ERR_STRING_INVALID  "String Line not recognized"
 #define ERR_EXTERN_ENTRY_ILLEGAL "Illegal Extern or Entry Line"
 
+/*word_table*/
+#define ERR_WORD_TABLE_ALLOCATION "Word Table Creation or Allocation Failed"
+
+
 
 
 typedef enum {
@@ -99,7 +103,7 @@ typedef enum{ALPHA,ALPHANUM, ALPHANUM_COMBINED}check_legal_name;
 
 typedef enum{DESTINATION , SOURCE}operand_t;
 
-typedef enum {	A,R,E } ARE_T;
+typedef enum {E, R,	A } ARE_T;
 
 typedef  enum{NO, YES }update_address_t;
 typedef enum {CONVERT  , CHECK} convert_func_t;

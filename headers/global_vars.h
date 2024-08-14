@@ -6,6 +6,7 @@
 
 #include<stdio.h>
 #include "shared.h"
+#include "word_table.h"
 
 
 typedef struct {
@@ -44,8 +45,9 @@ extern char *opcode_names[16];
 extern char *directives[4];
  /*extern char *directives[4] = {".data", ".string", ".extern", ".entry"};*/
 
-extern int *IC;
-extern int *DC;
+extern word_table_t *wordTable;
+extern int IC;
+extern int DC;
 extern parser_t parser_s;
 extern FILE *fptr_before;
 extern FILE *fptr_after;

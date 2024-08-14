@@ -24,4 +24,6 @@ add_executable(m14
         headers/error.h
         scripts/first_pass.c
         headers/first_pass.h
+        headers/word_table.h
+        scripts/word_table.c
 )
