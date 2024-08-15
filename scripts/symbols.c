@@ -28,7 +28,6 @@ int loadSymbolTable(symbol_table_t *sym_tbl, char symbol_name[], int address, me
 		return 0;
 	}
 
-
 	sym_tbl->size++;
 	if (end != NULL) {
 		while (end->next_sym != NULL) {
@@ -72,16 +71,15 @@ symbol_table_t *init_symbol_table(symbol_table_t *sym_tbl) {
 	return NULL;
 }
 
-symbol_t*  findSymbol(symbol_table_t *sym_tbl , char symbol_name[]){
-	symbol_t *head;
+symbol_t*  findSymbol(symbol_table_t *sym_tbl , char *symbol_name){
+	symbol_t *head = sym_tbl->symbol_List;
 	int LEN = strlen(symbol_name);
 
 	if(sym_tbl != NULL){
 		LEN = (symbol_name[LEN - 1] == ':' ) ? LEN - 1 : LEN;
-		head = sym_tbl->symbol_List;
-		LEN = LEN - 1;
+
 		while (head != NULL) {
-			if (strncmp(head->symbol_name, symbol_name, LEN))
+			if (strncmp(head->symbol_name, symbol_name, LEN) == 0)
 				return head;
 			else
 				head = head->next_sym;
@@ -157,7 +155,7 @@ int if_Symbol_if_Duplicate(symbol_table_t *sym_tbl, char *cmd, symbol_loci_t isH
 
 /*meant to detect if name is a duplicate directive or opcode or prior labels are */
 int is_symbol_name_duplicate(symbol_table_t *sym_tbl , char *symbol_name) {
-	symbol_t *head;
+	symbol_t *head = sym_tbl->symbol_List;
 	int LEN = strlen(symbol_name);
 	int j = 0;
 
@@ -173,17 +171,15 @@ int is_symbol_name_duplicate(symbol_table_t *sym_tbl , char *symbol_name) {
 		if (strcmp(symbol_name, directives[j]) == 0)
 			return 1;
 	}
-	if(sym_tbl != NULL){
+
 		LEN = (symbol_name[LEN - 1] == ':' ) ? LEN - 1 : LEN;
-		head = sym_tbl->symbol_List;
-		LEN = LEN - 1;
 		while (head != NULL) {
-			if (strncmp(head->symbol_name, symbol_name, LEN))
+			if (strncmp(head->symbol_name, symbol_name, LEN)  == 0 )
 				return 1;
 			else
 				head = head->next_sym;
 		}
-	}
+
 	return 0;
 }
 

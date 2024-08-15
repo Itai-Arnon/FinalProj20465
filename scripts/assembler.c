@@ -52,7 +52,7 @@ void manage_files(int _argc, char **_argv, macro_table_t *macro_tbl, symbol_tabl
 		first_pass(sym_tbl, wordTable ,dataTable);
 
 		/*	read_preprocessor(macro_tbl, sym_tbl);*/
-		/*rewind(fptr_before);*/
+		rewind(fptr_after);
 
 
 

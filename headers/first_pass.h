@@ -11,6 +11,7 @@
 #define register_shift 3
 #define register_size 3
 #define immediate_shift 3
+#define label_shift 3
 
 
 #define initTableSize 1
@@ -25,9 +26,9 @@ void set_STRING_WORDS(symbol_table_t *sym_tbl , word_table_t *dataTable);
 void set_DATA_WORDS(symbol_table_t * , word_table_t *);
 
 /*processes 1st instruction word*/
-void setOPCODE_INSTRUCTION(symbol_table_t *, word_table_t *);
+void setOPCODE_INSTRUCTION(symbol_table_t *, word_table_t * );
 /*processes 2nd and 3rd  words if necessary*/
-void setOPCODE_WORDS(symbol_table_t *, word_table_t*, int);
+void setOPCODE_WORDS(symbol_table_t *, word_table_t*, int ,int);
 
 int registerSelection();
 

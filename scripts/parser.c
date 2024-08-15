@@ -67,7 +67,7 @@ void parse(symbol_table_t *sym_tbl) {
 		report_error(ERR_FAIL_CREATE_SYMBOL, line_count, CRIT);
 		return;
 	}
-	/*fgets(buffer, LINE_LENGTH, fptr_after) != NULL*/
+
 	while (fgets(buffer, LINE_LENGTH, fptr_after) != NULL) {
 		initParser();
 		line_count++;
@@ -231,25 +231,30 @@ type_of_register_t classifyRegisters(char *str, int first_or_second_operand) {
 	int i;
 	char *s_ptr;
 	int len = strlen(str);
-	int number = 0;
+	int number = 0, flag  = 0;
 	/* Check if  '#' hence immediate */
 	if (strncmp(str, "#", 1) == 0) {
-		s_ptr = str + 1;
-		if (*s_ptr == '-')/*minus is allowed only in the beginning */
-			s_ptr++;
-		while (isdigit(*(s_ptr) && s_ptr++));
-		if (*s_ptr)
-			report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count, CRIT);
-		else {
-			number = convertOrCheckStringToNum(s_ptr, 0);
-			printf("%d\n", number);
-			parser.operands[first_or_second_operand].operand.num = number;
-			return _IMMEDIATE;
+		str++;
+		/*minus is allowed only in the beginning */
+		if (*str == '-') {
+			  str++;
+			flag = 1;
 		}
-	}
+		s_ptr = str;
+		while (isdigit(*str++));
+			if (*str)
+				report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count, CRIT);
+			else {
+
+				number = convertOrCheckStringToNum(s_ptr, 0);
+				number = (flag == 1) ? number * -1 : number;
+				parser.operands[first_or_second_operand].operand.num = number;
+				return _IMMEDIATE;
+			}
+
 		/* Check if '*'hence indirect */
-		/* in the reg there's an adddres of the real value */
-	else if (strncmp(str, "*", 1) == 0) {
+		/* in the reg there's an address of the real value */
+	}else if (strncmp(str, "*", 1) == 0) {
 		if (str[1] == 'r' && isdigit(str[2]) && str[2] >= '0' && str[2] <= '7') {
 			parser.operands[first_or_second_operand].operand.registry = str[2]-'0';
 			return _INDIRECT; /*number 3 pointer type*/
@@ -305,8 +310,9 @@ int checkRegisterCompliance() {
 			type1 = parser.operands[0].type_of_register;
 			type2 = parser.operands[1].type_of_register;
 			/*comparison based opcpde_specs which defines all possible modes for each reg*/
-			if ((type1 == opcode_specs[opCode][1][0][type1] - '0') &&
-			    (type2 == opcode_specs[opCode][2][0][type2] - '0'))
+			/*[OpCode][ 2 = source| 1 = destination][0][regsitry types define index] */
+			if ((type1 == opcode_specs[opCode][2][0][type1] - '0') &&
+			    (type2 == opcode_specs[opCode][1][0][type2] - '0'))
 				return 1;
 			return 0;
 			break;
@@ -397,8 +403,6 @@ void initDirectiveArray() {
 		directArray[i].cmd = direct_enums[i];
 	}
 }
-
-
 
 
 /** Function to print the values of parser variables */

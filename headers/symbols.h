@@ -10,7 +10,8 @@
 typedef struct symbol_t{
 	char symbol_name[MAX_SYMBOL_NAME];
 	unsigned short address;
-	memory_t type;
+	memory_t type;/*_INSTRUCTION OR DATA*/
+	ARE_T  are;
 	struct symbol_t *next_sym;
 }symbol_t;
 
@@ -30,7 +31,7 @@ int checkOrUpdateSymbolAddress(symbol_table_t *sym_tbl, char* symbol_name , int 
 
 void print_symbol_table(symbol_table_t *sym_tbl);
 
-symbol_t  *findSymbol(symbol_table_t *sym_tbl , char symbol_name[]);
+symbol_t  *findSymbol(symbol_table_t *sym_tbl , char *symbol_name);
 
 symbol_table_t * init_symbol_table(symbol_table_t *sym_tbl);
 
