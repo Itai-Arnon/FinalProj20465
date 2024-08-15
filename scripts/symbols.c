@@ -16,45 +16,7 @@ char *opcode_names[16] = {"mov", "cmp", "add", "sub", "lea", "clr", "not", "inc"
 
 char *directives[4] = {".data", ".string", ".extern", ".entry"};
 
-void collect_symbol_names(symbol_table_t *sym_tbl) {
 
-	char *buffer = malloc(sizeof(char) * LINE_LENGTH);
-	char *first_word = (char *) calloc(10, sizeof(char));
-	char *first_word_cut = (char *) calloc(10, sizeof(char));
-	char *str = (char *) calloc(10, sizeof(char));
-	int *pos = calloc(1, sizeof(int));
-	int idx = 0;
-	int len = 0;
-	line_count = 0;
-
-
-	if (sym_tbl == NULL) {
-		report_error(ERR_FAIL_CREATE_SYMBOL_TBL, line_count, NON_CRIT);
-		return;
-	}
-	while (fgets(buffer, LINE_LENGTH, fptr_before) != NULL) {
-		line_count++;
-		idx = 0;
-
-		if (isRestOfLineEmpty(buffer)) /*checks case of empty line*/
-			continue;
-
-
-		if (sscanf(buffer, "%s", first_word) == 1) {
-			len = strlen(first_word);
-			printf("%c\n", first_word[len - 1]);
-			if (first_word[len - 1] == ':') {
-				len -= 1;
-				printf("POSSIBLE LABEL %s\n", first_word);
-				strncpy(first_word_cut, first_word, len);
-				/*set up as instruction memoery */
-				loadSymbolTable(sym_tbl, first_word_cut, 0, 0);
-
-			}
-
-		}
-	}
-}
 
 /* todo 0 failure 1:success*/
 int loadSymbolTable(symbol_table_t *sym_tbl, char symbol_name[], int address, memory_t type) {
@@ -115,7 +77,7 @@ symbol_t*  findSymbol(symbol_table_t *sym_tbl , char symbol_name[]){
 	int LEN = strlen(symbol_name);
 
 	if(sym_tbl != NULL){
-		LEN = (symbol_name[LEN - 1] == ":" ) ? LEN - 1 : LEN;
+		LEN = (symbol_name[LEN - 1] == ':' ) ? LEN - 1 : LEN;
 		head = sym_tbl->symbol_List;
 		LEN = LEN - 1;
 		while (head != NULL) {
@@ -128,7 +90,7 @@ symbol_t*  findSymbol(symbol_table_t *sym_tbl , char symbol_name[]){
 	return NULL;
 }
 
-symbol_t *create_symbol(symbol_table_t *sym_tbl , symbol_name[], int address, memory_t type) {
+symbol_t *create_symbol(symbol_table_t *sym_tbl , char symbol_name[], int address, memory_t type) {
 	symbol_t *node = NULL;
 	int LEN = strlen(symbol_name);
 	if (symbol_name[LEN - 1] == ':')
@@ -199,6 +161,10 @@ int is_symbol_name_duplicate(symbol_table_t *sym_tbl , char *symbol_name) {
 	int LEN = strlen(symbol_name);
 	int j = 0;
 
+	if(symbol_name[0] == '\0') {
+		return 0;
+	}
+
 	for (j = 0; j < 16; ++j) {
 		if (strcmp(symbol_name, opcode_names[j]) == 0)
 			return 1;
@@ -208,7 +174,7 @@ int is_symbol_name_duplicate(symbol_table_t *sym_tbl , char *symbol_name) {
 			return 1;
 	}
 	if(sym_tbl != NULL){
-		LEN = (symbol_name[LEN - 1] == ":" ) ? LEN - 1 : LEN;
+		LEN = (symbol_name[LEN - 1] == ':' ) ? LEN - 1 : LEN;
 		head = sym_tbl->symbol_List;
 		LEN = LEN - 1;
 		while (head != NULL) {
@@ -223,36 +189,5 @@ int is_symbol_name_duplicate(symbol_table_t *sym_tbl , char *symbol_name) {
 
 
 
-/*pre processor errors are not treated  */
-/*meant to create the symbol table for the purpose of the preprocessor scan */
-/*todo probably erase*/
-/*TODO: I used sscanf to remove white space , create util that removes whitspace*/
-void findLabel_n_load(symbol_table_t *sym_tbl, char *buffer, char ch) {
-	char **arr = calloc(5, sizeof(char *));
-	char *s;
-	int x = 0;
-	char no_whites[MAX_SYMBOL_NAME];
-	int idx = 0;
-	int length = 0;
-	if (*buffer == '\0') return;
-	do {
-		arr[idx] = calloc(MAX_SYMBOL_NAME, sizeof(char));
-		arr[idx] = buffer;
-		idx++;
-		s = strchr(buffer, ch);
-		if (s) {
-			*s = '\0';
-			s++;
-		}
-		buffer = s;
-	} while (s);
-	length = idx;
-	/*todo fix this*/
-	/*for (idx = 0; idx < length; idx++) {
-		strcpy(no_whites, arr[idx]);
-		loadSymbolTable(sym_tbl, , 0. _INSTRUCTION);
-		printf("%s\n", no_whites);
-	}*/
-}
 
 

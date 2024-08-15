@@ -44,8 +44,7 @@ extern char *opcode_names[16];
 extern char *directives[4];
  /*extern char *directives[4] = {".data", ".string", ".extern", ".entry"};*/
 
-extern word_table_t *wordTable;
-extern word_table_t *dataTable;
+
 extern int IC;
 extern int DC;
 extern parser_t parser;

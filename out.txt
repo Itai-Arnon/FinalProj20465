@@ -1,2 +1,1 @@
-.entry  aba
-.string "jjj"
+mov r1 , r2

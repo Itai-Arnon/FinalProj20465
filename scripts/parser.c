@@ -12,8 +12,8 @@
 #include "headers/error.h"
 
 
-static directive_cmd_t direct_enums[4] = {DATA, STRING, ENTRY, EXTERN};
-static direct_arr_t directArray[4];
+ directive_cmd_t direct_enums[4] = {DATA, STRING, ENTRY, EXTERN};
+ direct_arr_t directArray[4];
 
 
 
@@ -39,8 +39,8 @@ static char *opcode_specs[16][3][1] = {
 
 
 parser_t parser;
-static sep_commas_t seperator_c;
-static sep_whitespace_t seperator_w;
+sep_commas_t seperator_c;
+
 
 void parse(symbol_table_t *sym_tbl) {
 	char *buffer = calloc(LINE_LENGTH, sizeof(char));/*sentence analyzed*/
@@ -113,7 +113,8 @@ void parse(symbol_table_t *sym_tbl) {
 					seperator_c.cString[idx] = strstrip(seperator_c.cString[idx]);
 					parser.operands[idx].type_of_register = classifyRegisters(seperator_c.cString[idx], idx);
 				}
-				if (checkRegisterCount(parser.op) == -1 || checkRegisterCompliance() == 0)
+				/*if by the opcode registers a valid and if they are different*/
+				if ( checkRegisterCompliance() == 0 || parser.operands[0].operand.registry == parser.operands[1].operand.registry  )
 					report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count, CRIT);
 
 				/*Creat symbol a register with direct : labels*/
@@ -250,14 +251,14 @@ type_of_register_t classifyRegisters(char *str, int first_or_second_operand) {
 		/* in the reg there's an adddres of the real value */
 	else if (strncmp(str, "*", 1) == 0) {
 		if (str[1] == 'r' && isdigit(str[2]) && str[2] >= '0' && str[2] <= '7') {
-			parser.operands[first_or_second_operand].operand.registry = str[2];
+			parser.operands[first_or_second_operand].operand.registry = str[2]-'0';
 			return _INDIRECT; /*number 3 pointer type*/
 		}
 	}
 		/* Check if the string starts with 'r' */
 	else if (strncmp(str, "r", 1) == 0) {
 		if (str[0] == 'r' && isdigit(str[1]) && str[1] >= '0' && str[1] <= '7')
-			parser.operands[first_or_second_operand].operand.registry = str[1];
+			parser.operands[first_or_second_operand].operand.registry = str[1]-'0';
 		return _REGULAR; /*Number 4*/
 	}
 		/* Default case for other characters */
@@ -273,42 +274,14 @@ type_of_register_t classifyRegisters(char *str, int first_or_second_operand) {
 
 /*return number of registers allowed, -1 means op_code number of registers is wrong*/
 int register_count_by_op(op_code_t op) {
+	if(op < mov || op > stop)
+	 return -1;
 	if (op >= mov && op <= lea)
 		return 2;
-	else if (op >= clr && op <= stop)
+	else if (op >= clr && op <= jsr)
 		return 1;
 	else
 		return 0;
-}
-
-int checkRegisterCount(op_code_t op) {
-
-	if (op >= mov && op <= lea) {
-		if ((parser.operands[1].type_of_register == _ERROR ||
-		     parser.operands[1].type_of_register == _TBD) ||
-		    (parser.operands[2].type_of_register == _ERROR ||
-		     parser.operands[2].type_of_register == _TBD)) {
-			report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count, CRIT);
-			return -1;
-		} else return 2;
-	} else if (op >= clr && op <= prn) {
-		if ((parser.operands[1].type_of_register != _ERROR &&
-		     parser.operands[1].type_of_register != _TBD) &&
-		    parser.operands[2].type_of_register == _ERROR ||
-		    parser.operands[2].type_of_register == _TBD) {
-			report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count, CRIT);
-			return -1;
-		} else return 1;
-
-	} else {
-		if (parser.operands[1].type_of_register != _ERROR &&
-		    parser.operands[1].type_of_register != _TBD &&
-		    parser.operands[2].type_of_register != _ERROR &&
-		    parser.operands[2].type_of_register != _TBD) {
-			report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count, CRIT);
-			return -1;
-		} else return 0;
-	}
 }
 
 /*checks type of register assigned to register is correct */
@@ -317,9 +290,7 @@ int checkRegisterCompliance() {
 	op_code_t opCode = parser.op;
 	type1 = type2 = 0;
 
-	switch (checkRegisterCount(opCode)) {
-		case -1:/*if error in checkRegisterCount */
-			return -1;
+	switch (register_count_by_op(opCode)) {
 		case 0:/*case of no operands always correct*/
 			return 1;
 		case 1:
@@ -379,34 +350,6 @@ int processString(char *str, char *sArr) {
 	return 1;
 }
 
-
-sep_whitespace_t string_sep(char *line) {
-	int strings_count = 0;
-	char *s;
-	sep_whitespace_t seperator = {0};
-	while (isspace(*line)) line++;
-	if (*line == '\0') {
-		return seperator;
-	}
-
-	do {
-		seperator.wString[strings_count++] = line;
-		/*strpbrk refer to the constant SPACES*/
-		s = strpbrk(line, SPACES);
-		if (s) {
-			*s = '\0';
-			s++;
-			while (isspace(*s))s++;
-			if (*s == '\0')
-				break;
-			line = s;
-		} else {
-			break;
-		}
-	} while (1);
-	seperator.counter = strings_count;
-	return seperator;
-}
 
 
 sep_commas_t string_comma_seps(char *str) {
@@ -499,8 +442,7 @@ void initParser() {
 	/* Initialize line type */
 	parser.line_type = ERR;
 	/* Initialize symbol name */
-	/*memset(parser.symbol_name, 0, sizeof(parser.symbol_name));*/
-	strcpy(parser.symbol_name, "TBD");
+	parser.symbol_name[0]='\0';
 	/* Initialize directive fields */
 	parser.directive.cmd = DATA; /* Assuming DATA is a default value */
 	parser.directive.operand.symbol = NULL; /*array dynamic alloc*/

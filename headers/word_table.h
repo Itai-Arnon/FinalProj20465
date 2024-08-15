@@ -9,10 +9,9 @@
 typedef unsigned short word_t;
 
 typedef struct line_t{
-	word_t *word;
+	word_t word;
 	int line_num;
 	symbol_t *symbol; /*check if feasible*/
-
 }line_t;
 
 /*the base of the instruction /data table */

@@ -16,17 +16,27 @@
 #define initTableSize 1
 
 /*processes parser struct one line at a time and translates to machine language*/
-void pass_one(symbol_table_t *sym_tbl);
+void first_pass(symbol_table_t *sym_tbl, word_table_t * , word_table_t *) ;
+
+/*process .string directive*/
+void set_STRING_WORDS(symbol_table_t *sym_tbl , word_table_t *dataTable);
 
 /*process .data directive*/
-void set_DATA_WORDS(symbol_table_t *);
+void set_DATA_WORDS(symbol_table_t * , word_table_t *);
 
 /*processes 1st instruction word*/
-void setOPCODE_INSTRUCTION(symbol_table_t *);
+void setOPCODE_INSTRUCTION(symbol_table_t *, word_table_t *);
 /*processes 2nd and 3rd  words if necessary*/
-void setOPCODE_WORDS(symbol_table_t *, int);
+void setOPCODE_WORDS(symbol_table_t *, word_table_t*, int);
+
+int registerSelection();
 
 int convertToTwoComp(int num);
+
+
+void set_number_data_word(word_t *word, char value);
+
+void set_char_string_word(word_t *word, char value);
 
 /*sets opcode type in instruction word |op_code - 0 to 15 */
 void set_opcode_into_word(word_t *word, op_code_t op_code);
@@ -50,10 +60,11 @@ void set_ARE_into_word(word_t *word, ARE_T are);
 void set_value_to_word(word_t *word, int value);
 
 /*initiate word or data table*/
-word_table_t *initTable(word_table_t *table);
+
+word_table_t* initTable(word_table_t *wordTable);
 
 /*reallocate more places in table*/
-line_t *add_line(word_table_t *, ic_num, symbol_t *symbol);
+line_t *add_line(word_table_t *, int, symbol_t *);
 
 
 

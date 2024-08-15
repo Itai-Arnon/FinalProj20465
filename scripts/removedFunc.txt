@@ -1,0 +1,146 @@
+/*pre processor errors are not treated  */
+/*meant to create the symbol table for the purpose of the preprocessor scan */
+/*todo probably erase*/
+/*TODO: I used sscanf to remove white space , create util that removes whitspace*/
+void findLabel_n_load(symbol_table_t *sym_tbl, char *buffer, char ch) {
+	char **arr = calloc(5, sizeof(char *));
+	char *s;
+	int x = 0;
+	char no_whites[MAX_SYMBOL_NAME];
+	int idx = 0;
+	int length = 0;
+	if (*buffer == '\0') return;
+	do {
+		arr[idx] = calloc(MAX_SYMBOL_NAME, sizeof(char));
+		arr[idx] = buffer;
+		idx++;
+		s = strchr(buffer, ch);
+		if (s) {
+			*s = '\0';
+			s++;
+		}
+		buffer = s;
+	} while (s);
+	length = idx;
+	/*todo fix this*/
+	/*for (idx = 0; idx < length; idx++) {
+		strcpy(no_whites, arr[idx]);
+		loadSymbolTable(sym_tbl, , 0. _INSTRUCTION);
+		printf("%s\n", no_whites);
+	}*/
+}
+
+
+void collect_symbol_names(symbol_table_t *sym_tbl) {
+
+	char *buffer = malloc(sizeof(char) * LINE_LENGTH);
+	char *first_word = (char *) calloc(10, sizeof(char));
+	char *first_word_cut = (char *) calloc(10, sizeof(char));
+	char *str = (char *) calloc(10, sizeof(char));
+	int *pos = calloc(1, sizeof(int));
+	int idx = 0;
+	int len = 0;
+	line_count = 0;
+
+
+	if (sym_tbl == NULL) {
+		report_error(ERR_FAIL_CREATE_SYMBOL_TBL, line_count, NON_CRIT);
+		return;
+	}
+	while (fgets(buffer, LINE_LENGTH, fptr_before) != NULL) {
+		line_count++;
+		idx = 0;
+
+		if (isRestOfLineEmpty(buffer)) /*checks case of empty line*/
+			continue;
+
+
+		if (sscanf(buffer, "%s", first_word) == 1) {
+			len = strlen(first_word);
+			printf("%c\n", first_word[len - 1]);
+			if (first_word[len - 1] == ':') {
+				len -= 1;
+				printf("POSSIBLE LABEL %s\n", first_word);
+				strncpy(first_word_cut, first_word, len);
+				/*set up as instruction memoery */
+				loadSymbolTable(sym_tbl, first_word_cut, 0, 0);
+
+			}
+
+		}
+	}
+}
+
+
+sep_whitespace_t string_sep(char *line) {
+	int strings_count = 0;
+	char *s;
+	sep_whitespace_t seperator = {0};
+	while (isspace(*line)) line++;
+	if (*line == '\0') {
+		return seperator;
+	}
+
+	do {
+		seperator.wString[strings_count++] = line;
+		/*strpbrk refer to the constant SPACES*/
+		s = strpbrk(line, SPACES);
+		if (s) {
+			*s = '\0';
+			s++;
+			while (isspace(*s))s++;
+			if (*s == '\0')
+				break;
+			line = s;
+		} else {
+			break;
+		}
+	} while (1);
+	seperator.counter = strings_count;
+	return seperator;
+}
+
+
+
+int checkRegisterCount(op_code_t op) {
+
+	if (op >= mov && op <= lea) {
+		if ((parser.operands[1].type_of_register == _ERROR ||
+		     parser.operands[1].type_of_register == _TBD) ||
+		    (parser.operands[2].type_of_register == _ERROR ||
+		     parser.operands[2].type_of_register == _TBD)) {
+			report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count, CRIT);
+			return -1;
+		} else return 2;
+	} else if (op >= clr && op <= prn) {
+		if ((parser.operands[0].type_of_register != _ERROR &&
+		     parser.operands[0].type_of_register != _TBD) &&
+		    parser.operands[2].type_of_register == _ERROR ||
+		    parser.operands[2].type_of_register == _TBD) {
+			report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count, CRIT);
+			return -1;
+		} else return 1;
+
+	} else {
+		if (parser.operands[1].type_of_register != _ERROR &&
+		    parser.operands[1].type_of_register != _TBD &&
+		    parser.operands[2].type_of_register != _ERROR &&
+		    parser.operands[2].type_of_register != _TBD) {
+			report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count, CRIT);
+			return -1;
+		} else return 0;
+	}
+}
+
+
+/* divides strings that have whitespace b/w them */
+typedef struct {
+	char *wString[20];
+	int counter;
+} sep_whitespace_t;
+
+
+
+
+
+

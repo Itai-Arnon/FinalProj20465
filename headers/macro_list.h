@@ -37,7 +37,7 @@ macro_node_t* retEndList(macro_node_t*);
 void loadMacroTable(macro_table_t* tbl,char*macr_name, char*line);
 /* @return index of table slot of macro_name or a new null slot ,-1 if not found
  */
- static int retSlot(macro_table_t *tbl , char* macro_name);
+ int retSlot(macro_table_t *tbl , char* macro_name);
 
 
 

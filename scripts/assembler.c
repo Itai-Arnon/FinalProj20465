@@ -12,6 +12,7 @@
 #include "headers/symbols.h"
 #include "headers/parser.h"
 #include "headers/error.h"
+#include "headers/first_pass.h"
 
 
 FILE *fptr_before;
@@ -21,10 +22,11 @@ FILE *fptr_after;
 int main(int argc, char *argv[]) {
 	macro_table_t *mac_tbl = NULL;
 	symbol_table_t *sym_tbl = NULL;
-
+	 word_table_t *wordTable;
+	 word_table_t *dataTable;
 	mac_tbl = initMacroTable(mac_tbl);
 	sym_tbl = init_symbol_table(sym_tbl);
-	manage_files(argc, argv, mac_tbl, sym_tbl);
+	manage_files(argc, argv, mac_tbl, sym_tbl,wordTable, dataTable);
 
 
 	fclose(fptr_before);
@@ -33,7 +35,8 @@ int main(int argc, char *argv[]) {
 
 }
 
-void manage_files(int _argc, char **_argv, macro_table_t *macro_tbl, symbol_table_t *sym_tbl) {
+void manage_files(int _argc, char **_argv, macro_table_t *macro_tbl, symbol_table_t *sym_tbl , word_table_t *wordTable,
+                  word_table_t *dataTable) {
 	int idx;
 	int num_files = _argc;
 	char buffer[LINE_LENGTH];
@@ -46,6 +49,7 @@ void manage_files(int _argc, char **_argv, macro_table_t *macro_tbl, symbol_tabl
 	for (idx = 1; idx < num_files; ++idx) {
 		fptr_before = initSourceFiles(_argc, _argv, fptr_before, idx);
 		parse(sym_tbl);
+		first_pass(sym_tbl, wordTable ,dataTable);
 
 		/*	read_preprocessor(macro_tbl, sym_tbl);*/
 		/*rewind(fptr_before);*/

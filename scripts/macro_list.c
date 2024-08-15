@@ -109,7 +109,7 @@ macro_node_t *retEndList(macro_node_t *head) {
 	return temp;
 }
 
-static int retSlot(macro_table_t *tbl, char *macro_name) {
+ int retSlot(macro_table_t *tbl, char *macro_name) {
 	int i = 0;
 	int LEN = strlen(macro_name);
 	if (tbl->isEmpty == 1) return 0;

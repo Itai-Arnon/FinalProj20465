@@ -14,75 +14,59 @@
 #include "headers/word_table.h"
 
 int IC;
-int ID;
-word_table_t *wordTable;
-word_table_t *dataTable;
+int DC;
 
+void printBinary(unsigned short num) {
+	int i =0;
+	int bits = sizeof(unsigned short) * 8; /* Number of bits in the unsigned short*/
+	for ( i = bits - 1; i >= 0; i--) {
+		unsigned short mask = 1 << i;
+		printf("%d", (num & mask) ? 1 : 0);
+	}
+	printf("\n");
+}
 
-void pass_one(symbol_table_t *sym_tbl) {
+void first_pass(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataTable) {
 	int initVal = 100;
 	int result = 0;
-
-	line_count = 0;
 	IC = initVal;
 	DC = 0;
 
 	wordTable = initTable(wordTable);
 	dataTable = initTable(dataTable);
 
-
 	switch (parser.line_type) {
 		case OP_CODE:
-			setOPCODE_INSTRUCTION(sym_tbl);
-
+			setOPCODE_INSTRUCTION(sym_tbl, wordTable);
+			break;
 		case DIRECTIVE:
 			if ((result = parser.directive.cmd) == DATA) {
-
+				set_DATA_WORDS(sym_tbl,dataTable);
 
 			} else if (result == STRING) {
+				set_STRING_WORDS(sym_tbl,dataTable);
+
 
 			} else if (result == ENTRY || result == EXTERN) {}
-
+			break;
 		case ERR:
-			report_error(ERR_LINE_UNRECOGNIZED, line_count, CRIT);
+			report_error(ERR_GENERAL_FIRST_PASS_ERROR, line_count, CRIT);
 			break;
 		case TBD:
-			report_error(ERR_DIRECTIVE_RECOGNITION, line_count, CRIT);
+			report_error(ERR_LINE_UNRECOGNIZED, line_count, CRIT);
 			break;
 		default:
 			break;
 	}
 
 }
-void set_number_data_word(word_t *word,  int value ){
-	value = convertToTwoComp(value);
-	set_value_to_word(word,value);
-}
-
-void set_char_string_word(word_t *word,  char value ){
-	int ascii_value = (int)value;
-	set_value_to_word(word, ascii_value);
-
-}
-
-void set_DIRECTIVES_WORDS(symbol_table_t *){
-
-	symbol_t *symbol = findSymbol(sym_tbl, parser.symbol_name);
-	line_t *line = NULL;
-	int i = 0;
-
-
-		line = add_line(wordTable, DC++, symbol);
-
-		for(i = 1 ; i < parser.directive.operand.data_len ; i++){}
-
-}
-
 
 /*sets the instruction word and the send to othre func to set other words*/
-void setOPCODE_INSTRUCTION(symbol_table_t *sym_tbl) {
+void setOPCODE_INSTRUCTION(symbol_table_t *sym_tbl, word_table_t *wordTable) {
 	symbol_t *symbol = findSymbol(sym_tbl, parser.symbol_name);
-	line_t *line1 = add_line(wordTable, IC, symbol);;
+	line_t *line1 = add_line(wordTable, IC, symbol);
+	type_of_register_t type0 = parser.operands[0].type_of_register;
+	type_of_register_t type1 = parser.operands[1].type_of_register;
 	IC++;
 
 	switch (register_count_by_op(parser.op)) {
@@ -90,68 +74,141 @@ void setOPCODE_INSTRUCTION(symbol_table_t *sym_tbl) {
 			if (symbol != NULL) {
 				symbol->address = IC;
 			}
-			set_opcode_into_word(line1->word, parser.op);
-			set_ARE_into_word(line1->word, A);
+			set_opcode_into_word(&(line1->word), parser.op);
+			set_ARE_into_word(&(line1->word), A);
 			break;
 		case 1:
 			if (symbol != NULL)
 				symbol->address = IC;
-			set_opcode_into_word(line1->word, parser.op);
-			set_ARE_into_word(line1->word, A);
-			set_operand_type_into_word(line1->word, DESTINATION, parser.operands[1].type_of_register);
-			setOPCODE_WORDS(sym_tbl, 1);
+			set_opcode_into_word(&(line1->word), parser.op);
+			set_ARE_into_word(&(line1->word), A);
+			set_operand_type_into_word(&(line1->word), DESTINATION, parser.operands[1].type_of_register);
+			setOPCODE_WORDS(sym_tbl, wordTable, 1);
 			break;
 		case 2:
 			if (symbol != NULL)
 				symbol->address = IC;
-			set_opcode_into_word(line1->word, parser.op);
-			set_ARE_into_word(line1->word, A);
-			set_operand_type_into_word(line1->word, DESTINATION, parser.operands[0].type_of_register);
-			setOPCODE_WORDS(sym_tbl, 0);
-			set_operand_type_into_word(line1->word, SOURCE, parser.operands[1].type_of_register);
-			setOPCODE_WORDS(sym_tbl, 1);
+			set_opcode_into_word(&(line1->word), parser.op);
+			set_ARE_into_word(&(line1->word), A);
+			set_operand_type_into_word(&(line1->word), DESTINATION, parser.operands[0].type_of_register);
+			set_operand_type_into_word(&(line1->word), SOURCE, parser.operands[1].type_of_register);
+
+			printf("first word:");
+			printBinary(line1->word);
+			/*INDIRECT and DIRECT Register are set only once to setOPCODE_WORDS register selection decides*/
+
+			if(registerSelection() == 2 ){
+				setOPCODE_WORDS(sym_tbl, wordTable, 0);
+				setOPCODE_WORDS(sym_tbl, wordTable, 1);
+			}else
+				setOPCODE_WORDS(sym_tbl, wordTable, 1);
+
 	}
+	printf("register 0 %d\n",parser.operands[0].type_of_register);
+	printf("register 1 %d\n",parser.operands[1].type_of_register);
+	printf("registry 0 %d\n",parser.operands[0].operand.registry);
+	printf("registry 1 %d\n",parser.operands[1].operand.registry);
+	printf("first word:");
+	printBinary(line1->word);
 }
 
-	void setOPCODE_WORDS(symbol_table_t *sym_tbl, int idx) {
-		symbol_t *symbol2 = NULL;
-		line_t *line2 = add_line(wordTable, IC, NULL);
-		int num;
+void setOPCODE_WORDS(symbol_table_t *sym_tbl, word_table_t *wordTable, int idx) {
+	symbol_t *symbol2 = NULL;
+	line_t *line2 = add_line(wordTable, IC, NULL);
+	int num;
 
-		IC++;
-		switch (parser.operands[idx].type_of_register) {
-			case _IMMEDIATE:
-				num = parser.operands[idx].operand.num;
-				/*conversion to two complement*/
-				num = convertToTwoComp(num);
-				set_immediate_into_empty_word(line2->word, num);
-				set_ARE_into_word(line2->word, A);
-				break;
+	IC++;
+	switch (parser.operands[idx].type_of_register) {
+		case _IMMEDIATE:
+			num = parser.operands[idx].operand.num;
+			/*conversion to two complement*/
+			num = convertToTwoComp(num);
+			set_immediate_into_empty_word(&(line2->word), num);
+			set_ARE_into_word(&(line2->word), A);
+			break;
 
-			case _DIRECT:
-				symbol2 = findSymbol(sym_tbl, parser.operands[idx].operand.symbol);
-				(symbol2 != NULL) ?: report_error(ERR_SYMBOL_NOT_FOUND, line_count, CRIT);
-				set_label_into_empty_word(line2->word, symbol2->address);
-				set_ARE_into_word(line2->word, A);
-				break;
+		case _DIRECT:
+			symbol2 = findSymbol(sym_tbl, parser.operands[idx].operand.symbol);
+			(symbol2 != NULL) ?: report_error(ERR_SYMBOL_NOT_FOUND, line_count, CRIT);
+			set_label_into_empty_word(&(line2->word), symbol2->address);
+			set_ARE_into_word(&(line2->word), A);
+			break;
 
-			case _INDIRECT:/*here a check is made if there are two regiters or not*/
-			case _REGULAR:
+		case _INDIRECT:/*here a check is made if there are two regiters or not*/
+		case _REGULAR:
 
-				/*sign there is only one registry*/
-				if (parser.operands[0].type_of_register == _TBD) {
-					set_register_into_empty_word(line2->word, parser.operands[1].operand.registry, 0);
-					set_ARE_into_word(line2->word, A);
-				} else {
-					set_register_into_empty_word(line2->word, parser.operands[0].operand.registry, 1);
-					set_register_into_empty_word(line2->word, parser.operands[1].operand.registry, 0);
-					set_ARE_into_word(line2->word, A);
-				}
-				break;
-		}
+			/*sign there is only one registry*/
+			if (parser.operands[0].type_of_register == _TBD) {
+				set_register_into_empty_word(&(line2->word), parser.operands[1].operand.registry, 0);
+				set_ARE_into_word(&(line2->word), A);
+			} else {
+				set_register_into_empty_word(&(line2->word), parser.operands[0].operand.registry, 1);
+				set_register_into_empty_word(&(line2->word), parser.operands[1].operand.registry, 0);
+				set_ARE_into_word(&(line2->word), A);
+			}
+			break;
+		case _ERROR:
+			report_error(ERR_REGISTRY_ILLEGAL, line_count, CRIT);
+
+		case _TBD:
+			/*default value is TBD*/
+			break;
+	}
+	/*printBinary(line2->word);*/
+}
+
+void set_DATA_WORDS(symbol_table_t *sym_tbl, word_table_t *dataTable) {
+
+	symbol_t *symbol = findSymbol(sym_tbl, parser.symbol_name);
+	line_t *line = NULL;
+	int i = 0;
+
+	for (i = 0; i <= parser.directive.operand.data_len; i++) {
+		/*only the first line has a potential symbol*/
+		line = add_line(dataTable, DC, (i == 0) ? symbol : NULL);
+		set_number_data_word(&(line->word), parser.directive.operand.data[i]);
+		DC++;
 	}
 
+}
 
+void set_STRING_WORDS(symbol_table_t *sym_tbl, word_table_t *dataTable) {
+	symbol_t *symbol = findSymbol(sym_tbl, parser.symbol_name);
+	line_t *line = NULL;
+	int i = 0;
+
+	for (i = 0; i <= parser.directive.operand.data_len; i++) {
+		/*only the first line has a potential symbol*/
+		line = add_line(dataTable, DC, (i == 0) ? symbol : NULL);
+		set_number_data_word(&(line->word), parser.directive.operand.str[i]);
+		DC++;
+	}
+	line = add_line(dataTable, DC, NULL);
+	set_number_data_word(&(line->word), '\0');
+	DC++;
+}
+
+
+
+int registerSelection() {
+	type_of_register_t type0 = parser.operands[0].type_of_register;
+	type_of_register_t type1 = parser.operands[1].type_of_register;
+	switch(type0){
+		case _DIRECT:
+		case _IMMEDIATE:
+			return 2;
+		case _REGULAR:
+		case _INDIRECT:
+		 if (type1 == _DIRECT ||type1 == _IMMEDIATE)
+			 return 2;
+		 else
+			 return 1;
+		break;
+		defult:
+			return 2;
+			break;
+	}
+}
 
 line_t *add_line(word_table_t *table, int ic_num, symbol_t *symbol) {
 	line_t *new_ptr = NULL;
@@ -160,22 +217,19 @@ line_t *add_line(word_table_t *table, int ic_num, symbol_t *symbol) {
 	if (table == NULL)
 		return NULL;
 
-	if (table->size == 1) {
-		return table->lines;
-	}
+
 	table->size++;
-	if (!(new_ptr = realloc(table->lines, table->size * sizeof(line_t)))) {
+	if (!(new_ptr = (line_t *) realloc(table->lines, (table->size) * sizeof(line_t)))) {
 		report_error(ERR_WORD_TABLE_ALLOCATION, line_count, CRIT);
 		return NULL;
 	}
 	if (new_ptr != table->lines)
-		table->lines = new_ptr;
+		table->lines =  new_ptr;
 
 	/*data assignmet to new member */
-	table->lines[table->size - 1].line_num = ic_num;
-	memset(table->lines[table->size - 1].word, 0, word_t_size);
+	table->lines[table->size - 1].line_num = ic_num; /*address*/
 	table->lines[table->size - 1].symbol = symbol;/*pointer to symbol*/
-
+	table->lines[table->size - 1].word = 0;
 	return &(table->lines[table->size - 1]);
 }
 
@@ -184,7 +238,16 @@ int convertToTwoComp(int num) {
 	return (~num) + 1;
 }
 
+void set_number_data_word(word_t *word, char value) {
+	int intVal = convertToTwoComp(value);
+	set_value_to_word(word, intVal);
+}
 
+void set_char_string_word(word_t *word, char value) {
+	int ascii_value = (int) value;
+	set_value_to_word(word, ascii_value);
+
+}
 
 /*set the opcode into word*/
 void set_opcode_into_word(word_t *word, op_code_t op_code) {
@@ -221,12 +284,19 @@ void set_value_to_word(word_t *word, int value) {
 	*word |= value & 0x7FFF;
 }
 
-word_table_t *initTable(word_table_t *table) {
-	table->size = 1;
-	table->lines = (line_t *) calloc(wordTable->size, sizeof(line_t));
-	table->next = NULL;
-	return table;
+
+word_table_t *initTable(word_table_t *wordTable) {
+
+	wordTable = calloc(1, sizeof(word_table_t));
+	wordTable->lines = calloc(1, sizeof(line_t));
+	wordTable->size = 1;
+	wordTable->next = NULL;
+	wordTable->lines->line_num = 0;
+	wordTable->lines->symbol = NULL;
+
+	return wordTable;
 }
+
 
 
 /*

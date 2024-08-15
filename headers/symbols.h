@@ -34,7 +34,7 @@ symbol_t  *findSymbol(symbol_table_t *sym_tbl , char symbol_name[]);
 
 symbol_table_t * init_symbol_table(symbol_table_t *sym_tbl);
 
-symbol_t *create_symbol(symbol_table_t *sym_tbl , symbol_name[] ,int address ,  memory_t type);
+symbol_t *create_symbol(symbol_table_t *sym_tbl , char[] ,int ,  memory_t );
 
 
 /*fills parser and checks if symbol- then returns 1  non duplicate , 2 for duplicate

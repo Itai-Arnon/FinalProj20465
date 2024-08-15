@@ -70,13 +70,14 @@
 #define ERR_OP_CODE_FAILED_STRUCTURE "OP Code structure Unrecognized or Not Legal"
 #define ERR_DIRECTIVE_RECOGNITION "Directive Not Recognized"
 #define ERR_LINE_UNRECOGNIZED "Line Not Recognized as OP_CODE or DIRECTIVE"
-#define ERR_GENERAL_FIRST_PASS_ERROR "General First Pass Erro"
+#define ERR_GENERAL_FIRST_PASS_ERROR "General First Pass Error"
 #define ERR_OP_CODE_REGISTRY_ILLEGAL "One or both OP Code register isn't legal"
 #define ERR_FAILED_TO_CONVERT_NUMBER "Failed to convert Number"
 #define ERR_DATA_DIRECTIVE_NUMBER "Data Directive Number or Numbers Invalid"
 #define ERR_STRING_QUOTATION_MISSING "String Quotations missing or characters invalid"
 #define ERR_STRING_INVALID  "String Line not recognized"
 #define ERR_EXTERN_ENTRY_ILLEGAL "Illegal Extern or Entry Line"
+#define ERR_REGISTRY_ILLEGAL "Failed to Recognize Registry"
 
 /*word_table*/
 #define ERR_WORD_TABLE_ALLOCATION "Word Table Creation or Allocation Failed"
