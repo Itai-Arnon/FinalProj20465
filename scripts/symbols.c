@@ -184,6 +184,33 @@ int is_symbol_name_duplicate(symbol_table_t *sym_tbl , char *symbol_name) {
 	return 0;
 }
 
+int delete_symbol(symbol_table_t *sym_tbl , char *symbol_name){
+	symbol_t *head = sym_tbl->symbol_List ;
+	symbol_t *prev = NULL;
+	int LEN = strlen(symbol_name);
+
+	if (symbol_name[LEN - 1] == ':')
+		LEN -= 1;
+
+	while (head!= NULL) {
+		if (strncmp(symbol_name, head->symbol_name, (LEN)) == 0) {
+			if(prev != NULL)
+				prev->next_sym = head->next_sym;
+			free(head);
+			head = prev;
+			/*if deletion successful returns 1*/
+			return 1;
+		}
+		prev = head;
+		head = head->next_sym;
+	}
+
+	return 0; /*not found*/
+
+
+
+}
+
 
 
 

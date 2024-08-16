@@ -84,7 +84,8 @@ void parse(symbol_table_t *sym_tbl) {
 				sscanf(buffer, "%s", cmd_extra);
 				(scanned = classify_line(cmd_extra));
 				if (scanned == -1)
-					report_error(ERR_EXTERN_ENTRY_ILLEGAL, line_count, CRIT);
+					delete_symbol(sym_tbl, parser.symbol_name);
+					report_error(ERR_EXTERN_ENTRY_SYMBOL,line_count,CRIT);
 				if (scanned > 0)
 					/*advanced the buffer only if doens't emtpy it*/
 					buffer = advance_buffer_if_possible(buffer, cmd_extra);
@@ -163,6 +164,7 @@ void parse(symbol_table_t *sym_tbl) {
 					}
 					break;
 				} else if (result == ENTRY || result == EXTERN) {
+
 					if (sscanf(buffer, "%s%n", cmd , pos) == 1) {
 						buffer +=* pos;
 						if(isRestOfLineEmpty(buffer) == 0)
@@ -213,7 +215,7 @@ int classify_line(char *cmd) {
 			parser.directive.cmd = directArray[j].cmd;
 			/*extern and entry can't have a label before them*/
 			if (parser.directive.cmd == EXTERN || parser.directive.cmd == ENTRY) {
-				if (strcmp(parser.symbol_name, "TBD") != 0)
+				if (parser.symbol_name[0] != '\0')
 					return -1;
 			}
 			return 1;

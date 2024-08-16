@@ -245,7 +245,7 @@ void set_EXTnEntry(symbol_table_t *sym_tbl, word_table_t *dataTable){
 		symbol->type=_DATA;
 		symbol->are =are;
 	}
-
+/*opposed to other the symbol is the registry of the line*/
 	line = add_line(dataTable, DC, symbol);
 	/*in case EXTERN we are done, no info goes to the word*/
 	if(are == R){

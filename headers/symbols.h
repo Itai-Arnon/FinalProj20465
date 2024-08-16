@@ -49,4 +49,7 @@ void findLabel_n_load(symbol_table_t* sym_tbl, char* line , char ch);
 int isDuplicateSymbol(symbol_table_t *sym_tbl, char symbol_name[]);
 /*check similarity of name with opcodes and directives*/
 int is_symbol_name_duplicate(symbol_table_t * ,char *);
+
+int delete_symbol(symbol_table_t *sym_tbl , char *symbol_name);
+
 #endif /*M14_SYMBOLS_H*/
