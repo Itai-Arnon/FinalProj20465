@@ -208,15 +208,15 @@ int countNumbersInString( char *str) {
 	return count;
 }
 /*under the premise that in the string there is no whitespace before or after*/
-int checkQuotes(char *str) {
+int checkQuotes(char *str) { /*todo erase */
 	/*check if string is not empty*/
 	int len = strlen(str);
 	if (len < 2) {
 		return 0;
-	}
-	if (str[0] == '\"' && str[len - 1] == '\"') {
-		return 1;
-	}
+	}else len = len - 2;
+
 	return 0;
 }
+
+
 

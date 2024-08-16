@@ -103,6 +103,7 @@ symbol_t *create_symbol(symbol_table_t *sym_tbl , char symbol_name[], int addres
 		strncpy(node->symbol_name, symbol_name, LEN);
 		node->address = 0;
 		node->type = type;
+		node->are = A;
 		node->next_sym = NULL;
 		printf("%s\n", symbol_name);
 		return node;

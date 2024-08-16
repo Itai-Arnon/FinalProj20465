@@ -46,7 +46,7 @@ void parse(symbol_table_t *sym_tbl) {
 	char *buffer = calloc(LINE_LENGTH, sizeof(char));/*sentence analyzed*/
 	char *cmd = calloc(MAX_SYMBOL_NAME, sizeof(char));/*cmd parse*/
 	char *cmd_extra = calloc(MAX_SYMBOL_NAME, sizeof(char)); /* 2nd cmd parse*/
-	char *directive_str = NULL;/*auxialry var*/
+	char *directive_str = NULL;/*auxiliary var*/
 	char *sArr = calloc(MAX_SYMBOL_NAME, sizeof(char));/*.string array*/
 	int *pos = calloc(1, sizeof(int));/*promotes the buffer*/
 	int idx, numCount, buff_len, scanned, result, isExtern , isSymbol; /*auxiliary vars*/
@@ -159,7 +159,7 @@ void parse(symbol_table_t *sym_tbl) {
 					}
 					for (idx = 0; idx < buff_len; idx++) {
 						parser.directive.operand.str[idx] = sArr[idx];
-						printf("%c\n", parser.directive.operand.str[idx]);
+
 					}
 					break;
 				} else if (result == ENTRY || result == EXTERN) {
@@ -459,7 +459,7 @@ void initParser() {
 	for (i = 0; i < 2; ++i) {
 
 		parser.operands[i].type_of_register = _TBD; /*type of register*/
-		parser.operands[i].operand.symbol;
+		parser.operands[i].operand.symbol[0]='\0';
 		parser.operands[i].operand.num = 0;
 		parser.operands[i].operand.registry = 0;
 	}

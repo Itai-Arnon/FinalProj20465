@@ -1,1 +1,1 @@
-mov BER , TER
+.string "a"

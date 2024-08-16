@@ -32,7 +32,7 @@ void setOPCODE_WORDS(symbol_table_t *, word_table_t*, int ,int);
 
 int registerSelection();
 
-int convertToTwoComp(int num);
+unsigned short convertToTwoComp(unsigned short num);
 
 
 void set_number_data_word(word_t *word, char value);
@@ -52,7 +52,7 @@ void set_register_into_empty_word(word_t *word, int value, int isSource);
 void set_label_into_empty_word(word_t *word, int value);
 
 /*insert immediate into new empty word| shift 3 bit */
-void set_immediate_into_empty_word(word_t *word, int value);
+void set_immediate_into_empty_word(word_t *word, unsigned short value);
 
 /*insert ARE into instruction word */
 void set_ARE_into_word(word_t *word, ARE_T are);
