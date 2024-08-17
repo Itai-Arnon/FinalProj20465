@@ -1,1 +1,2 @@
-TEL: .extern BEL
+.data -1
+stop

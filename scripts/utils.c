@@ -3,6 +3,7 @@
 #include "headers/utils.h"
 #include "headers/global_vars.h"
 #include "headers/assembler.h"
+
 int isRestOfLineEmpty(char *line) {
 	int idx = 0;
 	int LEN = strlen(line);

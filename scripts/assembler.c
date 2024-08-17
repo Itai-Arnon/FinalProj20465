@@ -27,6 +27,7 @@ int main(int argc, char *argv[]) {
 	dataTable = initTable(dataTable);
 	mac_tbl = initMacroTable(mac_tbl);
 	sym_tbl = init_symbol_table(sym_tbl);
+
 	manage_files(argc, argv, mac_tbl, sym_tbl,wordTable, dataTable);
 
 
@@ -54,8 +55,8 @@ void manage_files(int _argc, char **_argv, macro_table_t *macro_tbl, symbol_tabl
 
 	for (idx = 1; idx < num_files; ++idx) {
 		fptr_before = initSourceFiles(_argc, _argv, fptr_before, idx);
-		parse(sym_tbl);
-		first_pass(sym_tbl, wordTable ,dataTable);
+		parse(sym_tbl, wordTable, dataTable);
+
 
 		/*	read_preprocessor(macro_tbl, sym_tbl);*/
 	/*	rewind(fptr_after);*/
@@ -121,7 +122,7 @@ void report_error(char *err, int line_count, err_type_t type) {
 	if (type == CRIT) {
 		printf("Critical Error, Exiting\n");
 		printf("terminating and Freeing Allocation\n");
-		exit(1);
+		return;
 	} else (printf("%s\n", "NON CRITICAL"));
 
 }

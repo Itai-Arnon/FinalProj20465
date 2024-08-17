@@ -2,6 +2,7 @@
 
 #ifndef M14_FIRST_PASS_H
 #define M14_FIRST_PASS_H
+
 #include "shared.h"
 #include "symbols.h"
 
@@ -19,39 +20,36 @@
 
 typedef unsigned short word_t;
 
-typedef struct line_t{
+typedef struct line_t {
 	word_t word;
 	int line_num;
 	symbol_t *symbol; /*check if feasible*/
-}line_t;
+} line_t;
 
 /*the base of the instruction /data table */
-typedef struct word_table_t{
+typedef struct word_table_t {
 	line_t *lines;
 	int size;
 	struct word_table_t *next;
-}word_table_t;
-
+} word_table_t;
 
 
 /*processes parser struct one line at a time and translates to machine language*/
-void first_pass(symbol_table_t *sym_tbl, word_table_t * , word_table_t *) ;
+void first_pass(symbol_table_t *sym_tbl, word_table_t *, word_table_t *);
 
 /*process .string directive*/
-void set_STRING_WORDS(symbol_table_t *sym_tbl , word_table_t *dataTable);
-
-/*process .data directive*/
-void set_DATA_WORDS(symbol_table_t * , word_table_t *);
+void set_STRING_WORDS(symbol_table_t *sym_tbl, word_table_t *dataTable);
 
 /*processes 1st instruction word*/
-void setOPCODE_INSTRUCTION(symbol_table_t *, word_table_t * );
+void setOPCODE_INSTRUCTION(symbol_table_t *, word_table_t *);
+
 /*processes 2nd and 3rd  words if necessary*/
-void setOPCODE_WORDS(symbol_table_t *, word_table_t*, int ,int);
+void setOPCODE_WORDS(symbol_table_t *, word_table_t *, int, int);
 
-int registerSelection();
+/*process .data directive*/
+void set_DATA_WORDS(symbol_table_t *, word_table_t *);
 
-unsigned short convertToTwoComp(unsigned short num);
-
+void set_EXTnEntry(symbol_table_t *sym_tbl, word_table_t *dataTable);
 
 void set_number_data_word(word_t *word, char value);
 
@@ -80,13 +78,19 @@ void set_value_to_word(word_t *word, int value);
 
 /*initiate word or data table*/
 
-word_table_t* initTable(word_table_t *wordTable);
+word_table_t *initTable(word_table_t *wordTable);
 
 /*reallocate more places in table*/
 line_t *add_line(word_table_t *, int, symbol_t *);
 
 void printBinary(unsigned short num);
+
 void printTable(word_table_t *table);
+
 void addNumberToWordTable(word_table_t *table, int number);
+
+unsigned short convertToTwoComp(unsigned short num);
+
+int registerSelection();
 
 #endif /*M14_FIRST_PASS_H*/

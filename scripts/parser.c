@@ -43,15 +43,15 @@ parser_t parser;
 sep_commas_t seperator_c;
 
 
-void parse(symbol_table_t *sym_tbl) {
+void parse(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataTable) {
 	char *buffer = calloc(LINE_LENGTH, sizeof(char));/*sentence analyzed*/
 	char *cmd = calloc(MAX_SYMBOL_NAME, sizeof(char));/*cmd parse*/
 	char *cmd_extra = calloc(MAX_SYMBOL_NAME, sizeof(char)); /* 2nd cmd parse*/
 	char *directive_str = NULL;/*auxiliary var*/
 	char *sArr = calloc(MAX_SYMBOL_NAME, sizeof(char));/*.string array*/
 	int *pos = calloc(1, sizeof(int));/*promotes the buffer*/
-	int idx, numCount, buff_len, scanned, result, isExtern , isSymbol; /*auxiliary vars*/
-	idx = numCount = buff_len, scanned, result, isExtern, isSymbol = 0;
+	int idx, numCount, buff_len, scanned, result, isExtern , isSymbol , n; /*auxiliary vars*/
+	idx = numCount = buff_len = scanned = result = isExtern = isSymbol = n = 0;
 	line_count = 0;
 
 
@@ -105,10 +105,15 @@ void parse(symbol_table_t *sym_tbl) {
 			case OP_CODE:
 				/*seperates the registers across an array of strings*/
 				seperator_c = string_comma_seps(buffer);
-
+				/*excludes the two op cmds  from some of the tests */
+				if(parser.op == rts || parser.op == stop)
+					n = 1;
 				/*isError - too many comma | register_count_by_op - no of registers by opcode definition  */
-				if (seperator_c.isError == 1 || seperator_c.counter != register_count_by_op(parser.op))
+				if (seperator_c.isError == 1 || seperator_c.counter != register_count_by_op(parser.op)+ n)
 					report_error(ERR_OP_CODE_RECOGNITION, line_count, CRIT);
+				/*excludes the two op cmds  from some of the tests */
+				if(parser.op == rts || parser.op == stop)
+					break;
 				/*idx  1 if only destination reg exits , 0 if two regs exist*/
 				idx = (seperator_c.counter == 2) ? 0 : 1;
 				for (; idx < seperator_c.counter; idx++) {/*classifies registers*/
@@ -116,7 +121,7 @@ void parse(symbol_table_t *sym_tbl) {
 					parser.operands[idx].type_of_register = classifyRegisters(seperator_c.cString[idx], idx);
 				}
 				/*if by the opcode registers a valid and if they are different*/
-				if ( checkRegisterCompliance() == 0 || parser.operands[0].operand.registry == parser.operands[1].operand.registry  )
+				if (  checkRegisterCompliance() == 0 || parser.operands[0].operand.registry == parser.operands[1].operand.registry  )
 					report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count, CRIT);
 
 				/*Creat symbol a register with direct : labels*/
@@ -191,6 +196,7 @@ void parse(symbol_table_t *sym_tbl) {
 				break;
 		}
 	}
+	first_pass(sym_tbl, wordTable, dataTable);
 } /*END OF PARSE*/
 
 

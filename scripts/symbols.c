@@ -212,7 +212,7 @@ void addNumberToWordTable(word_table_t *table, int number) {
 	if (table == NULL || table->lines == NULL) return;
 
 	for (i = 0; i < table->size; i++) {
-		table->lines[i].word += number;
+		table->lines[i].line_num += number;
 	}
 }
 
