@@ -19,9 +19,9 @@ int DC = 0;
 void first_pass(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataTable) {
 	int initVal = 100;
 	int result = 0, n = 0;
-
 	switch (parser.line_type) {
 		case OP_CODE:
+			printf("registry%d\n",parser.operands[1].operand.registry);
 			setOPCODE_INSTRUCTION(sym_tbl, wordTable);
 			if (parser.op == stop) {
 				printf("Stop Occured\n");
@@ -65,6 +65,7 @@ void setOPCODE_INSTRUCTION(symbol_table_t *sym_tbl, word_table_t *table) {
 	type_of_register_t type0 = parser.operands[0].type_of_register;
 	type_of_register_t type1 = parser.operands[1].type_of_register;
 	IC++;
+	printf("IC: %d\n", IC);
 	if (symbol != NULL) {
 		symbol->address = IC;
 		symbol->type = _INSTRUCTION;
@@ -138,8 +139,6 @@ void setOPCODE_WORDS(symbol_table_t *sym_tbl, word_table_t *table, int idx, int 
 		case _DIRECT:
 			symbol2 = findSymbol(sym_tbl, parser.operands[idx].operand.symbol);
 			(symbol2 != NULL) ?: report_error(ERR_SYMBOL_NOT_FOUND, line_count, CRIT);
-			freeWordTable(table);
-			freeSymbolTable(sym_tbl);
 			set_label_into_empty_word(&(line2->word), symbol2->address);
 			set_ARE_into_word(&(line2->word), A);
 			printf("(INSIDE WORDS |CASE: DIRECT  obj variable: line2||  ptr address  :%p  registry type %d\n", line2,

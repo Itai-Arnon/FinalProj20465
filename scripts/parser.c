@@ -455,7 +455,7 @@ void initParser() {
 	/* Initialize line type */
 	parser.line_type = ERR;
 	/* Initialize symbol name */
-	parser.symbol_name[0]='\0';
+	memset(parser.symbol_name, '\0', sizeof(parser.symbol_name));
 	/* Initialize directive fields */
 	parser.directive.cmd = DATA; /* Assuming DATA is a default value */
 	parser.directive.operand.symbol = '\0'; /*array dynamic alloc*/

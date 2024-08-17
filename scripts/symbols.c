@@ -105,7 +105,6 @@ symbol_t *create_symbol(symbol_table_t *sym_tbl, char symbol_name[], int address
 		node->type = type;
 		node->are = A;
 		node->next_sym = NULL;
-		printf("%s\n", symbol_name);
 		return node;
 	}
 	report_error(ERR_FAIL_CREATE_SYMBOL, line_count, CRIT);
