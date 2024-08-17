@@ -84,9 +84,10 @@ void parse(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataT
 				buffer = strstrip(buffer);/*remove excess white*/
 				sscanf(buffer, "%s", cmd_extra);
 				(scanned = classify_line(cmd_extra));
-				if (scanned == -1)
+				if (scanned == -1) {
 					delete_symbol(sym_tbl, parser.symbol_name);
-					report_error(ERR_EXTERN_ENTRY_SYMBOL,line_count,CRIT);
+					report_error(ERR_EXTERN_ENTRY_SYMBOL, line_count, CRIT);
+				}
 				if (scanned > 0)
 					/*advanced the buffer only if doens't emtpy it*/
 					buffer = advance_buffer_if_possible(buffer, cmd_extra);
@@ -105,15 +106,13 @@ void parse(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataT
 			case OP_CODE:
 				/*seperates the registers across an array of strings*/
 				seperator_c = string_comma_seps(buffer);
-				/*excludes the two op cmds  from some of the tests */
-				if(parser.op == rts || parser.op == stop)
-					n = 1;
-				/*isError - too many comma | register_count_by_op - no of registers by opcode definition  */
-				if (seperator_c.isError == 1 || seperator_c.counter != register_count_by_op(parser.op)+ n)
-					report_error(ERR_OP_CODE_RECOGNITION, line_count, CRIT);
-				/*excludes the two op cmds  from some of the tests */
-				if(parser.op == rts || parser.op == stop)
+				/*excludes the two op cmds wihtout registry from some of the tests */
+				if(seperator_c.counter == 1 && (parser.op == rts || parser.op == stop))
 					break;
+				/*isError - too many comma | register_count_by_op - no of registers by opcode definition  */
+				if (seperator_c.isError == 1 || seperator_c.counter != register_count_by_op(parser.op))
+					report_error(ERR_OP_CODE_RECOGNITION, line_count, CRIT);
+
 				/*idx  1 if only destination reg exits , 0 if two regs exist*/
 				idx = (seperator_c.counter == 2) ? 0 : 1;
 				for (; idx < seperator_c.counter; idx++) {/*classifies registers*/
@@ -143,13 +142,15 @@ void parse(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataT
 					 * error ocuured*/
 					if (seperator_c.isError || seperator_c.counter != numCount)
 						report_error(ERR_DATA_DIRECTIVE_NUMBER, line_count, CRIT);
-
+					/*amount of numbers*/
 					parser.directive.operand.data_len = numCount;
+					/*allocates memory for the numbers*/
 					parser.directive.operand.data = (int *) calloc(seperator_c.counter, sizeof(int));
-
+					/*assigns the numbers to the parser*/
 					for (idx = 0; idx < seperator_c.counter; idx++) {
 						directive_str = strstrip(seperator_c.cString[idx]);
 						*pos = convertOrCheckStringToNum(directive_str, 0);
+						/*checking bounds of values*/
 						if (*pos < MIN_15Bit_NUM || *pos > MAX_15Bit_NUM)
 							report_error(ERR_DATA_DIRECTIVE_NUMBER, line_count, CRIT);
 						/*assigning  the number to the parser*/
@@ -166,7 +167,6 @@ void parse(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataT
 					}
 					for (idx = 0; idx < buff_len; idx++) {
 						parser.directive.operand.str[idx] = sArr[idx];
-
 					}
 					break;
 				} else if (result == ENTRY || result == EXTERN) {
@@ -195,8 +195,8 @@ void parse(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataT
 			default:
 				break;
 		}
+		first_pass(sym_tbl, wordTable, dataTable);
 	}
-	first_pass(sym_tbl, wordTable, dataTable);
 } /*END OF PARSE*/
 
 
@@ -458,7 +458,7 @@ void initParser() {
 	parser.symbol_name[0]='\0';
 	/* Initialize directive fields */
 	parser.directive.cmd = DATA; /* Assuming DATA is a default value */
-	parser.directive.operand.symbol = NULL; /*array dynamic alloc*/
+	parser.directive.operand.symbol = '\0'; /*array dynamic alloc*/
 	parser.directive.operand.data = NULL;
 	parser.directive.operand.str = NULL;
 	parser.directive.operand.data_len = 0;

@@ -99,6 +99,7 @@ symbol_t *create_symbol(symbol_table_t *sym_tbl, char symbol_name[], int address
 	}
 
 	if (node = malloc(sizeof(symbol_t))) {
+		memset(node->symbol_name, 0, MAX_SYMBOL_NAME);
 		strncpy(node->symbol_name, symbol_name, LEN);
 		node->address = 0;
 		node->type = type;

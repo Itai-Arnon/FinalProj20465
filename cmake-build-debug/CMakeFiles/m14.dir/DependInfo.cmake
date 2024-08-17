@@ -13,6 +13,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "C:/OPU/20465/m/m14/scripts/macro.c" "CMakeFiles/m14.dir/scripts/macro.c.obj" "gcc" "CMakeFiles/m14.dir/scripts/macro.c.obj.d"
   "C:/OPU/20465/m/m14/scripts/macro_list.c" "CMakeFiles/m14.dir/scripts/macro_list.c.obj" "gcc" "CMakeFiles/m14.dir/scripts/macro_list.c.obj.d"
   "C:/OPU/20465/m/m14/scripts/parser.c" "CMakeFiles/m14.dir/scripts/parser.c.obj" "gcc" "CMakeFiles/m14.dir/scripts/parser.c.obj.d"
+  "C:/OPU/20465/m/m14/scripts/second_pass.c" "CMakeFiles/m14.dir/scripts/second_pass.c.obj" "gcc" "CMakeFiles/m14.dir/scripts/second_pass.c.obj.d"
   "C:/OPU/20465/m/m14/scripts/symbols.c" "CMakeFiles/m14.dir/scripts/symbols.c.obj" "gcc" "CMakeFiles/m14.dir/scripts/symbols.c.obj.d"
   "C:/OPU/20465/m/m14/scripts/utils.c" "CMakeFiles/m14.dir/scripts/utils.c.obj" "gcc" "CMakeFiles/m14.dir/scripts/utils.c.obj.d"
   )

@@ -1,2 +1,3 @@
-.data -1
+LA4: mov r3,r5
+LA8: mov r3,LA4
 stop

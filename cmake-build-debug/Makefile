@@ -248,6 +248,30 @@ scripts/parser.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\m14.dir\build.make CMakeFiles/m14.dir/scripts/parser.c.s
 .PHONY : scripts/parser.c.s
 
+scripts/second_pass.obj: scripts/second_pass.c.obj
+.PHONY : scripts/second_pass.obj
+
+# target to build an object file
+scripts/second_pass.c.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\m14.dir\build.make CMakeFiles/m14.dir/scripts/second_pass.c.obj
+.PHONY : scripts/second_pass.c.obj
+
+scripts/second_pass.i: scripts/second_pass.c.i
+.PHONY : scripts/second_pass.i
+
+# target to preprocess a source file
+scripts/second_pass.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\m14.dir\build.make CMakeFiles/m14.dir/scripts/second_pass.c.i
+.PHONY : scripts/second_pass.c.i
+
+scripts/second_pass.s: scripts/second_pass.c.s
+.PHONY : scripts/second_pass.s
+
+# target to generate assembly for a file
+scripts/second_pass.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\m14.dir\build.make CMakeFiles/m14.dir/scripts/second_pass.c.s
+.PHONY : scripts/second_pass.c.s
+
 scripts/symbols.obj: scripts/symbols.c.obj
 .PHONY : scripts/symbols.obj
 
@@ -320,6 +344,9 @@ help:
 	@echo ... scripts/parser.obj
 	@echo ... scripts/parser.i
 	@echo ... scripts/parser.s
+	@echo ... scripts/second_pass.obj
+	@echo ... scripts/second_pass.i
+	@echo ... scripts/second_pass.s
 	@echo ... scripts/symbols.obj
 	@echo ... scripts/symbols.i
 	@echo ... scripts/symbols.s

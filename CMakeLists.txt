@@ -22,4 +22,6 @@ add_executable(m14
         scripts/symbols.c
         scripts/first_pass.c
         headers/first_pass.h
+        scripts/second_pass.c
+        headers/second_pass.h
 )

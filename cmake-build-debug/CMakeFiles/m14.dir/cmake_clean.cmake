@@ -9,6 +9,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/m14.dir/scripts/macro_list.c.obj.d"
   "CMakeFiles/m14.dir/scripts/parser.c.obj"
   "CMakeFiles/m14.dir/scripts/parser.c.obj.d"
+  "CMakeFiles/m14.dir/scripts/second_pass.c.obj"
+  "CMakeFiles/m14.dir/scripts/second_pass.c.obj.d"
   "CMakeFiles/m14.dir/scripts/symbols.c.obj"
   "CMakeFiles/m14.dir/scripts/symbols.c.obj.d"
   "CMakeFiles/m14.dir/scripts/utils.c.obj"
