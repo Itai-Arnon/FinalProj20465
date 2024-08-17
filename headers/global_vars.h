@@ -6,7 +6,7 @@
 
 #include<stdio.h>
 #include "shared.h"
-#include "word_table.h"
+
 
 
 typedef struct {

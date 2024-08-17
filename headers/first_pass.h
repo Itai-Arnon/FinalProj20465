@@ -16,6 +16,24 @@
 
 #define initTableSize 1
 
+
+typedef unsigned short word_t;
+
+typedef struct line_t{
+	word_t word;
+	int line_num;
+	symbol_t *symbol; /*check if feasible*/
+}line_t;
+
+/*the base of the instruction /data table */
+typedef struct word_table_t{
+	line_t *lines;
+	int size;
+	struct word_table_t *next;
+}word_table_t;
+
+
+
 /*processes parser struct one line at a time and translates to machine language*/
 void first_pass(symbol_table_t *sym_tbl, word_table_t * , word_table_t *) ;
 
@@ -67,7 +85,8 @@ word_table_t* initTable(word_table_t *wordTable);
 /*reallocate more places in table*/
 line_t *add_line(word_table_t *, int, symbol_t *);
 
-
-
+void printBinary(unsigned short num);
+void printTable(word_table_t *table);
+void addNumberToWordTable(word_table_t *table, int number);
 
 #endif /*M14_FIRST_PASS_H*/

@@ -9,7 +9,8 @@
 #include "headers/utils.h"
 #include "headers/symbols.h"
 #include "headers/parser.h"
-#include "headers/error.h"
+#include "headers/assembler.h"
+
 
 
  directive_cmd_t direct_enums[4] = {DATA, STRING, ENTRY, EXTERN};
@@ -99,7 +100,7 @@ void parse(symbol_table_t *sym_tbl) {
 		result = scanned = buff_len = 0;
 		buffer = strstrip(buffer);
 		memset(cmd, '\0', sizeof(cmd));
-		memset(cmd, '\0', sizeof(cmd_extra));
+		memset(cmd_extra, '\0', sizeof(cmd_extra));
 		switch (parser.line_type) {
 			case OP_CODE:
 				/*seperates the registers across an array of strings*/

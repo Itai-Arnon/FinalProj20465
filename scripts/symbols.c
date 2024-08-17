@@ -8,8 +8,8 @@
 #include "headers/shared.h"
 #include "headers/global_vars.h"
 #include "headers/utils.h"
-#include "headers/error.h"
-
+#include "headers/first_pass.h"
+#include "headers/assembler.h"
 
 char *opcode_names[16] = {"mov", "cmp", "add", "sub", "lea", "clr", "not", "inc", "dec", "jmp",
                           "bne", "red", "prn", "jsr", "rts", "stop"};
@@ -17,12 +17,11 @@ char *opcode_names[16] = {"mov", "cmp", "add", "sub", "lea", "clr", "not", "inc"
 char *directives[4] = {".data", ".string", ".extern", ".entry"};
 
 
-
 /* todo 0 failure 1:success*/
 int loadSymbolTable(symbol_table_t *sym_tbl, char symbol_name[], int address, memory_t type) {
 	int res = 0;
 	symbol_t *end = sym_tbl->symbol_List;
-	symbol_t *node = create_symbol(sym_tbl , symbol_name, address, type);/*create symbols takes care of error*/
+	symbol_t *node = create_symbol(sym_tbl, symbol_name, address, type);/*create symbols takes care of error*/
 
 	if (node == NULL) {
 		return 0;
@@ -71,12 +70,12 @@ symbol_table_t *init_symbol_table(symbol_table_t *sym_tbl) {
 	return NULL;
 }
 
-symbol_t*  findSymbol(symbol_table_t *sym_tbl , char *symbol_name){
+symbol_t *findSymbol(symbol_table_t *sym_tbl, char *symbol_name) {
 	symbol_t *head = sym_tbl->symbol_List;
 	int LEN = strlen(symbol_name);
 
-	if(sym_tbl != NULL){
-		LEN = (symbol_name[LEN - 1] == ':' ) ? LEN - 1 : LEN;
+	if (sym_tbl != NULL) {
+		LEN = (symbol_name[LEN - 1] == ':') ? LEN - 1 : LEN;
 
 		while (head != NULL) {
 			if (strncmp(head->symbol_name, symbol_name, LEN) == 0)
@@ -88,16 +87,16 @@ symbol_t*  findSymbol(symbol_table_t *sym_tbl , char *symbol_name){
 	return NULL;
 }
 
-symbol_t *create_symbol(symbol_table_t *sym_tbl , char symbol_name[], int address, memory_t type) {
+symbol_t *create_symbol(symbol_table_t *sym_tbl, char symbol_name[], int address, memory_t type) {
 	symbol_t *node = NULL;
 	int LEN = strlen(symbol_name);
 	if (symbol_name[LEN - 1] == ':')
 		LEN -= 1;
 	/*check similarity with opcodes and directives*/
 	if (is_symbol_name_duplicate(sym_tbl, symbol_name) == 1) {
-	report_error(ERR_DUPLICATE_SYMBOL_NAME, line_count, CRIT);
-	return NULL;
-}
+		report_error(ERR_DUPLICATE_SYMBOL_NAME, line_count, CRIT);
+		return NULL;
+	}
 
 	if (node = malloc(sizeof(symbol_t))) {
 		strncpy(node->symbol_name, symbol_name, LEN);
@@ -155,12 +154,12 @@ int if_Symbol_if_Duplicate(symbol_table_t *sym_tbl, char *cmd, symbol_loci_t isH
 }
 
 /*meant to detect if name is a duplicate directive or opcode or prior labels are */
-int is_symbol_name_duplicate(symbol_table_t *sym_tbl , char *symbol_name) {
+int is_symbol_name_duplicate(symbol_table_t *sym_tbl, char *symbol_name) {
 	symbol_t *head = sym_tbl->symbol_List;
 	int LEN = strlen(symbol_name);
 	int j = 0;
 
-	if(symbol_name[0] == '\0') {
+	if (symbol_name[0] == '\0') {
 		return 0;
 	}
 
@@ -173,28 +172,28 @@ int is_symbol_name_duplicate(symbol_table_t *sym_tbl , char *symbol_name) {
 			return 1;
 	}
 
-		LEN = (symbol_name[LEN - 1] == ':' ) ? LEN - 1 : LEN;
-		while (head != NULL) {
-			if (strncmp(head->symbol_name, symbol_name, LEN)  == 0 )
-				return 1;
-			else
-				head = head->next_sym;
-		}
+	LEN = (symbol_name[LEN - 1] == ':') ? LEN - 1 : LEN;
+	while (head != NULL) {
+		if (strncmp(head->symbol_name, symbol_name, LEN) == 0)
+			return 1;
+		else
+			head = head->next_sym;
+	}
 
 	return 0;
 }
 
-int delete_symbol(symbol_table_t *sym_tbl , char *symbol_name){
-	symbol_t *head = sym_tbl->symbol_List ;
+int delete_symbol(symbol_table_t *sym_tbl, char *symbol_name) {
+	symbol_t *head = sym_tbl->symbol_List;
 	symbol_t *prev = NULL;
 	int LEN = strlen(symbol_name);
 
 	if (symbol_name[LEN - 1] == ':')
 		LEN -= 1;
 
-	while (head!= NULL) {
+	while (head != NULL) {
 		if (strncmp(symbol_name, head->symbol_name, (LEN)) == 0) {
-			if(prev != NULL)
+			if (prev != NULL)
 				prev->next_sym = head->next_sym;
 			free(head);
 			head = prev;
@@ -206,10 +205,17 @@ int delete_symbol(symbol_table_t *sym_tbl , char *symbol_name){
 	}
 
 	return 0; /*not found*/
-
-
-
 }
+
+void addNumberToWordTable(word_table_t *table, int number) {
+	int i;
+	if (table == NULL || table->lines == NULL) return;
+
+	for (i = 0; i < table->size; i++) {
+		table->lines[i].word += number;
+	}
+}
+
 
 
 

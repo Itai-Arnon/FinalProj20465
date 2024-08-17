@@ -1,8 +1,6 @@
 file(REMOVE_RECURSE
   "CMakeFiles/m14.dir/scripts/assembler.c.obj"
   "CMakeFiles/m14.dir/scripts/assembler.c.obj.d"
-  "CMakeFiles/m14.dir/scripts/error.c.obj"
-  "CMakeFiles/m14.dir/scripts/error.c.obj.d"
   "CMakeFiles/m14.dir/scripts/first_pass.c.obj"
   "CMakeFiles/m14.dir/scripts/first_pass.c.obj.d"
   "CMakeFiles/m14.dir/scripts/macro.c.obj"
@@ -15,8 +13,6 @@ file(REMOVE_RECURSE
   "CMakeFiles/m14.dir/scripts/symbols.c.obj.d"
   "CMakeFiles/m14.dir/scripts/utils.c.obj"
   "CMakeFiles/m14.dir/scripts/utils.c.obj.d"
-  "CMakeFiles/m14.dir/scripts/word_table.c.obj"
-  "CMakeFiles/m14.dir/scripts/word_table.c.obj.d"
   "libm14.dll.a"
   "m14.exe"
   "m14.exe.manifest"

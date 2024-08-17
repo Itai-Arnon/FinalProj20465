@@ -8,11 +8,10 @@
 #include "headers/shared.h"
 #include "headers/global_vars.h"
 #include "headers/utils.h"
-#include "headers/assembler.h"
 #include "headers/symbols.h"
 #include "headers/parser.h"
-#include "headers/error.h"
 #include "headers/first_pass.h"
+#include "headers/assembler.h"
 
 
 FILE *fptr_before;
@@ -30,6 +29,11 @@ int main(int argc, char *argv[]) {
 	sym_tbl = init_symbol_table(sym_tbl);
 	manage_files(argc, argv, mac_tbl, sym_tbl,wordTable, dataTable);
 
+
+	freeSymbolTable(sym_tbl);
+	freeWordTable(wordTable);
+	freeWordTable(dataTable);
+	freeMacroTable(mac_tbl);
 
 	fclose(fptr_before);
 	fclose(fptr_after);
@@ -54,7 +58,7 @@ void manage_files(int _argc, char **_argv, macro_table_t *macro_tbl, symbol_tabl
 		first_pass(sym_tbl, wordTable ,dataTable);
 
 		/*	read_preprocessor(macro_tbl, sym_tbl);*/
-		rewind(fptr_after);
+	/*	rewind(fptr_after);*/
 
 
 
@@ -111,8 +115,18 @@ void move_one_directory_up(char *path) {
 }
 
 
-void freeWordTable(word_table_t *wordTable);
+void report_error(char *err, int line_count, err_type_t type) {
 
+	printf("%s at line %lu\n", err, line_count);
+	if (type == CRIT) {
+		printf("Critical Error, Exiting\n");
+		printf("terminating and Freeing Allocation\n");
+		exit(1);
+	} else (printf("%s\n", "NON CRITICAL"));
+
+}
+
+void freeWordTable(word_table_t *wordTable);
 
 void freeWordTable(word_table_t *table) {
 	if (table == NULL) {
@@ -131,9 +145,28 @@ void freeSymbolTable(symbol_table_t *symbolTable) {
 	symbol_t *next;
 
 	while (current != NULL) {
-		next = current->symbol_name;
+		next = current->next_sym;
 		free(current);
 		current = next;
 	}
 	free(symbolTable);
+}
+
+void freeMacroTable(macro_table_t *table) {
+	int idx = 0;
+	for (idx = 0; idx < table->size; idx++) {
+		freeMacroLList(table->slot[idx]);
+	}
+}
+
+void freeMacroLList(macro_node_t *head) {
+	macro_node_t *current = head;
+	macro_node_t *next;
+
+	while (current != NULL) {
+		next = current->macro_next;
+		free(current);
+		current = next;
+	}
+
 }

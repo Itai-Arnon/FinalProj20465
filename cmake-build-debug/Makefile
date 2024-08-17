@@ -152,30 +152,6 @@ scripts/assembler.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\m14.dir\build.make CMakeFiles/m14.dir/scripts/assembler.c.s
 .PHONY : scripts/assembler.c.s
 
-scripts/error.obj: scripts/error.c.obj
-.PHONY : scripts/error.obj
-
-# target to build an object file
-scripts/error.c.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\m14.dir\build.make CMakeFiles/m14.dir/scripts/error.c.obj
-.PHONY : scripts/error.c.obj
-
-scripts/error.i: scripts/error.c.i
-.PHONY : scripts/error.i
-
-# target to preprocess a source file
-scripts/error.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\m14.dir\build.make CMakeFiles/m14.dir/scripts/error.c.i
-.PHONY : scripts/error.c.i
-
-scripts/error.s: scripts/error.c.s
-.PHONY : scripts/error.s
-
-# target to generate assembly for a file
-scripts/error.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\m14.dir\build.make CMakeFiles/m14.dir/scripts/error.c.s
-.PHONY : scripts/error.c.s
-
 scripts/first_pass.obj: scripts/first_pass.c.obj
 .PHONY : scripts/first_pass.obj
 
@@ -320,30 +296,6 @@ scripts/utils.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\m14.dir\build.make CMakeFiles/m14.dir/scripts/utils.c.s
 .PHONY : scripts/utils.c.s
 
-scripts/word_table.obj: scripts/word_table.c.obj
-.PHONY : scripts/word_table.obj
-
-# target to build an object file
-scripts/word_table.c.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\m14.dir\build.make CMakeFiles/m14.dir/scripts/word_table.c.obj
-.PHONY : scripts/word_table.c.obj
-
-scripts/word_table.i: scripts/word_table.c.i
-.PHONY : scripts/word_table.i
-
-# target to preprocess a source file
-scripts/word_table.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\m14.dir\build.make CMakeFiles/m14.dir/scripts/word_table.c.i
-.PHONY : scripts/word_table.c.i
-
-scripts/word_table.s: scripts/word_table.c.s
-.PHONY : scripts/word_table.s
-
-# target to generate assembly for a file
-scripts/word_table.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\m14.dir\build.make CMakeFiles/m14.dir/scripts/word_table.c.s
-.PHONY : scripts/word_table.c.s
-
 # Help Target
 help:
 	@echo The following are some of the valid targets for this Makefile:
@@ -356,9 +308,6 @@ help:
 	@echo ... scripts/assembler.obj
 	@echo ... scripts/assembler.i
 	@echo ... scripts/assembler.s
-	@echo ... scripts/error.obj
-	@echo ... scripts/error.i
-	@echo ... scripts/error.s
 	@echo ... scripts/first_pass.obj
 	@echo ... scripts/first_pass.i
 	@echo ... scripts/first_pass.s
@@ -377,9 +326,6 @@ help:
 	@echo ... scripts/utils.obj
 	@echo ... scripts/utils.i
 	@echo ... scripts/utils.s
-	@echo ... scripts/word_table.obj
-	@echo ... scripts/word_table.i
-	@echo ... scripts/word_table.s
 .PHONY : help
 
 

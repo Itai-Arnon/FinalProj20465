@@ -1,9 +1,8 @@
 #include <ctype.h>
 #include <string.h>
 #include "headers/utils.h"
-#include "headers/error.h"
 #include "headers/global_vars.h"
-
+#include "headers/assembler.h"
 int isRestOfLineEmpty(char *line) {
 	int idx = 0;
 	int LEN = strlen(line);

@@ -13,7 +13,7 @@ typedef struct {
 	char *cString[10];/*each comma separated string inserted by index to arr*/
 	int counter;
 	int isError;
-} sep_commas_t;
+}sep_commas_t;
 
 typedef struct {/*array*/
 	char *opcode_name;

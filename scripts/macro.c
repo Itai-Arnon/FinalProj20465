@@ -8,7 +8,7 @@
 #include "headers/global_vars.h"
 #include "headers/utils.h"
 #include "headers/symbols.h"
-#include "headers/error.h"
+#include "headers/assembler.h"
 
 #define   FILE_PATH()   printf(__FILE__ );
 

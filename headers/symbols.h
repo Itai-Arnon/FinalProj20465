@@ -7,6 +7,7 @@
 #include "symbols.h"
 
 
+
 typedef struct symbol_t{
 	char symbol_name[MAX_SYMBOL_NAME];
 	unsigned short address;
@@ -51,5 +52,6 @@ int isDuplicateSymbol(symbol_table_t *sym_tbl, char symbol_name[]);
 int is_symbol_name_duplicate(symbol_table_t * ,char *);
 
 int delete_symbol(symbol_table_t *sym_tbl , char *symbol_name);
+
 
 #endif /*M14_SYMBOLS_H*/

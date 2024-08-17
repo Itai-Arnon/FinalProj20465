@@ -9,45 +9,36 @@
 #include "headers/utils.h"
 #include "headers/symbols.h"
 #include "headers/parser.h"
-#include "headers/error.h"
 #include "headers/first_pass.h"
-#include "headers/word_table.h"
 
-int IC;
-int DC;
 
-void printBinary(unsigned short num) {
-	int i =0;
-	int bits = sizeof(unsigned short) * 8; /* Number of bits in the unsigned short*/
-	for ( i = bits - 1; i >= 0; i--) {
-		unsigned short mask = 1 << i;
-		printf("%d", (num & mask) ? 1 : 0);
-	}
-	printf("\n");
-}
+int IC = 100;
+int DC=0;
+
 /**  out.txt ***/
 void first_pass(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataTable) {
 	int initVal = 100;
-	int result = 0 ,
-	IC = initVal;
-	DC = 0;
-
-
+	int result = 0,n = 0;
 
 	switch (parser.line_type) {
 		case OP_CODE:
 			setOPCODE_INSTRUCTION(sym_tbl, wordTable);
-			if (parser.op == STOP) {
-					printTable(table);
-				}
+			if (parser.op == stop) {
+				printf("Stop Occured\n");
+				n = wordTable->lines[wordTable->size -1].line_num;
+				addNumberToWordTable(dataTable,n);
+				printTable(wordTable);
+				printTable(dataTable);
+
 			}
+
 			break;
 		case DIRECTIVE:
 			if ((result = parser.directive.cmd) == DATA) {
-				set_DATA_WORDS(sym_tbl,dataTable);
+				set_DATA_WORDS(sym_tbl, dataTable);
 
 			} else if (result == STRING) {
-				set_STRING_WORDS(sym_tbl,dataTable);
+				set_STRING_WORDS(sym_tbl, dataTable);
 
 
 			} else if (result == ENTRY || result == EXTERN) {}
@@ -61,72 +52,71 @@ void first_pass(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *
 		default:
 			break;
 	}
-
 }
-
 /*sets the instruction word and the send to othre func to set other words*/
-void setOPCODE_INSTRUCTION(symbol_table_t *sym_tbl, word_table_t *wordTable) {
-	symbol_t *symbol = findSymbol(sym_tbl, parser.symbol_name);
+	void setOPCODE_INSTRUCTION(symbol_table_t *sym_tbl, word_table_t *wordTable) {
+		symbol_t *symbol = findSymbol(sym_tbl, parser.symbol_name);
 
-	line_t *line1 = add_line(wordTable, IC, symbol);
-	type_of_register_t type0 = parser.operands[0].type_of_register;
-	type_of_register_t type1 = parser.operands[1].type_of_register;
-	IC++;
-	if (symbol != NULL) {
-		symbol->address = IC;
-		symbol->type=_INSTRUCTION;
-		symbol->are =A;
-	}
-	printf("OPCODE LINE1 :%p\n",line1);
-	switch (register_count_by_op(parser.op)) {
-		case 0:
+		line_t *line1 = add_line(wordTable, IC, symbol);
+		type_of_register_t type0 = parser.operands[0].type_of_register;
+		type_of_register_t type1 = parser.operands[1].type_of_register;
+		IC++;
+		if (symbol != NULL) {
+			symbol->address = IC;
+			symbol->type = _INSTRUCTION;
+			symbol->are = A;
+		}
+		printf("OPCODE LINE1 :%p\n", line1);
+		switch (register_count_by_op(parser.op)) {
+			case 0:
 
-			set_opcode_into_word(&(line1->word), parser.op);
-			set_ARE_into_word(&(line1->word), A);
-			printf("opcode - 0 registries");
-			printBinary(line1->word);
-			break;
-		case 1:
+				set_opcode_into_word(&(line1->word), parser.op);
+				set_ARE_into_word(&(line1->word), A);
+				printf("opcode - 0 registries");
+				printBinary(line1->word);
+				break;
+			case 1:
 
-			set_opcode_into_word(&(line1->word), parser.op);
-			set_ARE_into_word(&(line1->word), A);
-			set_operand_type_into_word(&(line1->word), DESTINATION, parser.operands[1].type_of_register);
-			setOPCODE_WORDS(sym_tbl, wordTable, 1,0);
-			printf("opcode - 1 registries");
-			printBinary(line1->word);
-			break;
-		case 2:
-
-			set_opcode_into_word(&(line1->word), parser.op);
-			set_ARE_into_word(&(line1->word), A);
-			set_operand_type_into_word(&(line1->word), DESTINATION, parser.operands[0].type_of_register);
-			set_operand_type_into_word(&(line1->word), SOURCE, parser.operands[1].type_of_register);
-			printf("opcode - 2 registries");
-			printBinary(line1->word);
-
-			/*INDIRECT and DIRECT Register are set only once to setOPCODE_WORDS register selection decides*/
-
-
-			if(registerSelection() == 2 ) {
-				/*all combinations except INDIRECT and Regular registry(4th type) type is zero*/
-				setOPCODE_WORDS(sym_tbl, wordTable, 0, 0);
+				set_opcode_into_word(&(line1->word), parser.op);
+				set_ARE_into_word(&(line1->word), A);
+				set_operand_type_into_word(&(line1->word), DESTINATION, parser.operands[1].type_of_register);
 				setOPCODE_WORDS(sym_tbl, wordTable, 1, 0);
-			}else
-				/*INDIRECT and Regular registry, type is one*/
-				setOPCODE_WORDS(sym_tbl, wordTable, 1,1);
+				printf("opcode - 1 registries");
+				printBinary(line1->word);
+				break;
+			case 2:
+
+				set_opcode_into_word(&(line1->word), parser.op);
+				set_ARE_into_word(&(line1->word), A);
+				set_operand_type_into_word(&(line1->word), DESTINATION, parser.operands[0].type_of_register);
+				set_operand_type_into_word(&(line1->word), SOURCE, parser.operands[1].type_of_register);
+				printf("opcode - 2 registries");
+				printBinary(line1->word);
+
+				/*INDIRECT and DIRECT Register are set only once to setOPCODE_WORDS register selection decides*/
+
+
+				if (registerSelection() == 2) {
+					/*all combinations except INDIRECT and Regular registry(4th type) type is zero*/
+					setOPCODE_WORDS(sym_tbl, wordTable, 0, 0);
+					setOPCODE_WORDS(sym_tbl, wordTable, 1, 0);
+				} else
+					/*INDIRECT and Regular registry, type is one*/
+					setOPCODE_WORDS(sym_tbl, wordTable, 1, 1);
+		}
+		printf("register 0 %d\n", parser.operands[0].type_of_register);
+		printf("register 1 %d\n", parser.operands[1].type_of_register);
+		printf("registry in operand 0 %d\n", parser.operands[0].operand.registry);
+		printf("registry in operand 1 %d\n", parser.operands[1].operand.registry);
 	}
-	printf("register 0 %d\n",parser.operands[0].type_of_register);
-	printf("register 1 %d\n",parser.operands[1].type_of_register);
-	printf("registry in operand 0 %d\n",parser.operands[0].operand.registry);
-	printf("registry in operand 1 %d\n",parser.operands[1].operand.registry);
 
 
-}
+
 /*if type = 1  2 regists indirect and/or direct |type=0 only one */
-void setOPCODE_WORDS(symbol_table_t *sym_tbl, word_table_t *wordTable, int idx ,int type) {
+void setOPCODE_WORDS(symbol_table_t *sym_tbl, word_table_t *wordTable, int idx, int type) {
 	symbol_t *symbol2 = NULL;
 	line_t *line2 = add_line(wordTable, IC, NULL);
-	printf("line2 :%p  registry %d\n",line2 ,parser.operands[idx].type_of_register);
+	printf("line2 :%p  registry %d\n", line2, parser.operands[idx].type_of_register);
 	unsigned short num;
 
 	IC++;
@@ -147,7 +137,7 @@ void setOPCODE_WORDS(symbol_table_t *sym_tbl, word_table_t *wordTable, int idx ,
 
 			set_label_into_empty_word(&(line2->word), symbol2->address);
 			set_ARE_into_word(&(line2->word), A);
-			printf("empty word (line2) :%p DIRECT registry %d\n",line2 ,parser.operands[idx].type_of_register);
+			printf("empty word (line2) :%p DIRECT registry %d\n", line2, parser.operands[idx].type_of_register);
 			printBinary(line2->word);
 			break;
 
@@ -155,17 +145,19 @@ void setOPCODE_WORDS(symbol_table_t *sym_tbl, word_table_t *wordTable, int idx ,
 		case _REGULAR:
 
 
-			 if(type == 0) {
-				 set_register_into_empty_word(&(line2->word), parser.operands[idx].operand.registry, 0);
-				 set_ARE_into_word(&(line2->word), A);
-				 printf("empty word (line2) :%p one registry indirect/regualar %d\n", line2, parser.operands[idx].type_of_register);
-				 printBinary(line2->word);
-			 }
-			if(type == 1){
+			if (type == 0) {
+				set_register_into_empty_word(&(line2->word), parser.operands[idx].operand.registry, 0);
+				set_ARE_into_word(&(line2->word), A);
+				printf("empty word (line2) :%p one registry indirect/regualar %d\n", line2,
+				       parser.operands[idx].type_of_register);
+				printBinary(line2->word);
+			}
+			if (type == 1) {
 				set_register_into_empty_word(&(line2->word), parser.operands[0].operand.registry, 1);
 				set_register_into_empty_word(&(line2->word), parser.operands[1].operand.registry, 0);
 				set_ARE_into_word(&(line2->word), A);
-				printf("empty word (line2) :%p indirect and regular registry %d\n",line2 ,parser.operands[idx].type_of_register);
+				printf("empty word (line2) :%p indirect and regular registry %d\n", line2,
+				       parser.operands[idx].type_of_register);
 				printBinary(line2->word);
 
 			}
@@ -190,8 +182,8 @@ void set_DATA_WORDS(symbol_table_t *sym_tbl, word_table_t *dataTable) {
 
 	if (symbol != NULL) {
 		symbol->address = DC + 1;
-		symbol->type=_DATA;
-		symbol->are =A;
+		symbol->type = _DATA;
+		symbol->are = A;
 	}
 
 	for (i = 0; i < parser.directive.operand.data_len; i++) {
@@ -199,8 +191,8 @@ void set_DATA_WORDS(symbol_table_t *sym_tbl, word_table_t *dataTable) {
 		line = add_line(dataTable, DC, (i == 0) ? symbol : NULL);
 		num = parser.directive.operand.data[i];
 		num = convertToTwoComp(num);
-		set_number_data_word(&(line->word),num );
-		printf("OPCODE LINE1 :%p\n",line);
+		set_number_data_word(&(line->word), num);
+		printf("OPCODE LINE1 :%p\n", line);
 		printf("data - bunch of numbers ");
 		printBinary(line->word);
 		DC++;
@@ -214,15 +206,15 @@ void set_STRING_WORDS(symbol_table_t *sym_tbl, word_table_t *dataTable) {
 	int i = 0;
 	if (symbol != NULL) {
 		symbol->address = DC + 1;
-		symbol->type=_DATA;
-		symbol->are =A;
+		symbol->type = _DATA;
+		symbol->are = A;
 	}
 
 	for (i = 0; i < parser.directive.operand.data_len; i++) {
 		/*only the first line has a potential symbol*/
 		line = add_line(dataTable, DC, (i == 0) ? symbol : NULL);
 		set_char_string_word(&(line->word), parser.directive.operand.str[i]);
-		printf("string line :%p\n",line);
+		printf("string line :%p\n", line);
 		printf("string - bunch of char ");
 		printBinary(line->word);
 		DC++;
@@ -230,53 +222,53 @@ void set_STRING_WORDS(symbol_table_t *sym_tbl, word_table_t *dataTable) {
 	/*adding '\0' */
 	line = add_line(dataTable, DC, NULL);
 	set_number_data_word(&(line->word), '\0');
-	printf("string line :%p\n",line);
+	printf("string line :%p\n", line);
 	printf("string - bunch of char ");
 	printBinary(line->word);
 	DC++;
 
 }
 
-void set_EXTnEntry(symbol_table_t *sym_tbl, word_table_t *dataTable){
+void set_EXTnEntry(symbol_table_t *sym_tbl, word_table_t *dataTable) {
 	symbol_t *symbol = findSymbol(sym_tbl, parser.directive.operand.symbol);
 	line_t *line = NULL;
 	int i = 0;
-	ARE_T are =(parser.directive.cmd == EXTERN) ?  E:R ;
+	ARE_T are = (parser.directive.cmd == EXTERN) ? E : R;
 
 	if (symbol != NULL) {
 		symbol->address = DC + 1; /*considers in advanced the creation of line*/
-		symbol->type=_DATA;
-		symbol->are =are;
+		symbol->type = _DATA;
+		symbol->are = are;
 	}
 /*opposed to other the symbol is the registry of the line*/
 	line = add_line(dataTable, DC, symbol);
 	/*in case EXTERN we are done, no info goes to the word*/
-	if(are == R){
+	if (are == R) {
 		set_label_into_empty_word(&(line->word), DC);
 	}
 
 }
 
-
 int registerSelection() {
 	type_of_register_t type0 = parser.operands[0].type_of_register;
 	type_of_register_t type1 = parser.operands[1].type_of_register;
-	switch(type0){
+	switch (type0) {
 		case _DIRECT:
 		case _IMMEDIATE:
 			return 2;
 		case _REGULAR:
 		case _INDIRECT:
-		 if (type1 == _DIRECT ||type1 == _IMMEDIATE)
-			 return 2;
-		 else
-			 return 1;
-		break;
+			if (type1 == _DIRECT || type1 == _IMMEDIATE)
+				return 2;
+			else
+				return 1;
+			break;
 		defult:
 			return 2;
 			break;
 	}
 }
+
 
 line_t *add_line(word_table_t *table, int ic_num, symbol_t *symbol) {
 	line_t *new_ptr = NULL;
@@ -292,7 +284,7 @@ line_t *add_line(word_table_t *table, int ic_num, symbol_t *symbol) {
 		return NULL;
 	}
 	if (new_ptr != table->lines)
-		table->lines =  new_ptr;
+		table->lines = new_ptr;
 
 	/*data assignmet to new member */
 	table->lines[table->size - 1].line_num = ic_num; /*address*/
@@ -336,6 +328,7 @@ void set_ARE_into_word(word_t *word, ARE_T ARE) {
 void set_immediate_into_empty_word(word_t *word, unsigned short value) {
 	set_value_to_word(word, value << immediate_shift);
 }
+
 /*void set_immediate_into_empty_word(word_t *word, unsigned short value) {
 	*word |= value & 0x7FFF;
 	set_value_to_word(word, value << immediate_shift);
@@ -348,7 +341,6 @@ void set_label_into_empty_word(word_t *word, int value) {
 void set_register_into_empty_word(word_t *word, int value, int isSource) {
 	set_value_to_word(word, value << (register_shift + isSource * register_size));
 }
-
 
 /*elementry handling of the shift*/
 void set_value_to_word(word_t *word, int value) {
@@ -368,24 +360,6 @@ word_table_t *initTable(word_table_t *wordTable) {
 
 	return wordTable;
 }
-
-
-void printTable(word_table_t *table);
-
-void printTable(word_table_t *table) {
-	int i;
-
-	if (table == NULL) {
-		return;
-	}
-
-	for (i = 0; i < table->size; i++) {
-		printf("%04d ", table->lines[i].line_num); /* Print line number with leading zeros */
-		printBinary(table->lines[i].word);         /* Print word in binary */
-		printf("\n");
-	}
-}
-
 
 
 /*
@@ -417,6 +391,33 @@ void print_set(set* s)
 }
 
 */
+
+void addNumberToWordTable(word_table_t *table, int number);
+
+void printBinary(unsigned short num) {
+	int i = 0;
+	int bits = sizeof(unsigned short) * 8; /* Number of bits in the unsigned short*/
+	for (i = bits - 1; i >= 0; i--) {
+		unsigned short mask = 1 << i;
+		printf("%d", (num & mask) ? 1 : 0);
+	}
+	printf("\n");
+}
+
+
+void printTable(word_table_t *table) {
+	int i;
+
+	if (table == NULL) {
+		return;
+	}
+
+	for (i = 0; i < table->size; i++) {
+		printf("%05d ", table->lines[i].line_num); /* Print line number with leading zeros */
+		printBinary(table->lines[i].word);         /* Print word in binary */
+		printf("\n");
+	}
+}
 
 
 

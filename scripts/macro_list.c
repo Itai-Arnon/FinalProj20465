@@ -4,7 +4,7 @@
 #include "headers/macro_list.h"
 #include "headers/shared.h"
 #include "headers/global_vars.h"
-#include "headers/error.h"
+#include "headers/assembler.h"
 
 
 macro_table_t *initMacroTable(macro_table_t *tbl) {

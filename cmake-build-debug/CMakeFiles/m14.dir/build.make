@@ -158,26 +158,11 @@ CMakeFiles/m14.dir/scripts/symbols.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/m14.dir/scripts/symbols.c.s"
 	C:\Users\hybo\AppData\Local\Programs\CLion\bin\mingw\bin\gcc.exe $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S C:\OPU\20465\m\m14\scripts\symbols.c -o CMakeFiles\m14.dir\scripts\symbols.c.s
 
-CMakeFiles/m14.dir/scripts/error.c.obj: CMakeFiles/m14.dir/flags.make
-CMakeFiles/m14.dir/scripts/error.c.obj: CMakeFiles/m14.dir/includes_C.rsp
-CMakeFiles/m14.dir/scripts/error.c.obj: C:/OPU/20465/m/m14/scripts/error.c
-CMakeFiles/m14.dir/scripts/error.c.obj: CMakeFiles/m14.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\OPU\20465\m\m14\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building C object CMakeFiles/m14.dir/scripts/error.c.obj"
-	C:\Users\hybo\AppData\Local\Programs\CLion\bin\mingw\bin\gcc.exe $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/m14.dir/scripts/error.c.obj -MF CMakeFiles\m14.dir\scripts\error.c.obj.d -o CMakeFiles\m14.dir\scripts\error.c.obj -c C:\OPU\20465\m\m14\scripts\error.c
-
-CMakeFiles/m14.dir/scripts/error.c.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/m14.dir/scripts/error.c.i"
-	C:\Users\hybo\AppData\Local\Programs\CLion\bin\mingw\bin\gcc.exe $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E C:\OPU\20465\m\m14\scripts\error.c > CMakeFiles\m14.dir\scripts\error.c.i
-
-CMakeFiles/m14.dir/scripts/error.c.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/m14.dir/scripts/error.c.s"
-	C:\Users\hybo\AppData\Local\Programs\CLion\bin\mingw\bin\gcc.exe $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S C:\OPU\20465\m\m14\scripts\error.c -o CMakeFiles\m14.dir\scripts\error.c.s
-
 CMakeFiles/m14.dir/scripts/first_pass.c.obj: CMakeFiles/m14.dir/flags.make
 CMakeFiles/m14.dir/scripts/first_pass.c.obj: CMakeFiles/m14.dir/includes_C.rsp
 CMakeFiles/m14.dir/scripts/first_pass.c.obj: C:/OPU/20465/m/m14/scripts/first_pass.c
 CMakeFiles/m14.dir/scripts/first_pass.c.obj: CMakeFiles/m14.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\OPU\20465\m\m14\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building C object CMakeFiles/m14.dir/scripts/first_pass.c.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\OPU\20465\m\m14\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building C object CMakeFiles/m14.dir/scripts/first_pass.c.obj"
 	C:\Users\hybo\AppData\Local\Programs\CLion\bin\mingw\bin\gcc.exe $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/m14.dir/scripts/first_pass.c.obj -MF CMakeFiles\m14.dir\scripts\first_pass.c.obj.d -o CMakeFiles\m14.dir\scripts\first_pass.c.obj -c C:\OPU\20465\m\m14\scripts\first_pass.c
 
 CMakeFiles/m14.dir/scripts/first_pass.c.i: cmake_force
@@ -188,21 +173,6 @@ CMakeFiles/m14.dir/scripts/first_pass.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/m14.dir/scripts/first_pass.c.s"
 	C:\Users\hybo\AppData\Local\Programs\CLion\bin\mingw\bin\gcc.exe $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S C:\OPU\20465\m\m14\scripts\first_pass.c -o CMakeFiles\m14.dir\scripts\first_pass.c.s
 
-CMakeFiles/m14.dir/scripts/word_table.c.obj: CMakeFiles/m14.dir/flags.make
-CMakeFiles/m14.dir/scripts/word_table.c.obj: CMakeFiles/m14.dir/includes_C.rsp
-CMakeFiles/m14.dir/scripts/word_table.c.obj: C:/OPU/20465/m/m14/scripts/word_table.c
-CMakeFiles/m14.dir/scripts/word_table.c.obj: CMakeFiles/m14.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\OPU\20465\m\m14\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building C object CMakeFiles/m14.dir/scripts/word_table.c.obj"
-	C:\Users\hybo\AppData\Local\Programs\CLion\bin\mingw\bin\gcc.exe $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/m14.dir/scripts/word_table.c.obj -MF CMakeFiles\m14.dir\scripts\word_table.c.obj.d -o CMakeFiles\m14.dir\scripts\word_table.c.obj -c C:\OPU\20465\m\m14\scripts\word_table.c
-
-CMakeFiles/m14.dir/scripts/word_table.c.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/m14.dir/scripts/word_table.c.i"
-	C:\Users\hybo\AppData\Local\Programs\CLion\bin\mingw\bin\gcc.exe $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E C:\OPU\20465\m\m14\scripts\word_table.c > CMakeFiles\m14.dir\scripts\word_table.c.i
-
-CMakeFiles/m14.dir/scripts/word_table.c.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/m14.dir/scripts/word_table.c.s"
-	C:\Users\hybo\AppData\Local\Programs\CLion\bin\mingw\bin\gcc.exe $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S C:\OPU\20465\m\m14\scripts\word_table.c -o CMakeFiles\m14.dir\scripts\word_table.c.s
-
 # Object files for target m14
 m14_OBJECTS = \
 "CMakeFiles/m14.dir/scripts/macro.c.obj" \
@@ -211,9 +181,7 @@ m14_OBJECTS = \
 "CMakeFiles/m14.dir/scripts/assembler.c.obj" \
 "CMakeFiles/m14.dir/scripts/parser.c.obj" \
 "CMakeFiles/m14.dir/scripts/symbols.c.obj" \
-"CMakeFiles/m14.dir/scripts/error.c.obj" \
-"CMakeFiles/m14.dir/scripts/first_pass.c.obj" \
-"CMakeFiles/m14.dir/scripts/word_table.c.obj"
+"CMakeFiles/m14.dir/scripts/first_pass.c.obj"
 
 # External object files for target m14
 m14_EXTERNAL_OBJECTS =
@@ -224,14 +192,12 @@ m14.exe: CMakeFiles/m14.dir/scripts/utils.c.obj
 m14.exe: CMakeFiles/m14.dir/scripts/assembler.c.obj
 m14.exe: CMakeFiles/m14.dir/scripts/parser.c.obj
 m14.exe: CMakeFiles/m14.dir/scripts/symbols.c.obj
-m14.exe: CMakeFiles/m14.dir/scripts/error.c.obj
 m14.exe: CMakeFiles/m14.dir/scripts/first_pass.c.obj
-m14.exe: CMakeFiles/m14.dir/scripts/word_table.c.obj
 m14.exe: CMakeFiles/m14.dir/build.make
 m14.exe: CMakeFiles/m14.dir/linkLibs.rsp
 m14.exe: CMakeFiles/m14.dir/objects1.rsp
 m14.exe: CMakeFiles/m14.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=C:\OPU\20465\m\m14\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Linking C executable m14.exe"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=C:\OPU\20465\m\m14\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Linking C executable m14.exe"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles\m14.dir\link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
