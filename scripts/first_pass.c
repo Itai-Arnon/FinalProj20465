@@ -28,16 +28,19 @@ void printBinary(unsigned short num) {
 /**  out.txt ***/
 void first_pass(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataTable) {
 	int initVal = 100;
-	int result = 0 ;
+	int result = 0 ,
 	IC = initVal;
 	DC = 0;
 
-	wordTable = initTable(wordTable);
-	dataTable = initTable(dataTable);
+
 
 	switch (parser.line_type) {
 		case OP_CODE:
 			setOPCODE_INSTRUCTION(sym_tbl, wordTable);
+			if (parser.op == STOP) {
+					printTable(table);
+				}
+			}
 			break;
 		case DIRECTIVE:
 			if ((result = parser.directive.cmd) == DATA) {
@@ -364,6 +367,23 @@ word_table_t *initTable(word_table_t *wordTable) {
 	wordTable->lines->symbol = NULL;
 
 	return wordTable;
+}
+
+
+void printTable(word_table_t *table);
+
+void printTable(word_table_t *table) {
+	int i;
+
+	if (table == NULL) {
+		return;
+	}
+
+	for (i = 0; i < table->size; i++) {
+		printf("%04d ", table->lines[i].line_num); /* Print line number with leading zeros */
+		printBinary(table->lines[i].word);         /* Print word in binary */
+		printf("\n");
+	}
 }
 
 

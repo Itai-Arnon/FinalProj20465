@@ -22,8 +22,10 @@ FILE *fptr_after;
 int main(int argc, char *argv[]) {
 	macro_table_t *mac_tbl = NULL;
 	symbol_table_t *sym_tbl = NULL;
-	 word_table_t *wordTable;
-	 word_table_t *dataTable;
+	 word_table_t *wordTable= NULL;
+	 word_table_t *dataTable= NULL;
+	wordTable = initTable(wordTable);
+	dataTable = initTable(dataTable);
 	mac_tbl = initMacroTable(mac_tbl);
 	sym_tbl = init_symbol_table(sym_tbl);
 	manage_files(argc, argv, mac_tbl, sym_tbl,wordTable, dataTable);
@@ -108,3 +110,30 @@ void move_one_directory_up(char *path) {
 	}
 }
 
+
+void freeWordTable(word_table_t *wordTable);
+
+
+void freeWordTable(word_table_t *table) {
+	if (table == NULL) {
+		return;
+	}
+	free(table->lines);
+	free(table);
+}
+
+ /* Frees the memory allocated for the symbol table */
+void freeSymbolTable(symbol_table_t *symbolTable) {
+	if (symbolTable == NULL) {
+		return;
+	}
+	symbol_t *current = symbolTable->symbol_List;
+	symbol_t *next;
+
+	while (current != NULL) {
+		next = current->symbol_name;
+		free(current);
+		current = next;
+	}
+	free(symbolTable);
+}
