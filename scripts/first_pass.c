@@ -24,10 +24,10 @@ void first_pass(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *
 			setOPCODE_INSTRUCTION(sym_tbl, wordTable);
 			if (parser.op == stop) {
 				printf("Stop Occured\n");
-				DC = wordTable->lines[wordTable->size - 1].line_num + 1;
-				printf("DC: %d\n", DC);
-				addAddressToSymbols(sym_tbl, DC, _DATA);
-				addNumberToWordTable(dataTable, DC );
+				n  = wordTable->lines[wordTable->size - 1].line_num + 1;
+				printf("n: %d\n", n);
+				addAddressToSymbols(sym_tbl,_DATA, n);
+				addNumberToWordTable(dataTable, n );
 				printTable(wordTable);
 				printTable(dataTable);
 				second_pass(sym_tbl, wordTable, dataTable);
@@ -61,7 +61,7 @@ void first_pass(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *
 void setOPCODE_INSTRUCTION(symbol_table_t *sym_tbl, word_table_t *table) {
 	symbol_t *symbol = findSymbol(sym_tbl, parser.symbol_name);
 
-	line_t *line1 = add_line(table, IC, symbol);
+	line_t *line1 = add_line(table, IC, symbol,_NO);
 
 	type_of_register_t type0 = parser.operands[0].type_of_register;
 	type_of_register_t type1 = parser.operands[1].type_of_register;
@@ -122,7 +122,7 @@ void setOPCODE_INSTRUCTION(symbol_table_t *sym_tbl, word_table_t *table) {
 /*if type = 1  2 regists indirect and/or direct |type=0 only one */
 void setOPCODE_WORDS(symbol_table_t *sym_tbl, word_table_t *table, int idx, int type) {
 	symbol_t *symbol2 = NULL;
-	line_t *line2 = add_line(table, IC, NULL);
+	line_t *line2 = add_line(table, IC, NULL, _NO);
 	printf("line2 :%p  registry %d\n", line2, parser.operands[idx].type_of_register);
 	unsigned short num;
 	IC++;
@@ -195,7 +195,7 @@ void set_DATA_WORDS(symbol_table_t *sym_tbl, word_table_t *table) {
 
 	for (i = 0; i < parser.directive.operand.data_len; i++) {
 		/*only the first line has a potential symbol*/
-		line = add_line(table, DC, (i == 0) ? symbol : NULL);
+		line = add_line(table, DC, (i == 0) ? symbol : NULL, _NO);
 		num = parser.directive.operand.data[i];
 		num = convertToTwoComp(num);
 		set_number_data_word(&(line->word), num);
@@ -219,7 +219,7 @@ void set_STRING_WORDS(symbol_table_t *sym_tbl, word_table_t *table) {
 
 	for (i = 0; i < parser.directive.operand.data_len; i++) {
 		/*only the first line has a potential symbol*/
-		line = add_line(table, DC, (i == 0) ? symbol : NULL);
+		line = add_line(table, DC, (i == 0) ? symbol : NULL, _NO);
 		set_char_string_word(&(line->word), parser.directive.operand.str[i]);
 		printf("string line object address :%p\n", line);
 		printf("string -  char list and a null\t ");
@@ -227,7 +227,7 @@ void set_STRING_WORDS(symbol_table_t *sym_tbl, word_table_t *table) {
 		DC++;
 	}
 	/*adding '\0' */
-	line = add_line(table, DC, NULL);
+	line = add_line(table, DC, NULL, A);
 	set_number_data_word(&(line->word), '\0');
 	printf("string line object address  :%p\n", line);
 	printf("string -  char list and a null ");
@@ -241,6 +241,7 @@ void set_EXTnEntry(symbol_table_t *sym_tbl, word_table_t *table) {
 	line_t *line = NULL;
 	int i = 0;
 	ARE_T are = (parser.directive.cmd == EXTERN) ? E : R;
+	EXT_T _ARE = (parser.directive.cmd == EXTERN) ? _EX : _EN;
 
 	if (symbol != NULL) {
 		symbol->address = DC + 1; /*considers in advanced the creation of line*/
@@ -249,13 +250,15 @@ void set_EXTnEntry(symbol_table_t *sym_tbl, word_table_t *table) {
 	}
 /* unlike the rest |symbol is a registry*/
 
-	line = add_line(table, DC, symbol);
+	line = add_line(table, DC, symbol, _ARE);
+	line->_ARE = _ARE;
 	/*in case EXTERN we are done, no info goes to the word*/
 	if (are == R) {
 		set_label_into_empty_word(&(line->word), DC);
 	}
 	printf("Entry Or Extern object address  :%p\n", line);
-	printf("in case EXTERN we are done word is zeroes \n ");
+	printf("CASE EXTERN we are done word is zeroes \n ");
+	printf("CASE ENTRY if we don't have the address we'll look at it in the 2nd pass  \n ");
 	printBinary(line->word);
 }
 
@@ -316,10 +319,6 @@ void set_immediate_into_empty_word(word_t *word, unsigned short value) {
 	set_value_to_word(word, value << immediate_shift);
 }
 
-/*void set_immediate_into_empty_word(word_t *word, unsigned short value) {
-	*word |= value & 0x7FFF;
-	set_value_to_word(word, value << immediate_shift);
-}*/
 
 void set_label_into_empty_word(word_t *word, int value) {
 	set_value_to_word(word, value << label_shift);
@@ -341,16 +340,16 @@ word_table_t *initTable(word_table_t *table , int memInit) {
 	table->lines = calloc(1, sizeof(line_t));
 	table->size = 1;
 	table->isFirst = 1;
-	table->next = NULL;
 	table->lines->line_num = memInit;
 	table->lines->symbol = NULL;
+	table->lines->_ARE = _NO;
 
 	return table;
 }
 
 
 /*adds a line to wordTable/dataTable  the first line has an address 100*/
-line_t *add_line(word_table_t *table, int ic_num, symbol_t *symbol) {
+line_t *add_line(word_table_t *table, int ic_num, symbol_t *symbol , EXT_T _ARE) {
 	line_t *new_ptr = NULL;
 	int word_t_size = sizeof(word_t);
 
@@ -370,47 +369,17 @@ line_t *add_line(word_table_t *table, int ic_num, symbol_t *symbol) {
 	if (new_ptr != table->lines)
 		table->lines = new_ptr;
 
-
-
-
 	/*data assignmet to new member */
 	table->lines[table->size - 1].line_num = ic_num; /*address*/
 	table->lines[table->size - 1].symbol = symbol;/*pointer to symbol*/
 	table->lines[table->size - 1].word = 0;
+	table->lines[table->size - 1]._ARE = _ARE;
 
 		return &(table->lines[(table->size - 1)]);
 }
 
 
-/*
 
-static int get_bit(set* s, int n)
-{
-	int mod_n = (n % 8);
-	int set_sequence = n / 8;
-
-	return (((s->arr[set_sequence]) & (1<< mod_n) ) > 0 ? 1 : 0);
-}
-
-
-void print_set(set* s)
-{
-	int i = 0;
-
-	if (is_empty(s) == 1)
-	{
-		return;
-	}
-	for (i = 0; i < 128; i++)
-	{
-		printf("bit %2d=%2d  ", i, (get_bit(s, i)));
-		if (i % 20 == 0)
-			printf("\n");
-	}
-	printf("\n");
-}
-
-*/
 /*adds a number to all the words in the table*/
 void addNumberToWordTable(word_table_t *table, int number) {
 	int i;
@@ -442,6 +411,7 @@ void printTable(word_table_t *table) {
 
 	for (i = 0; i < table->size; i++) {
 		printf("%05d\t", table->lines[i].line_num); /* Print line number with leading zeros */
+		printf("%05d\t", table->lines[i]._ARE); /* Print line number with leading zeros */
 		printBinary(table->lines[i].word);         /* Print word in binary */
 	}
 }

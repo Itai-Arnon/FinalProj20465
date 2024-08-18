@@ -51,5 +51,6 @@ extern parser_t parser;
 extern FILE *fptr_before;
 extern FILE *fptr_after;
 extern int line_count;
+extern int isError;
 
 #endif /*M14_GLOBAL_VARS_H*/

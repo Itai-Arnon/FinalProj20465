@@ -50,8 +50,8 @@ void parse(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataT
 	char *directive_str = NULL;/*auxiliary var*/
 	char *sArr = calloc(MAX_SYMBOL_NAME, sizeof(char));/*.string array*/
 	int *pos = calloc(1, sizeof(int));/*promotes the buffer*/
-	int idx, numCount, buff_len, scanned, result, isExtern , isSymbol , n; /*auxiliary vars*/
-	idx = numCount = buff_len = scanned = result = isExtern = isSymbol = n = 0;
+	int idx, numCount, buff_len, scanned, result,  isSymbol ; /*auxiliary vars*/
+	idx = numCount = buff_len = scanned = result = isSymbol  = 0;
 	line_count = 0;
 
 
@@ -59,9 +59,7 @@ void parse(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataT
 	initDirectiveArray();/*todo check if needs more*/
 /*number of sscanf arguments*/
 
-	if (ferror(fptr_after)) {
-		printf("ERROR");
-	}
+
 
 
 	if (sym_tbl == NULL) {
@@ -70,6 +68,10 @@ void parse(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataT
 	}
 
 	while (fgets(buffer, LINE_LENGTH, fptr_after) != NULL) {
+		if (isError) {
+			return;
+		}
+
 		initParser();
 		line_count++;
 		buffer = strstrip(buffer);
@@ -77,20 +79,21 @@ void parse(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataT
 		/*option label is at start - will identify both label and opcode*/
 		/*scanned how many succesfuly scanned*/
 		if (sscanf(buffer, "%s", cmd) == 1) {
-			if (if_Symbol_if_Duplicate(sym_tbl, cmd, HEAD) == 1) {
+			if ((isSymbol = if_Symbol_if_Duplicate(sym_tbl, cmd, HEAD)) == 1) {
 				/*returns 1 if symbol non existent*/
 				loadSymbolTable(sym_tbl, cmd, 0, _INSTRUCTION);
-				buffer = advance_buffer_if_possible(buffer, cmd);
+			}else if(isSymbol > 0) {
 				buffer = strstrip(buffer);/*remove excess white*/
-				sscanf(buffer, "%s", cmd_extra);
+				buffer = advance_buffer_if_possible(buffer, cmd);
+				sscanf(buffer, "%s%n", cmd_extra , pos);/*check 2nd argument*/
 				(scanned = classify_line(cmd_extra));
-				if (scanned == -1) {
+				if (scanned == -1) { /*extern end can have a symbol at their heading*/
 					delete_symbol(sym_tbl, parser.symbol_name);
 					report_error(ERR_EXTERN_ENTRY_SYMBOL, line_count, CRIT);
 				}
 				if (scanned > 0)
-					/*advanced the buffer only if doens't emtpy it*/
-					buffer = advance_buffer_if_possible(buffer, cmd_extra);
+
+					buffer =  buffer + *pos;
 				else
 					report_error(ERR_DIRECTIVE_RECOGNITION, line_count, CRIT);
 			} else if (classify_line(cmd) > 0)
@@ -175,13 +178,14 @@ void parse(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataT
 						buffer +=* pos;
 						if(isRestOfLineEmpty(buffer) == 0)
 							report_error(ERR_OP_CODE_FAILED_STRUCTURE,line_count,CRIT);
-						if ((isSymbol = if_Symbol_if_Duplicate(sym_tbl, cmd, MIDDLE)) == 1) {
-							loadSymbolTable(sym_tbl, buffer, 0, _INSTRUCTION);
+						if ((isSymbol = if_Symbol_if_Duplicate(sym_tbl, cmd, MIDDLE)) == 1)
+							loadSymbolTable(sym_tbl, cmd, 0, _DATA);
+						 if(isSymbol > 0) { /*if the symbol is a duplicant it's still loaded to registry*/
 							parser.directive.operand.symbol = calloc(MAX_SYMBOL_NAME, sizeof(char));
 							strcpy(parser.directive.operand.symbol, cmd);
 							parser.directive.operand.data_len = 1;
-							printf("blah");
 						}
+
 					} else
 						report_error(ERR_DIRECTIVE_RECOGNITION, line_count, CRIT);
 				}
@@ -194,6 +198,9 @@ void parse(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataT
 				break;
 			default:
 				break;
+		}
+		if (isError) {
+			break;
 		}
 		first_pass(sym_tbl, wordTable, dataTable);
 	}

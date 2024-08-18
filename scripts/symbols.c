@@ -14,7 +14,7 @@
 char *opcode_names[16] = {"mov", "cmp", "add", "sub", "lea", "clr", "not", "inc", "dec", "jmp",
                           "bne", "red", "prn", "jsr", "rts", "stop"};
 
-char *directives[4] = {".data", ".string", ".extern", ".entry"};
+char *directives[4] = {".data", ".string",  ".entry" ,".extern"};
 
 
 /* todo 0 failure 1:success*/
@@ -60,14 +60,16 @@ void print_symbol_table(symbol_table_t *sym_tbl) {
 }
 
 symbol_table_t *init_symbol_table(symbol_table_t *sym_tbl) {
-	sym_tbl = calloc(1, sizeof(symbol_table_t));
-	if (sym_tbl != NULL) {
+
+	if(!(sym_tbl = calloc(1, sizeof(symbol_table_t)))){
+		report_error(ERR_FAIL_CREATE_SYMBOL_TBL, line_count, CRIT);
+		return NULL;
+	}
 		sym_tbl->size = 0;
 		sym_tbl->symbol_List = NULL;
+
 		return sym_tbl;
-	} else
-		report_error(ERR_FAIL_CREATE_SYMBOL_TBL, line_count, CRIT);
-	return NULL;
+
 }
 
 symbol_t *findSymbol(symbol_table_t *sym_tbl, char *symbol_name) {

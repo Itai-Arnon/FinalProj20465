@@ -88,6 +88,7 @@
 
 
 
+
 typedef enum {
 	DATA,
 	STRING,
@@ -105,6 +106,11 @@ typedef enum{MACRO_START, MACRO_END , MACRO_EXPAND , LINE_INSIDE , LINE_OUTSIDE,
 /*utils */
 typedef enum{ALPHA,ALPHANUM, ALPHANUM_COMBINED}check_legal_name;
 
+
+/*extern entry*/
+typedef enum {
+	_EX, _EN ,_NO
+}EXT_T;
 
 
 typedef enum {E, R,	A } ARE_T;

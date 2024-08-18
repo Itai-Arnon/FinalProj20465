@@ -15,7 +15,9 @@
 
 
 void second_pass(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataTable){
-
+if(isError) {
+	return;
+}
 	print_symbol_table(sym_tbl);
 }
 

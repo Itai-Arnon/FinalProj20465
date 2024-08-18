@@ -16,30 +16,29 @@
 
 FILE *fptr_before;
 FILE *fptr_after;
-
+int isError = 0;
 
 int main(int argc, char *argv[]) {
+
 	macro_table_t *mac_tbl = NULL;
 	symbol_table_t *sym_tbl = NULL;
-	 word_table_t *wordTable= NULL;
-	 word_table_t *dataTable= NULL;
-	wordTable = initTable(wordTable, 100);
-	dataTable = initTable(dataTable,0);
-	mac_tbl = initMacroTable(mac_tbl);
+	word_table_t *wordTable = NULL;
+	word_table_t *dataTable = NULL ;
+
+	mac_tbl =  initMacroTable(mac_tbl);
 	sym_tbl = init_symbol_table(sym_tbl);
+	wordTable = initTable(wordTable,100);
+	dataTable = initTable(dataTable,0);
+
+
 
 	manage_files(argc, argv, mac_tbl, sym_tbl,wordTable, dataTable);
 
 
-	freeSymbolTable(sym_tbl);
-	freeWordTable(wordTable);
-	freeWordTable(dataTable);
-	freeMacroTable(mac_tbl);
-
 	fclose(fptr_before);
 	fclose(fptr_after);
 
-
+ return 0;
 }
 
 void manage_files(int _argc, char **_argv, macro_table_t *macro_tbl, symbol_table_t *sym_tbl , word_table_t *wordTable,
@@ -47,6 +46,9 @@ void manage_files(int _argc, char **_argv, macro_table_t *macro_tbl, symbol_tabl
 	int idx;
 	int num_files = _argc;
 	char buffer[LINE_LENGTH];
+
+
+
 	if (_argc == 1) {
 		report_error(ERR_NO_FILES, line_count, CRIT);
 		return;
@@ -54,6 +56,9 @@ void manage_files(int _argc, char **_argv, macro_table_t *macro_tbl, symbol_tabl
 	fptr_after = initDestinationPointer(fptr_after, "out.txt", "a+");
 
 	for (idx = 1; idx < num_files; ++idx) {
+		if (isError) {
+			break;
+		}
 		fptr_before = initSourceFiles(_argc, _argv, fptr_before, idx);
 		parse(sym_tbl, wordTable, dataTable);
 
@@ -65,6 +70,7 @@ void manage_files(int _argc, char **_argv, macro_table_t *macro_tbl, symbol_tabl
 
 		/*todo last command should be print the final version */
 	}
+	freeAllTables(macro_tbl, sym_tbl, wordTable, dataTable);
 }
 
 /*index signifies argv index*/
@@ -118,11 +124,12 @@ void move_one_directory_up(char *path) {
 
 void report_error(char *err, int line_count, err_type_t type) {
 
+
 	printf("%s at line %lu\n", err, line_count);
 	if (type == CRIT) {
 		printf("Critical Error, Exiting\n");
 		printf("terminating and Freeing Allocation\n");
-		return;
+		isError = 1;
 	} else (printf("%s\n", "NON CRITICAL"));
 
 }
@@ -139,13 +146,15 @@ void freeWordTable(word_table_t *table) {
 
  /* Frees the memory allocated for the symbol table */
 void freeSymbolTable(symbol_table_t *symbolTable) {
-	if (symbolTable == NULL) {
-		return;
-	}
-	symbol_t *current = symbolTable->symbol_List;
+	symbol_t *current;
 	symbol_t *next;
 
-	while (current != NULL) {
+	 if (symbolTable == NULL) {
+		 return;
+	 }
+	current = symbolTable->symbol_List;
+
+	while (current!= NULL) {
 		next = current->next_sym;
 		free(current);
 		current = next;
@@ -155,6 +164,9 @@ void freeSymbolTable(symbol_table_t *symbolTable) {
 
 void freeMacroTable(macro_table_t *table) {
 	int idx = 0;
+	if (table == NULL) {
+		return;
+	}
 	for (idx = 0; idx < table->size; idx++) {
 		freeMacroLList(table->slot[idx]);
 	}
@@ -171,3 +183,11 @@ void freeMacroLList(macro_node_t *head) {
 	}
 
 }
+
+void freeAllTables(macro_table_t *macroTable, symbol_table_t *symbolTable, word_table_t *wordTable, word_table_t *dataTable) {
+	freeMacroTable(macroTable);
+	freeSymbolTable(symbolTable);
+	freeWordTable(wordTable);
+	freeWordTable(dataTable);
+}
+

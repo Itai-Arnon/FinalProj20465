@@ -19,5 +19,5 @@ void freeWordTable(word_table_t *table);
 void freeSymbolTable(symbol_table_t *symbolTable);
 void freeMacroTable(macro_table_t *macroTable);
 void freeMacroLList(macro_node_t *head);
-
+void freeAllTables(macro_table_t *macroTable, symbol_table_t *symbolTable, word_table_t *wordTable, word_table_t *dataTable);
 #endif /*M14_ASSEMBLER_H*/

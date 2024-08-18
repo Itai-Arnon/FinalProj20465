@@ -10,7 +10,7 @@
 #include "headers/symbols.h"
 #include "headers/assembler.h"
 
-#define   FILE_PATH()   printf(__FILE__ );
+
 
 
 int line_count;
@@ -33,7 +33,10 @@ void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 	while (fgets(buffer, LINE_LENGTH, fptr_before) != NULL) {
 		line_count++;
 		idx = 0;
+		if (isError)
+			return;
 
+		/*check for empty line*/
 		if (isRestOfLineEmpty(buffer)) /*checks case of empty line*/
 			continue;
 
