@@ -18,6 +18,12 @@ int DC;
 /**  out.txt ***/
 void first_pass(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataTable) {
 	int result = 0, n = 0;
+
+	if(isError) {
+		return;
+	}
+
+
 	switch (parser.line_type) {
 		case OP_CODE:
 			printf("registry%d\n",parser.operands[1].operand.registry);
