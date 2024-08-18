@@ -204,17 +204,12 @@ int checkEOFInBuffer(char *buffer) {
 	return 0; /*Eof Not Found*/
 }
 
-
+/*checks only opcode and directive*/
+/*symbols will be checked in 2nd pass*/
 int macro_name_duplicate(char *macro_name, symbol_table_t *sym_tbl) {
-	symbol_t *head = sym_tbl->symbol_List;
 	int j = 0;
-	int isSymbol = 0;
 
-	/*isDuplicateSymbol is 1 if true 0 otherwise*/
-	if (sym_tbl != NULL) {
-		isSymbol = isDuplicateSymbol(sym_tbl, macro_name);
-		if (isSymbol == 1) return 1;
-	}
+
 
 	for (j = 0; j < 16; ++j) {
 		if (strcmp(macro_name, opcode_names[j]) == 0)
@@ -225,11 +220,8 @@ int macro_name_duplicate(char *macro_name, symbol_table_t *sym_tbl) {
 			return 1;
 	}
 
-	/*isDuplicateSymbol is 1 if true 0 otherwise*/
-	if (sym_tbl != NULL) {
-		isSymbol = isDuplicateSymbol(sym_tbl, macro_name);
-		if (isSymbol == 1) return 1;
-	}
+
+
 	return 0;
 }
 

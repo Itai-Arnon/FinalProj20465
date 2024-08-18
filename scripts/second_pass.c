@@ -42,13 +42,10 @@ void second_pass(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t 
 			}
 
 
-
-
-
 				}
 			}
 
-/*	print_symbol_table(sym_tbl);*/
+
 /*check if there are duplicate symbols*/
 void checkSymbolsUnique(symbol_table_t *sym_table) {
 	symbol_t *head, *checker;
