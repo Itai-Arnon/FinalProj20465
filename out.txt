@@ -1,11 +1,7 @@
-.entry LA8
-LA8: mov r1,r2
-.entry LA4
-.entry LA5
-.entry LA6
-.entry LA7
-LA4: mov r1,r2
-LA5: mov r1,r2
-LA6: mov r1,r2
-LA7: mov r1,r2
+mov r1,r2
+mov r1,r2
+mov r1,r2
+mov r1,r2
+mov r1,r2
+mov r1,r2
 stop

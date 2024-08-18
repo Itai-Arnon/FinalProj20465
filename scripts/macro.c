@@ -56,7 +56,8 @@ void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 		switch (typeofline(tbl, buffer, macro_name, sym_tbl)) {
 			case MACRO_START:
 				printf("REPORT: macro_start  at line %d\n", line_count);
-
+				if (dupNameExistsInTable(tbl, macro_name,1) == 1)
+					report_error(ERR_MACRO_NAME_DUP, line_count, CRIT);    /*critical error*/
 				if (tbl->isMacroOpen == 0 && tbl->amount < tbl->size)
 					tbl->isMacroOpen = 1;
 				else
@@ -175,7 +176,7 @@ int checkMacroEnd(char *buffer, char *start, int pos) {
 
 int checkMacroExpand(macro_table_t *tbl, char *buffer, char *start, char *macro_name, int pos) {
 
-	if (tbl->amount > 0 && (checkNameExistsInTable(tbl, start) == 1)) {
+	if (tbl->amount > 0 && (dupNameExistsInTable(tbl, start, 0) == 1)) {
 		strcpy(macro_name, start);
 		buffer += pos;
 		if (isRestOfLineEmpty(buffer))

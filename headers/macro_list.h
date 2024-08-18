@@ -5,14 +5,14 @@
 #include "shared.h"
 
 
-typedef struct macro_node_t {
+typedef struct  {
 	char macro_name[MAX_MACRO_NAME];/*ref to macro name*/
 	char macro_line[LINE_LENGTH];/*holds all contents of macro - dynamically allocated*/
 	int macro_lock;
 	int len;
 } macro_node_t;
 
-typedef struct {/*change to dynmaic allocation*/
+typedef struct {
 	int isEmpty;
 	int isMacroOpen;
 	int amount;
@@ -41,7 +41,7 @@ int retSlot(macro_table_t *tbl, char *macro_name);
 
 int getLengthMacro(macro_table_t *tbl, char *macro_name);
 
-int dupNameExistsInTable(macro_table_t *tbl, char *macro_name);
+int dupNameExistsInTable(macro_table_t *tbl, char *macro_name ,int);
 
 int expandMacro(macro_table_t *tbl, char *macro_name);
 

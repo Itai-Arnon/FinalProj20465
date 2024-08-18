@@ -9,8 +9,6 @@
 
 macro_table_t *initMacroTable(macro_table_t *tbl) {
 	int i = 0;
-
-
 	if (!(tbl = calloc(1, sizeof(macro_table_t)))) {
 		report_error(ERR_MACRO_TABLE_GENERAL_ERROR, line_count, CRIT);    /*critical error*/
 		return NULL;
@@ -29,7 +27,7 @@ macro_table_t *initMacroTable(macro_table_t *tbl) {
 	}
 
 	tbl->slot->macro_lock = 0;
-	tbl->slot->macro_next = NULL;
+
 
 	return tbl;
 }
@@ -64,11 +62,6 @@ macro_node_t *constructMacroNode(macro_table_t *tbl, char *macro_name, char *lin
 
 int loadMacroTable(macro_table_t *tbl, char *macro_name, char *line) {
 	macro_node_t *temp = NULL;
-
-	if (dupNameExistsInTable(tbl, macro_name) == 1) {
-		report_error(ERR_MACRO_NAME_DUP, line_count, CRIT);    /*critical error*/
-		return 0;
-	}
 
 
 	if (!(temp = constructMacroNode(tbl, macro_name, line, 1))) {
@@ -150,16 +143,22 @@ int retSlot(macro_table_t *tbl, char *macro_name) {
 
 
 /* Checks if a given name exists in any slot of the macro table  true 1 , false 0*/
-int dupNameExistsInTable(macro_table_t *tbl, char *macro_name) {
+int dupNameExistsInTable(macro_table_t *tbl, char *macro_name, int locked ) {
+	/*locked = 1  checks if it exists and  locked | 0 exist but not locked */
 	int i = 0;
 	if (tbl->isEmpty == 1) return 0;
 
 	for (i = 0; i < tbl->size; ++i) {
-		{
-			/* Compare the macro_name of the first node in this slot with the given name*/
-			if (strcmp(tbl->slot[i].macro_name, macro_name) == 0 && tbl->slot[i].macro_lock == 1)
-				return 1;  /*Name found*/
-		}
+
+			switch(locked) {
+				case 1:
+					/* Compare the macro_name of the first node in this slot with the given name*/
+					if (strcmp(tbl->slot[i].macro_name, macro_name) == 0 && tbl->slot[i].macro_lock == 1)
+						return 1;  /*Name found*/
+				case 2:
+					if (strcmp(tbl->slot[i].macro_name, macro_name) == 0 && tbl->slot[i].macro_lock == 0)
+						return 1;  /*Name found*/
+			}
 	}
 	return 0;/* Name not found*/
 }

@@ -16,9 +16,9 @@ int IC = 100; /*first address of the instruction table is preset in tabel init*/
 int DC;
 
 /**  out.txt ***/
-void first_pass(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataTable) {
+void first_pass(macro_table_t* macroTable,  symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataTable) {
 	int result = 0, n = 0;
-
+/*	IC = 100;*/
 	if(isError) {
 		return;
 	}
@@ -36,7 +36,7 @@ void first_pass(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *
 				addNumberToWordTable(dataTable, n );
 				printTable(wordTable);
 				printTable(dataTable);
-				second_pass(sym_tbl, wordTable, dataTable);
+				second_pass(macroTable, sym_tbl, wordTable, dataTable);
 			}
 			break;
 		case DIRECTIVE:
@@ -84,7 +84,7 @@ void setOPCODE_INSTRUCTION(symbol_table_t *sym_tbl, word_table_t *table) {
 
 			set_opcode_into_word(&(line1->word), parser.op);
 			set_ARE_into_word(&(line1->word), A);
-			printf("INSIDE OPCODE: 0 registries");
+			printf("INSIDE OPCODE: 0 registries\n");
 			printBinary(line1->word);
 			break;
 		case 1:
@@ -210,7 +210,6 @@ void set_DATA_WORDS(symbol_table_t *sym_tbl, word_table_t *table) {
 		printBinary(line->word);
 		DC++;
 	}
-
 }
 
 void set_STRING_WORDS(symbol_table_t *sym_tbl, word_table_t *table) {
