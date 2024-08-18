@@ -51,7 +51,11 @@ int isDuplicateSymbol(symbol_table_t *sym_tbl, char symbol_name[]);
 /*check similarity of name with opcodes and directives*/
 int is_symbol_name_duplicate(symbol_table_t * ,char *);
 
+/*deletes symbol from list*/
 int delete_symbol(symbol_table_t *sym_tbl , char *symbol_name);
+
+/*adds value to memory adresses by memory type*/
+void addAddressToSymbols(symbol_table_t *sym_tbl, memory_t type, int value);
 
 
 #endif /*M14_SYMBOLS_H*/

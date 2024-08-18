@@ -134,22 +134,23 @@ int isDuplicateSymbol(symbol_table_t *sym_tbl, char symbol_name[]) {
 int if_Symbol_if_Duplicate(symbol_table_t *sym_tbl, char *cmd, symbol_loci_t isHEadOrMid) {
 	int len = 0;
 	len = strlen(cmd);
-/*if isStartOrMid == 1 will not allow symbol w/o ':"*/
-/*HEAD includes MIDDLE*/
+
+
+/*if isHeadOrMid == 1 will not allow symbol w/o ':"*/
+/*HEAD of the line */
 	switch (isHEadOrMid) {
 		case HEAD:
 			if (cmd[len - 1] != ':') {
 				parser.line_type = ERR;
 				return 0;
 			}
+			strncpy(parser.symbol_name, cmd, len - 1);
+			return isDuplicateSymbol(sym_tbl, cmd) == 0 ? 1 : 2;
+			break;
+			/* MIDDLE in one the registries */
 		case MIDDLE:
-			if (isDuplicateSymbol(sym_tbl, cmd) == 0) {
-				strncpy(parser.symbol_name, cmd, len);
-				return 1; /*not dupilcate return 1 */
-			} else {
-				strncpy(parser.symbol_name, cmd, len);
-				return 2;/* dupilcate return 2*/
-			}
+			return isDuplicateSymbol(sym_tbl, cmd) == 0 ? 1 : 2;
+			break;
 	}
 }
 
@@ -207,17 +208,21 @@ int delete_symbol(symbol_table_t *sym_tbl, char *symbol_name) {
 	return 0; /*not found*/
 }
 
-void addNumberToWordTable(word_table_t *table, int number) {
-	int i;
-	if (table == NULL || table->lines == NULL) return;
 
-	for (i = 0; i < table->size; i++) {
-		table->lines[i].line_num += number;
+
+
+/*adds value to memory adresses by memory type*/
+
+void addAddressToSymbols(symbol_table_t *sym_tbl, memory_t type, int value) {
+	symbol_t *head = sym_tbl->symbol_List;
+
+	while (head != NULL) {
+		if (head->type == type) {
+			head->address += value;
+		}
+		head = head->next_sym;
 	}
 }
-
-
-
 
 
 

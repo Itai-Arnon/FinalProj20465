@@ -30,6 +30,7 @@ typedef struct line_t {
 typedef struct word_table_t {
 	line_t *lines;
 	int size;
+	int isFirst;
 	struct word_table_t *next;
 } word_table_t;
 
@@ -78,7 +79,7 @@ void set_value_to_word(word_t *word, int value);
 
 /*initiate word or data table*/
 
-word_table_t *initTable(word_table_t *wordTable);
+word_table_t *initTable(word_table_t *wordTable , int memoryInit) ;
 
 /*reallocate more places in table*/
 line_t *add_line(word_table_t *, int, symbol_t *);

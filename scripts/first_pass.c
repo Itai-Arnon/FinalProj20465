@@ -12,12 +12,11 @@
 #include "headers/second_pass.h"
 
 
-int IC = 100;
-int DC = 0;
+int IC = 100; /*first address of the instruction table is preset in tabel init*/
+int DC;
 
 /**  out.txt ***/
 void first_pass(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataTable) {
-	int initVal = 100;
 	int result = 0, n = 0;
 	switch (parser.line_type) {
 		case OP_CODE:
@@ -25,8 +24,10 @@ void first_pass(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *
 			setOPCODE_INSTRUCTION(sym_tbl, wordTable);
 			if (parser.op == stop) {
 				printf("Stop Occured\n");
-				n = wordTable->lines[wordTable->size - 1].line_num;
-				addNumberToWordTable(dataTable, n);
+				DC = wordTable->lines[wordTable->size - 1].line_num + 1;
+				printf("DC: %d\n", DC);
+				addAddressToSymbols(sym_tbl, DC, _DATA);
+				addNumberToWordTable(dataTable, DC );
 				printTable(wordTable);
 				printTable(dataTable);
 				second_pass(sym_tbl, wordTable, dataTable);
@@ -61,7 +62,7 @@ void setOPCODE_INSTRUCTION(symbol_table_t *sym_tbl, word_table_t *table) {
 	symbol_t *symbol = findSymbol(sym_tbl, parser.symbol_name);
 
 	line_t *line1 = add_line(table, IC, symbol);
-	/*line_t *line1 = &(table->lines[0]);*/
+
 	type_of_register_t type0 = parser.operands[0].type_of_register;
 	type_of_register_t type1 = parser.operands[1].type_of_register;
 	IC++;
@@ -279,29 +280,6 @@ int registerSelection() {
 	}
 }
 
-
-line_t *add_line(word_table_t *table, int ic_num, symbol_t *symbol) {
-	line_t *new_ptr = NULL;
-	int word_t_size = sizeof(word_t);
-
-	if (table == NULL)
-		return NULL;
-
-	table->size++;
-	if (!(new_ptr = (line_t *) realloc(table->lines, (table->size) * sizeof(line_t)))) {
-		report_error(ERR_WORD_TABLE_ALLOCATION, line_count, CRIT);
-		return NULL;
-	}
-	if (new_ptr != table->lines)
-		table->lines = new_ptr;
-
-	/*data assignmet to new member */
-	table->lines[table->size - 1].line_num = ic_num; /*address*/
-	table->lines[table->size - 1].symbol = symbol;/*pointer to symbol*/
-	table->lines[table->size - 1].word = 0;
-	return &(table->lines[(table->size - 2)]);
-}
-
 unsigned short convertToTwoComp(unsigned short num) {
 	if (num >= 0) return num;
 	return (~num) + 1;
@@ -357,17 +335,50 @@ void set_value_to_word(word_t *word, int value) {
 	*word |= value & 0x7FFF;
 }
 
+word_table_t *initTable(word_table_t *table , int memInit) {
 
-word_table_t *initTable(word_table_t *wordTable) {
+	table = calloc(1, sizeof(word_table_t));
+	table->lines = calloc(1, sizeof(line_t));
+	table->size = 1;
+	table->isFirst = 1;
+	table->next = NULL;
+	table->lines->line_num = memInit;
+	table->lines->symbol = NULL;
 
-	wordTable = calloc(1, sizeof(word_table_t));
-	wordTable->lines = calloc(1, sizeof(line_t));
-	wordTable->size = 1;
-	wordTable->next = NULL;
-	wordTable->lines->line_num = 0;
-	wordTable->lines->symbol = NULL;
+	return table;
+}
 
-	return wordTable;
+
+/*adds a line to wordTable/dataTable  the first line has an address 100*/
+line_t *add_line(word_table_t *table, int ic_num, symbol_t *symbol) {
+	line_t *new_ptr = NULL;
+	int word_t_size = sizeof(word_t);
+
+	if (table == NULL)
+		return NULL;
+
+	if(table->isFirst == 1) {
+		table->isFirst = 0;
+		return &(table->lines[0]);
+	}
+	table->size++;
+
+	if (!(new_ptr = (line_t *) realloc(table->lines, (table->size) * sizeof(line_t)))) {
+		report_error(ERR_WORD_TABLE_ALLOCATION, line_count, CRIT);
+		return NULL;
+	}
+	if (new_ptr != table->lines)
+		table->lines = new_ptr;
+
+
+
+
+	/*data assignmet to new member */
+	table->lines[table->size - 1].line_num = ic_num; /*address*/
+	table->lines[table->size - 1].symbol = symbol;/*pointer to symbol*/
+	table->lines[table->size - 1].word = 0;
+
+		return &(table->lines[(table->size - 1)]);
 }
 
 
@@ -400,8 +411,16 @@ void print_set(set* s)
 }
 
 */
+/*adds a number to all the words in the table*/
+void addNumberToWordTable(word_table_t *table, int number) {
+	int i;
+	if (table == NULL || table->lines == NULL) return;
 
-void addNumberToWordTable(word_table_t *table, int number);
+	for (i = 0; i < table->size; i++) {
+		table->lines[i].line_num += number;
+	}
+}
+
 
 void printBinary(unsigned short num) {
 	int i = 0;

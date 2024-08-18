@@ -23,8 +23,8 @@ int main(int argc, char *argv[]) {
 	symbol_table_t *sym_tbl = NULL;
 	 word_table_t *wordTable= NULL;
 	 word_table_t *dataTable= NULL;
-	wordTable = initTable(wordTable);
-	dataTable = initTable(dataTable);
+	wordTable = initTable(wordTable, 100);
+	dataTable = initTable(dataTable,0);
 	mac_tbl = initMacroTable(mac_tbl);
 	sym_tbl = init_symbol_table(sym_tbl);
 
