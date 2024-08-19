@@ -52,5 +52,6 @@ extern FILE *fptr_before;
 extern FILE *fptr_after;
 extern int line_count;
 extern int isError;
+extern char* current_filename;
 
 #endif /*M14_GLOBAL_VARS_H*/

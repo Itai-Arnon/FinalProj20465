@@ -10,7 +10,7 @@
 macro_table_t *initMacroTable(macro_table_t *tbl) {
 	int i = 0;
 	if (!(tbl = calloc(1, sizeof(macro_table_t)))) {
-		report_error(ERR_MACRO_TABLE_GENERAL_ERROR, line_count, CRIT);    /*critical error*/
+		report_error(ERR_MACRO_TABLE_GENERAL_ERROR, line_count , MACL , CRIT);    /*critical error*/
 		return NULL;
 	}
 
@@ -22,7 +22,7 @@ macro_table_t *initMacroTable(macro_table_t *tbl) {
 
 
 	if (!(tbl->slot = calloc(1, sizeof(macro_node_t)))) {
-		report_error(ERR_MACRO_TABLE_GENERAL_ERROR, line_count, CRIT);    /*critical error*/
+		report_error(ERR_MACRO_TABLE_GENERAL_ERROR, line_count ,MACL , CRIT);    /*critical error*/
 		return NULL;
 	}
 
@@ -44,7 +44,7 @@ macro_node_t *constructMacroNode(macro_table_t *tbl, char *macro_name, char *lin
 	}
 
 	if (!(tbl->slot = realloc(tbl->slot, (tbl->size) * sizeof(macro_node_t)))) {
-		report_error(ERR_MACRO_NODE_CREATION_FAILED, line_count, CRIT);    /*critical error*/
+		report_error(ERR_MACRO_NODE_CREATION_FAILED, line_count ,MACL , CRIT);    /*critical error*/
 		return NULL;
 	}
 
@@ -65,7 +65,7 @@ int loadMacroTable(macro_table_t *tbl, char *macro_name, char *line) {
 
 
 	if (!(temp = constructMacroNode(tbl, macro_name, line, 1))) {
-		report_error(ERR_MACRO_NODE_CREATION_FAILED, line_count, CRIT);    /*critical error*/
+		report_error(ERR_MACRO_NODE_CREATION_FAILED, line_count ,MACL , CRIT);    /*critical error*/
 		return 0;
 	}
 
@@ -94,7 +94,7 @@ int expandMacro(macro_table_t *tbl, char *macro_name) {
 void MacroName(macro_node_t *head) {
 	if (head != NULL) {
 		printf("%s\n", head->macro_name);
-	} else report_error(ERR_MACRO_NOT_FOUND, line_count, NON_CRIT);
+	} else report_error(ERR_MACRO_NOT_FOUND, line_count,MACL, NON_CRIT);
 }
 
 int getLengthMacro(macro_table_t *tbl, char *macro_name) {

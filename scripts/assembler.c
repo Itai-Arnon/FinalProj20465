@@ -16,6 +16,7 @@
 
 FILE *fptr_before;
 FILE *fptr_after;
+char *_filename;
 int isError = 0;
 
 int main(int argc, char *argv[]) {
@@ -48,7 +49,7 @@ void manage_files(int _argc, char **_argv, macro_table_t *macro_tbl, symbol_tabl
 
 
 	if (_argc == 1) {
-		report_error(ERR_NO_FILES, line_count, CRIT);
+		report_error(ERR_NO_FILES, line_count ,AS , CRIT);
 		return;
 	}
 	fptr_after = initDestinationPointer(fptr_after, "out.txt", "a+");
@@ -84,13 +85,14 @@ FILE *initSourceFiles(int _argc, char **_argv, FILE *fptr, int index) {
 		strcpy(filename, PATH_BASE);/*TODO no need in linux*/
 		strncat(filename, _argv[index], argv_len); /*TODO arg_c iteration tbd*/
 		printf("%s\n", filename);
+
 		if (!(fptr = fopen(filename, "r"))) {
-			report_error(ERR_FILE_BEFORE, line_count,__FILE__, CRIT);
+			report_error(ERR_FILE_BEFORE, line_count,AS, CRIT);
 			exit(0);
 		} else return fptr;
 
 	} else {
-		report_error(ERR_NO_FILES, line_count, CRIT);
+		report_error(ERR_NO_FILES, line_count ,AS , CRIT);
 		return NULL;
 	}
 }
@@ -104,7 +106,7 @@ FILE *initDestinationPointer(FILE *fptr, char *filename, char mode[]) {
 
 	/* Attempt to open the file for writing*/
 	if (!(fptr = fopen(fname, mode))) {
-		report_error(ERR_FILE_AFTER, line_count, CRIT);
+		report_error(ERR_FILE_AFTER, line_count ,AS , CRIT);
 		exit(0);
 	}
 	/* Return the file pointer if the file was successfully created*/
@@ -126,15 +128,21 @@ void move_one_directory_up(char *path) {
 	}
 }
 
-
-void report_error(char *err, int line_count, char* filename, err_type_t  type)  {
-
-	printf("%s at line %lu| %s\n", err, line_count , strrchr(filename , '/') + 1);
+void setFilename(char *file){
+	strcpy(current_filename,file);
+}
+void report_error(char *err, int line_count,  file_t  fenum, err_type_t  type)  {
+	char *str = calloc(30,sizeof(char));
+	char fname[8][16] = {"assembler.c","macro.c","macro_list.c","symbols.c",
+					 "parser.c","first_pass.c", "second_pass.c", "utils.c"};
 	if (type == CRIT) {
-		printf("Critical Error, Exiting\n");
-		printf("terminating and Freeing Allocation\n");
+
+		printf("%s at line %lu || At: %s\n", err, line_count , fname[fenum]);
+		printf("Critical Error,  terminating and Freeing Allocation\n");
 		isError = 1;
-	} else (printf("%s\n", "NON CRITICAL"));
+	} else
+		printf(" NON CRITICAL %s at line %lu || At: %s\n", err, line_count , fname[fenum]);
+
 
 }
 

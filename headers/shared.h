@@ -65,7 +65,7 @@
 
 
 
-/* front: op code  directive related errors*/
+/* parser: op code  directive related errors*/
 #define ERR_OP_CODE_RECOGNITION "OP CODE NOT RECOGNIZED"
 #define ERR_OP_CODE_FAILED_STRUCTURE "OP Code structure Unrecognized or Not Legal"
 #define ERR_OP_CODE_REGISTRY_ILLEGAL "One or both OP Code register isn't legal"
@@ -80,6 +80,8 @@
 #define ERR_STRING_INVALID  "String Line not recognized"
 #define ERR_EXTERN_ENTRY_ILLEGAL "Illegal Extern or Entry Line"
 #define ERR_EXTERN_ENTRY_SYMBOL "Symbol at the start of Extern or Entry Line"
+#define WAR_EXTERN_ENTRY_SYMBOL "Warning Symbol is Extern and avoided "
+
 /*word_table*/
 
 #define ERR_WORD_TABLE_ALLOCATION "Word Table Creation or Allocation Failed"
@@ -87,6 +89,7 @@
 
 
 
+typedef enum{ AS ,MAC , MACL , SYM , PARS ,FIRST ,SECOND ,UTIL }file_t;
 
 
 typedef enum {

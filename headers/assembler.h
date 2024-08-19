@@ -13,7 +13,7 @@ void move_one_directory_up(char *path);
 FILE *initSourceFiles(int _argc, char **_argv, FILE *fptr, int index);
 FILE *initDestinationPointer(FILE *fptr, char *filename, char mode[]);
 char* addExtension(char *file_name ,char* ext);
-void report_error(char *err, int line_count, char* filename, err_type_t  type);
+void report_error(char *, int ,file_t , err_type_t  );
 void freeWordTable(word_table_t *wordTable);
 void freeWordTable(word_table_t *table);
 void freeSymbolTable(symbol_table_t *symbolTable);

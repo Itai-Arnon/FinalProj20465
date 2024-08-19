@@ -63,7 +63,7 @@ void parse(macro_table_t* macroTable, symbol_table_t* sym_tbl, word_table_t *wor
 
 
 	if (sym_tbl == NULL) {
-		report_error(ERR_FAIL_CREATE_SYMBOL, line_count, CRIT);
+		report_error(ERR_FAIL_CREATE_SYMBOL, line_count ,PARS , CRIT);
 		return;
 	}
 
@@ -75,6 +75,8 @@ void parse(macro_table_t* macroTable, symbol_table_t* sym_tbl, word_table_t *wor
 		initParser();
 		line_count++;
 		buffer = strstrip(buffer);
+
+		if(buffer[0] == '\0') continue;
 
 		/*option label is at start - will identify both label and opcode*/
 		/*scanned how many succesfuly scanned*/
@@ -89,16 +91,16 @@ void parse(macro_table_t* macroTable, symbol_table_t* sym_tbl, word_table_t *wor
 				(scanned = classify_line(cmd_extra));
 				if (scanned == -1) { /*extern end can have a symbol at their heading*/
 					delete_symbol(sym_tbl, parser.symbol_name);
-					report_error(ERR_EXTERN_ENTRY_SYMBOL, line_count, CRIT);
+					report_error(ERR_EXTERN_ENTRY_SYMBOL, line_count ,PARS , NON_CRIT);
 				}
 				if (scanned > 0)
 
 					buffer =  buffer + *pos;
 				else
-					report_error(ERR_DIRECTIVE_RECOGNITION, line_count, CRIT);
+					report_error(ERR_DIRECTIVE_RECOGNITION, line_count ,PARS , CRIT);
 			} else if (classify_line(cmd) > 0)
 				buffer = advance_buffer_if_possible(buffer, cmd);
-		} else report_error(ERR_LINE_UNRECOGNIZED, line_count, CRIT);
+		} else report_error(ERR_LINE_UNRECOGNIZED, line_count ,PARS , CRIT);
 
 
 		result = scanned = buff_len = 0;
@@ -114,7 +116,7 @@ void parse(macro_table_t* macroTable, symbol_table_t* sym_tbl, word_table_t *wor
 					break;
 				/*isError - too many comma | register_count_by_op - no of registers by opcode definition  */
 				if (seperator_c.isError == 1 || seperator_c.counter != register_count_by_op(parser.op))
-					report_error(ERR_OP_CODE_RECOGNITION, line_count, CRIT);
+					report_error(ERR_OP_CODE_RECOGNITION, line_count ,PARS , CRIT);
 
 				/*idx  1 if only destination reg exits , 0 if two regs exist*/
 				idx = (seperator_c.counter == 2) ? 0 : 1;
@@ -124,7 +126,7 @@ void parse(macro_table_t* macroTable, symbol_table_t* sym_tbl, word_table_t *wor
 				}
 				/*if by the opcode registers a valid and if they are different*/
 				if (  checkRegisterCompliance() == 0 || parser.operands[0].operand.registry == parser.operands[1].operand.registry  )
-					report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count, CRIT);
+					report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count ,PARS , CRIT);
 
 				/*Creat symbol a register with direct : labels*/
 				for (idx = 0; idx < seperator_c.counter; idx++) {
@@ -144,7 +146,7 @@ void parse(macro_table_t* macroTable, symbol_table_t* sym_tbl, word_table_t *wor
 					/*check if buffer number count concurs with separator struct|isErrpr has
 					 * error ocuured*/
 					if (seperator_c.isError || seperator_c.counter != numCount)
-						report_error(ERR_DATA_DIRECTIVE_NUMBER, line_count, CRIT);
+						report_error(ERR_DATA_DIRECTIVE_NUMBER, line_count ,PARS , CRIT);
 					/*amount of numbers*/
 					parser.directive.operand.data_len = numCount;
 					/*allocates memory for the numbers*/
@@ -155,7 +157,7 @@ void parse(macro_table_t* macroTable, symbol_table_t* sym_tbl, word_table_t *wor
 						*pos = convertOrCheckStringToNum(directive_str, 0);
 						/*checking bounds of values*/
 						if (*pos < MIN_15Bit_NUM || *pos > MAX_15Bit_NUM)
-							report_error(ERR_DATA_DIRECTIVE_NUMBER, line_count, CRIT);
+							report_error(ERR_DATA_DIRECTIVE_NUMBER, line_count ,PARS , CRIT);
 						/*assigning  the number to the parser*/
 						parser.directive.operand.data[idx] = *pos;
 					}
@@ -163,7 +165,7 @@ void parse(macro_table_t* macroTable, symbol_table_t* sym_tbl, word_table_t *wor
 				} else if (result == STRING) {
 					buff_len = strlen(buffer) - 2;
 					if (processString(buffer, sArr) == 0)
-						report_error(ERR_STRING_QUOTATION_MISSING, line_count, CRIT);
+						report_error(ERR_STRING_QUOTATION_MISSING, line_count ,PARS , CRIT);
 					else {
 						parser.directive.operand.str = (char *) calloc(buff_len, sizeof(char));
 						parser.directive.operand.data_len = buff_len;
@@ -177,24 +179,28 @@ void parse(macro_table_t* macroTable, symbol_table_t* sym_tbl, word_table_t *wor
 					if (sscanf(buffer, "%s%n", cmd , pos) == 1) {
 						buffer +=* pos;
 						if(isRestOfLineEmpty(buffer) == 0)
-							report_error(ERR_OP_CODE_FAILED_STRUCTURE,line_count,CRIT);
-						if ((isSymbol = if_Symbol_if_Duplicate(sym_tbl, cmd, MIDDLE)) == 1)
+							report_error(ERR_OP_CODE_FAILED_STRUCTURE,line_count,PARS ,CRIT);
+						if ((isSymbol = if_Symbol_if_Duplicate(sym_tbl, cmd, MIDDLE)) == 1) {
 							loadSymbolTable(sym_tbl, cmd, 0, _DATA);
+							if(result = EXTERN)
+								report_error(WAR_EXTERN_ENTRY_SYMBOL,line_count,PARS,NON_CRIT);
+						}
 						 if(isSymbol > 0) { /*if the symbol is a duplicant it's still loaded to registry*/
 							parser.directive.operand.symbol = calloc(MAX_SYMBOL_NAME, sizeof(char));
 							strcpy(parser.directive.operand.symbol, cmd);
 							parser.directive.operand.data_len = 1;
+
 						}
 
 					} else
-						report_error(ERR_DIRECTIVE_RECOGNITION, line_count, CRIT);
+						report_error(ERR_DIRECTIVE_RECOGNITION, line_count ,PARS , CRIT);
 				}
 				break;
 			case ERR:
-				report_error(ERR_LINE_UNRECOGNIZED, line_count, CRIT);
+				report_error(ERR_LINE_UNRECOGNIZED, line_count ,PARS , CRIT);
 				break;
 			case TBD:
-				report_error(ERR_DIRECTIVE_RECOGNITION, line_count, CRIT);
+				report_error(ERR_DIRECTIVE_RECOGNITION, line_count ,PARS , CRIT);
 				break;
 			default:
 				break;
@@ -259,7 +265,7 @@ type_of_register_t classifyRegisters(char *str, int first_or_second_operand) {
 		s_ptr = str;
 		while (isdigit(*str++));
 			if (*str)
-				report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count, CRIT);
+				report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count ,PARS , CRIT);
 			else {
 
 				number = convertOrCheckStringToNum(s_ptr, 0);

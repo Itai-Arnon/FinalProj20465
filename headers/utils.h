@@ -26,7 +26,7 @@ int isRestOfLineEmpty(char *);
 int findSeperator(char *str, char sep[], int num_of_sep);
 
 
-int int_to_octal(int num);
+int convertToOctal(int num);
 
 
 void ret_next_word_n_skip(char line_text[], int *offset, char line[], char separators[], int separators_amount);

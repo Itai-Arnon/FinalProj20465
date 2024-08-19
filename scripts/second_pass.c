@@ -19,7 +19,8 @@ void second_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, word_table_
 	symbol_t *symbol1, *symbol2;
 	char * boo;
 
-	printTableToFile(wordTable ,boo );
+	printTableToFile(wordTable , dataTable , boo);
+
 	/*if (isError) {
 		return;
 	}
@@ -31,7 +32,7 @@ void second_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, word_table_
 		if (symbol1 != NULL && symbol1->address == 0) {
 			symbol2 = findSymbol(sym_tbl, symbol1->symbol_name);
 			if (symbol2 == NULL) {
-				report_error(ERR_SYMBOL_NOT_FOUND, line_count, CRIT);
+				report_error(ERR_SYMBOL_NOT_FOUND, line_count ,SECOND , CRIT);
 				return;
 			}
 			if (symbol2->are == E)
@@ -46,20 +47,17 @@ void second_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, word_table_
 	/*checkSymbolsUnique(macroTable,sym_tbl);*/
 }
 
-
-
-
-
 /*check if there are duplicate symbols*/
 	void checkSymbolsUnique(macro_table_t *macro_table, symbol_table_t *sym_table) {
 		macro_node_t *macro;
 		symbol_t *symbol;
+		int i = 0;
 
-		for (int i = 0; i < macro_table->size; ++i) {
+		for ( i = 0; i < macro_table->size; ++i) {
 			macro = &macro_table->slot[i];
 			for (symbol = sym_table->symbol_List; symbol != NULL; symbol = symbol->next_sym) {
 				if (strcmp(macro->macro_name, symbol->symbol_name) == 0) {
-					report_error(ERR_MACRO_NAME_OP_DIRECT_SYMBOL , line_count, CRIT);
+					report_error(ERR_MACRO_NAME_OP_DIRECT_SYMBOL , line_count ,SECOND , CRIT);
 					free(macro);
 					free(symbol);
 					return;
@@ -70,7 +68,7 @@ void second_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, word_table_
 
 	}
 
-int int_to_octal(int num) {
+int convertToOctal(int num) {
 	int ans = 0, y = 1;
 
 	while (num != 0) {
@@ -81,22 +79,25 @@ int int_to_octal(int num) {
 	return ans;
 }
 
-void printTableToFile(word_table_t *table , char* file_name)
+void printTableToFile(word_table_t *wTable ,word_table_t *dTable, char* file_name)
 {
 	int i = 0 , num = 0;
-
-
-	if (table == NULL) {
+	if (wTable == NULL) {
 		return;
 	}
+	printf("\n");
 
-	for (i = 0; i < table->size; i++) {
-		num =  int_to_octal(table->lines[i].word);
-		printf("%04d\t", table->lines[i].line_num); /* Print line number with leading zeros */
-		printf("%04d\t", num);
-		printf("\n");
-		/*printBinary(table->lines[i].word);      */   /* Print word in binary */
+	printf("  %d  %d\n" ,wTable->size , dTable->size);
+	for (i = 0; i < wTable->size; i++) {
+		num =  convertToOctal(wTable->lines[i].word);
+		printf("%05d %05d\n", wTable->lines[i].line_num , num); /* Print line number with leading zeros */
+
 	}
+	for (i = 0; i < dTable->size; i++) {
+		num =  convertToOctal(dTable->lines[i].word);
+		printf("%05d %05d\n", dTable->lines[i].line_num , num);
+	}
+	printf("\n");
 }
 
 

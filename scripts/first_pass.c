@@ -52,10 +52,10 @@ void first_pass(macro_table_t* macroTable,  symbol_table_t *sym_tbl, word_table_
 			}
 			break;
 		case ERR:
-			report_error(ERR_GENERAL_FIRST_PASS_ERROR, line_count, CRIT);
+			report_error(ERR_GENERAL_FIRST_PASS_ERROR, line_count ,FIRST , CRIT);
 			break;
 		case TBD:
-			report_error(ERR_LINE_UNRECOGNIZED, line_count, CRIT);
+			report_error(ERR_LINE_UNRECOGNIZED, line_count ,FIRST , CRIT);
 			break;
 		default:
 			break;
@@ -144,7 +144,7 @@ void setOPCODE_WORDS(symbol_table_t *sym_tbl, word_table_t *table, int idx, int 
 
 		case _DIRECT:
 			symbol2 = findSymbol(sym_tbl, parser.operands[idx].operand.symbol);
-			(symbol2 != NULL) ?: report_error(ERR_SYMBOL_NOT_FOUND, line_count, CRIT);
+			(symbol2 != NULL) ?: report_error(ERR_SYMBOL_NOT_FOUND, line_count ,FIRST , CRIT);
 			set_label_into_empty_word(&(line2->word), symbol2->address);
 			set_ARE_into_word(&(line2->word), A);
 			printf("(INSIDE WORDS |CASE: DIRECT  obj variable: line2||  ptr address  :%p  registry type %d\n", line2,
@@ -174,7 +174,7 @@ void setOPCODE_WORDS(symbol_table_t *sym_tbl, word_table_t *table, int idx, int 
 			}
 			break;
 		case _ERROR:
-			report_error(ERR_REGISTRY_ILLEGAL, line_count, CRIT);
+			report_error(ERR_REGISTRY_ILLEGAL, line_count ,FIRST , CRIT);
 
 		case _TBD:
 			/*default value is TBD*/
@@ -367,7 +367,7 @@ line_t *add_line(word_table_t *table, int ic_num, symbol_t *symbol , EXT_T _ARE)
 	table->size++;
 
 	if (!(new_ptr = (line_t *) realloc(table->lines, (table->size) * sizeof(line_t)))) {
-		report_error(ERR_WORD_TABLE_ALLOCATION, line_count, CRIT);
+		report_error(ERR_WORD_TABLE_ALLOCATION, line_count ,FIRST , CRIT);
 		return NULL;
 	}
 	if (new_ptr != table->lines)

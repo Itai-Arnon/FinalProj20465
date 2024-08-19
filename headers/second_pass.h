@@ -15,6 +15,6 @@ void moveEntryValues(word_table_t *table , symbol_table_t *symbolTable);
 
 /*check if there are duplicate symbols*/
 void checkSymbolsUnique(macro_table_t*,  symbol_table_t *sym_table);
-int int_to_octal(int num);
-void printTableToFile(word_table_t *table , char* file_name);
+int convertToOctal(int num);
+void printTableToFile(word_table_t *wTable ,word_table_t *dTable, char* file_name);
 #endif /*M14_SECOND_PASS_H*/

@@ -44,7 +44,7 @@ void collect_symbol_names(symbol_table_t *sym_tbl) {
 
 
 	if (sym_tbl == NULL) {
-		report_error(ERR_FAIL_CREATE_SYMBOL_TBL, line_count, NON_CRIT);
+		report_error(ERR_FAIL_CREATE_SYMBOL_TBL, line_count,__FILE__, NON_CRIT);
 		return;
 	}
 	while (fgets(buffer, LINE_LENGTH, fptr_before) != NULL) {
@@ -109,7 +109,7 @@ int checkRegisterCount(op_code_t op) {
 		     parser.operands[1].type_of_register == _TBD) ||
 		    (parser.operands[2].type_of_register == _ERROR ||
 		     parser.operands[2].type_of_register == _TBD)) {
-			report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count, CRIT);
+			report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count , __FILE__ , CRIT);
 			return -1;
 		} else return 2;
 	} else if (op >= clr && op <= prn) {
@@ -117,7 +117,7 @@ int checkRegisterCount(op_code_t op) {
 		     parser.operands[0].type_of_register != _TBD) &&
 		    parser.operands[2].type_of_register == _ERROR ||
 		    parser.operands[2].type_of_register == _TBD) {
-			report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count, CRIT);
+			report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count , __FILE__ , CRIT);
 			return -1;
 		} else return 1;
 
@@ -126,7 +126,7 @@ int checkRegisterCount(op_code_t op) {
 		    parser.operands[1].type_of_register != _TBD &&
 		    parser.operands[2].type_of_register != _ERROR &&
 		    parser.operands[2].type_of_register != _TBD) {
-			report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count, CRIT);
+			report_error(ERR_OP_CODE_REGISTRY_ILLEGAL, line_count , __FILE__ , CRIT);
 			return -1;
 		} else return 0;
 	}
@@ -149,7 +149,7 @@ macro_table_t *initMacroTable(macro_table_t *tbl) {
 
 
 	if (!(tbl = malloc(sizeof(macro_table_t)))) {
-		report_error(ERR_MACRO_TABLE_GENERAL_ERROR, line_count, CRIT);    /*critical error*/
+		report_error(ERR_MACRO_TABLE_GENERAL_ERROR, line_count , __FILE__ , CRIT);    /*critical error*/
 		return NULL;
 	}
 
