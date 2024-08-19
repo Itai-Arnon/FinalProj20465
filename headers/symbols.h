@@ -55,7 +55,12 @@ int is_symbol_name_duplicate(symbol_table_t * ,char *);
 int delete_symbol(symbol_table_t *sym_tbl , char *symbol_name);
 
 /*adds value to memory adresses by memory type*/
-void addAddressToSymbols(symbol_table_t *sym_tbl, memory_t type, int value);
+void addConstantToSymbols(symbol_table_t *sym_tbl, memory_t type, int value);
+
+ /* Option 1: Check if symbols of type ARE_T E have the same name as symbols of type ARE_T A.
+ * Option 2: Check if symbols of type ARE_T E have the same name as symbols of type ARE_T R.*/
+int checkExternSymbols(symbol_table_t *table, int option);
+
 
 
 #endif /*M14_SYMBOLS_H*/

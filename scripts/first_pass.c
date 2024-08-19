@@ -31,7 +31,7 @@ void first_pass(macro_table_t* macroTable,  symbol_table_t *sym_tbl, word_table_
 				printf("Stop Occured\n");
 				n  = wordTable->lines[wordTable->size - 1].line_num + 1;
 				printf("n: %d\n", n);
-				addAddressToSymbols(sym_tbl,_DATA, n);
+				addConstantToSymbols(sym_tbl,_DATA, n);
 				addNumberToWordTable(dataTable, n );
 				printTable(wordTable);
 				printTable(dataTable);

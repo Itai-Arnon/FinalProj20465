@@ -10,6 +10,8 @@
 #include "headers/utils.h"
 #include "headers/first_pass.h"
 #include "headers/assembler.h"
+#include "headers/parser.h"
+
 
 char *opcode_names[16] = {"mov", "cmp", "add", "sub", "lea", "clr", "not", "inc", "dec", "jmp",
                           "bne", "red", "prn", "jsr", "rts", "stop"};
@@ -142,7 +144,7 @@ int if_Symbol_if_Duplicate(symbol_table_t *sym_tbl, char *cmd, symbol_loci_t isH
 	switch (isHEadOrMid) {
 		case HEAD:
 			if (cmd[len - 1] != ':') {
-				parser.line_type = ERR;
+				parser.line_type= ERR;
 				return 0;
 			}
 			strncpy(parser.symbol_name, cmd, len - 1);
@@ -214,7 +216,7 @@ int delete_symbol(symbol_table_t *sym_tbl, char *symbol_name) {
 
 /*adds value to memory adresses by memory type*/
 
-void addAddressToSymbols(symbol_table_t *sym_tbl, memory_t type, int value) {
+void addConstantToSymbols(symbol_table_t *sym_tbl, memory_t type, int value) {
 	symbol_t *head = sym_tbl->symbol_List;
 
 	while (head != NULL) {

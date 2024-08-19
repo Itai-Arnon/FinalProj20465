@@ -182,8 +182,7 @@ void parse(macro_table_t* macroTable, symbol_table_t* sym_tbl, word_table_t *wor
 							report_error(ERR_OP_CODE_FAILED_STRUCTURE,line_count,PARS ,CRIT);
 						if ((isSymbol = if_Symbol_if_Duplicate(sym_tbl, cmd, MIDDLE)) == 1) {
 							loadSymbolTable(sym_tbl, cmd, 0, _DATA);
-							if(result = EXTERN)
-								report_error(WAR_EXTERN_ENTRY_SYMBOL,line_count,PARS,NON_CRIT);
+							report_error(WAR_EXTERN_ENTRY_SYMBOL,line_count,PARS,NON_CRIT);
 						}
 						 if(isSymbol > 0) { /*if the symbol is a duplicant it's still loaded to registry*/
 							parser.directive.operand.symbol = calloc(MAX_SYMBOL_NAME, sizeof(char));

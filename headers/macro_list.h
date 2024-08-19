@@ -10,7 +10,7 @@ typedef struct  {
 	char macro_line[LINE_LENGTH];/*holds all contents of macro - dynamically allocated*/
 	int macro_lock;
 	int len;
-} macro_node_t;
+}macro_node_t;
 
 typedef struct {
 	int isEmpty;

@@ -16,7 +16,7 @@
 
 FILE *fptr_before;
 FILE *fptr_after;
-char *_filename;
+char *current_filename;
 int isError = 0;
 
 int main(int argc, char *argv[]) {

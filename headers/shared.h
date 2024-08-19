@@ -80,7 +80,7 @@
 #define ERR_STRING_INVALID  "String Line not recognized"
 #define ERR_EXTERN_ENTRY_ILLEGAL "Illegal Extern or Entry Line"
 #define ERR_EXTERN_ENTRY_SYMBOL "Symbol at the start of Extern or Entry Line"
-#define WAR_EXTERN_ENTRY_SYMBOL "Warning Symbol is Extern and avoided "
+#define WAR_EXTERN_ENTRY_SYMBOL "Warning: Symbol is Extern or Entry"
 
 /*word_table*/
 
