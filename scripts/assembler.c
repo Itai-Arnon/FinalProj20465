@@ -85,7 +85,7 @@ FILE *initSourceFiles(int _argc, char **_argv, FILE *fptr, int index) {
 		strncat(filename, _argv[index], argv_len); /*TODO arg_c iteration tbd*/
 		printf("%s\n", filename);
 		if (!(fptr = fopen(filename, "r"))) {
-			report_error(ERR_FILE_BEFORE, line_count, CRIT);
+			report_error(ERR_FILE_BEFORE, line_count,__FILE__, CRIT);
 			exit(0);
 		} else return fptr;
 
@@ -127,10 +127,9 @@ void move_one_directory_up(char *path) {
 }
 
 
-void report_error(char *err, int line_count, err_type_t type) {
+void report_error(char *err, int line_count, char* filename, err_type_t  type)  {
 
-
-	printf("%s at line %lu\n", err, line_count);
+	printf("%s at line %lu| %s\n", err, line_count , strrchr(filename , '/') + 1);
 	if (type == CRIT) {
 		printf("Critical Error, Exiting\n");
 		printf("terminating and Freeing Allocation\n");

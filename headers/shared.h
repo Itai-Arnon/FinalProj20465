@@ -55,7 +55,7 @@
 #define ERR_MACRO_EXPAND "Error In Macro Expand Definition"
 #define ERR_MACRO_NAME_DUP "Error Duplicate Macro Name"
 #define ERR_MACRO_NOT_FOUND "Cannot find Macro"
-#define ERR_MACRO_NAME_OP_DIRECT_SYMBOL "Macro name is a opcode, a directive or a symbol"
+#define ERR_MACRO_NAME_OP_DIRECT_SYMBOL "Macro name is a opcode, a Directive or a Symbol"
 
 /* symbol table related , symbol.c */
 #define ERR_DUPLICATE_SYMBOL_NAME  "DUPLICATE SYMBOL NAME"

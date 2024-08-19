@@ -18,7 +18,6 @@ int DC;
 /**  out.txt ***/
 void first_pass(macro_table_t* macroTable,  symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataTable) {
 	int result = 0, n = 0;
-/*	IC = 100;*/
 	if(isError) {
 		return;
 	}

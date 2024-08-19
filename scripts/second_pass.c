@@ -51,19 +51,24 @@ void second_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, word_table_
 
 
 /*check if there are duplicate symbols*/
-void checkSymbolsUnique(macro_table_t *macroTable, symbol_table_t *sym_table) {
-	symbol_t *head, *checker;
+	void checkSymbolsUnique(macro_table_t *macro_table, symbol_table_t *sym_table) {
+		macro_node_t *macro;
+		symbol_t *symbol;
 
-
-	for (head = sym_table->symbol_List; head != NULL; head = head->next_sym) {
-		for (checker = head->next_sym; checker != NULL; checker = checker->next_sym) {
-			if (strcmp(head->symbol_name, checker->symbol_name) == 0) {
-				report_error(ERR_DUPLICATE_SYMBOL_NAME, line_count, CRIT);
-				return;
+		for (int i = 0; i < macro_table->size; ++i) {
+			macro = &macro_table->slot[i];
+			for (symbol = sym_table->symbol_List; symbol != NULL; symbol = symbol->next_sym) {
+				if (strcmp(macro->macro_name, symbol->symbol_name) == 0) {
+					report_error(ERR_MACRO_NAME_OP_DIRECT_SYMBOL , line_count, CRIT);
+					free(macro);
+					free(symbol);
+					return;
+				}
 			}
+
 		}
+
 	}
-}
 
 int int_to_octal(int num) {
 	int ans = 0, y = 1;
