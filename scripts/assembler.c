@@ -49,7 +49,7 @@ void manage_files(int _argc, char **_argv, macro_table_t *macro_tbl, symbol_tabl
 
 
 	if (_argc == 1) {
-		report_error(ERR_NO_FILES, line_count ,AS , CRIT);
+		report_error(ERR_NO_FILES, line_count, AS, CRIT, 0);
 		return;
 	}
 	fptr_after = initDestinationPointer(fptr_after, "out.txt", "a+");
@@ -87,12 +87,12 @@ FILE *initSourceFiles(int _argc, char **_argv, FILE *fptr, int index) {
 		printf("%s\n", filename);
 
 		if (!(fptr = fopen(filename, "r"))) {
-			report_error(ERR_FILE_BEFORE, line_count,AS, CRIT);
+			report_error(ERR_FILE_BEFORE, line_count, AS, CRIT, 0);
 			exit(0);
 		} else return fptr;
 
 	} else {
-		report_error(ERR_NO_FILES, line_count ,AS , CRIT);
+		report_error(ERR_NO_FILES, line_count, AS, CRIT, 0);
 		return NULL;
 	}
 }
@@ -106,17 +106,17 @@ FILE *initDestinationPointer(FILE *fptr, char *filename, char mode[]) {
 
 	/* Attempt to open the file for writing*/
 	if (!(fptr = fopen(fname, mode))) {
-		report_error(ERR_FILE_AFTER, line_count ,AS , CRIT);
+		report_error(ERR_FILE_AFTER, line_count, AS, CRIT, 0);
 		exit(0);
 	}
 	/* Return the file pointer if the file was successfully created*/
 	return fptr;
 }
 
-char* addExtension(char *file_name ,char* ext){
-	if(ext[0] != '.')
-		strcat(file_name,".");
-	strcat(file_name,ext);
+char *addExtension(char *file_name, char *ext) {
+	if (ext[0] != '.')
+		strcat(file_name, ".");
+	strcat(file_name, ext);
 	return file_name;
 }
 
@@ -128,20 +128,29 @@ void move_one_directory_up(char *path) {
 	}
 }
 
-void setFilename(char *file){
-	strcpy(current_filename,file);
+void setFilename(char *file) {
+	strcpy(current_filename, file);
 }
-void report_error(char *err, int line_count,  file_t  fenum, err_type_t  type)  {
-	char *str = calloc(30,sizeof(char));
-	char fname[8][16] = {"assembler.c","macro.c","macro_list.c","symbols.c",
-					 "parser.c","first_pass.c", "second_pass.c", "utils.c"};
-	if (type == CRIT) {
 
-		printf("%s at line %lu || At: %s\n", err, line_count , fname[fenum]);
+void report_error(char *err, int line_count, file_t fenum, err_type_t type, int IC_ADDRESS) {
+	char *str = calloc(30, sizeof(char));
+	char fname[8][16] = {"assembler.c", "macro.c", "macro_list.c", "symbols.c",
+	                     "parser.c", "first_pass.c", "second_pass.c", "utils.c"};
+
+	/* case there is a warning with symbols in wordTable*/
+	if ((fenum == FIRST || fenum == SECOND) && IC_ADDRESS > 0 && type == NON_CRIT)
+		printf("%s at WordTable IC  line %lu || At: %s\n", WAR_MEMORY_NOT_CONFIGURED, IC_ADDRESS, line_count,
+		       fname[fenum]);
+		/* case there is an error with symbols in wordTable*/
+	else if ((fenum == FIRST || fenum == SECOND) && IC_ADDRESS > 0 && type == CRIT )
+			printf("%s at WordTable IC  line %lu || At: %s\n", ERR_MEMORY_NOT_CONFIGURED, IC_ADDRESS, line_count,
+			       fname[fenum]);
+	else if (type == CRIT) {
+		printf("%s at line %lu || At: %s\n", err, line_count, fname[fenum]);
 		printf("Critical Error,  terminating and Freeing Allocation\n");
 		isError = 1;
 	} else
-		printf(" NON CRITICAL %s at line %lu || At: %s\n", err, line_count , fname[fenum]);
+		printf(" NON CRITICAL %s at line %lu || At: %s\n", err, line_count, fname[fenum]);
 
 
 }

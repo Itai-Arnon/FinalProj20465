@@ -164,7 +164,7 @@ int convertOrCheckStringToNum(char *str, convert_func_t type) {
 	switch (type) {
 		case 0:
 			if (*endtoken != '\0') {
-				report_error(ERR_FAILED_TO_CONVERT_NUMBER, line_count ,UTIL , CRIT);
+				report_error(ERR_FAILED_TO_CONVERT_NUMBER, line_count ,UTIL , CRIT ,0);
 			} else
 				return (int) num;
 		case 1:

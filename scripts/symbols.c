@@ -64,7 +64,7 @@ void print_symbol_table(symbol_table_t *sym_tbl) {
 symbol_table_t *init_symbol_table(symbol_table_t *sym_tbl) {
 
 	if(!(sym_tbl = calloc(1, sizeof(symbol_table_t)))){
-		report_error(ERR_FAIL_CREATE_SYMBOL_TBL, line_count ,SYM , CRIT);
+		report_error(ERR_FAIL_CREATE_SYMBOL_TBL, line_count ,SYM , CRIT ,0);
 		return NULL;
 	}
 		sym_tbl->size = 0;
@@ -98,7 +98,7 @@ symbol_t *create_symbol(symbol_table_t *sym_tbl, char symbol_name[], int address
 		LEN -= 1;
 	/*check similarity with opcodes and directives*/
 	if (is_symbol_name_duplicate(sym_tbl, symbol_name) == 1) {
-		report_error(ERR_DUPLICATE_SYMBOL_NAME, line_count ,SYM , CRIT);
+		report_error(ERR_DUPLICATE_SYMBOL_NAME, line_count ,SYM , CRIT ,0);
 		return NULL;
 	}
 
@@ -111,7 +111,7 @@ symbol_t *create_symbol(symbol_table_t *sym_tbl, char symbol_name[], int address
 		node->next_sym = NULL;
 		return node;
 	}
-	report_error(ERR_FAIL_CREATE_SYMBOL, line_count ,SYM , CRIT);
+	report_error(ERR_FAIL_CREATE_SYMBOL, line_count ,SYM , CRIT ,0);
 	return NULL;
 }
 

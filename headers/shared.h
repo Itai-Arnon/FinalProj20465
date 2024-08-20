@@ -83,10 +83,11 @@
 #define WAR_EXTERN_ENTRY_SYMBOL "Warning: Symbol is Extern or Entry"
 
 /*word_table*/
-
+/*pass one and two*/
 #define ERR_WORD_TABLE_ALLOCATION "Word Table Creation or Allocation Failed"
 #define ERR_GENERAL_FIRST_PASS_ERROR "General First Pass Error"
-
+#define WAR_MEMORY_NOT_CONFIGURED "Warning Memory Not Configured"
+#define ERR_MEMORY_NOT_CONFIGURED "Error Symbol Memory Not Configured"
 
 
 typedef enum{ AS ,MAC , MACL , SYM , PARS ,FIRST ,SECOND ,UTIL }file_t;

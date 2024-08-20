@@ -13,9 +13,6 @@
 #include "headers/first_pass.h"
 #include "headers/assembler.h"
 
-IC = 0;
-DC = 0;
-
 
 void second_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataTable) {
 	word_table_t *eTable; /*entry table*/
@@ -23,6 +20,10 @@ void second_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, word_table_
 	symbol_t *symbol1, *symbol2;
 	char *boo;
 	int idx, result = 0, n = 0;
+
+	IC = 0;
+	DC = 0;
+
 
 	switch (parser.line_type) {
 		case OP_CODE:
@@ -50,10 +51,10 @@ void second_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, word_table_
 			}
 			break;
 		case ERR:
-			report_error(ERR_GENERAL_FIRST_PASS_ERROR, line_count ,SECOND , CRIT);
+			report_error(ERR_GENERAL_FIRST_PASS_ERROR, line_count ,SECOND , CRIT ,0);
 			break;
 		case TBD:
-			report_error(ERR_LINE_UNRECOGNIZED, line_count ,SECOND , CRIT);
+			report_error(ERR_LINE_UNRECOGNIZED, line_count ,SECOND , CRIT ,0);
 			break;
 		default:
 			break;
@@ -77,7 +78,7 @@ print_symbol_table(sym_tbl);
 		if (symbol1 != NULL && symbol1->address == 0) {
 			symbol2 = findSymbol(sym_tbl, symbol1->symbol_name);
 			if (symbol2 == NULL) {
-				report_error(ERR_SYMBOL_NOT_FOUND, line_count ,SECOND , CRIT);
+				report_error(ERR_SYMBOL_NOT_FOUND, line_count ,SECOND , CRIT ,0);
 				return;
 			}
 			if (symbol2->are == E)
@@ -103,9 +104,10 @@ void checkOPCODE_INSTRUCTION(symbol_table_t *sym_tbl, word_table_t *table) {
 	IC++;
 	printf("IC: %d\n", IC);
 	if (symbol != NULL) {
-		symbol->address = IC;
-		symbol->type = _INSTRUCTION;
-		symbol->are = A;
+		/*notifies about address problem*/
+		if (symbol->address < 100)
+			report_error(WAR_MEMORY_NOT_CONFIGURED, line_count, SECOND, NON_CRIT, symbol->address);
+
 	}
 	printf("INSIDE OPCODE LINE1 ptr VALUE :%p\n", line1);
 	switch (register_count_by_op(parser.op)) {
@@ -123,11 +125,7 @@ void checkOPCODE_INSTRUCTION(symbol_table_t *sym_tbl, word_table_t *table) {
 			break;
 		case 2:
 
-			set_opcode_into_word(&(line1->word), parser.op);
-			set_ARE_into_word(&(line1->word), A);
-			set_operand_type_into_word(&(line1->word), DESTINATION, parser.operands[0].type_of_register);
-			set_operand_type_into_word(&(line1->word), SOURCE, parser.operands[1].type_of_register);
-			printf("INSIDE OPCODE  case 2 registries and opcode");
+
 			printBinary(line1->word);
 
 			/*INDIRECT and DIRECT Register are set only once to setOPCODE_WORDS register selection decides*/
@@ -152,7 +150,7 @@ void checkOPCODE_WORDS(symbol_table_t *sym_tbl, word_table_t *table, int idx, in
 	symbol_t *symbol2 = NULL;
 	line_t *line2 = &table->lines[IC];
 	printf("line2 :%p  registry %d\n", line2, parser.operands[idx].type_of_register);
-	unsigned short num;
+
 	IC++;
 	switch (parser.operands[idx].type_of_register) {
 		case _IMMEDIATE:
@@ -163,7 +161,12 @@ void checkOPCODE_WORDS(symbol_table_t *sym_tbl, word_table_t *table, int idx, in
 
 		case _DIRECT:
 			symbol2 = findSymbol(sym_tbl, parser.operands[idx].operand.symbol);
-			(symbol2 != NULL) ?: report_error(ERR_SYMBOL_NOT_FOUND, line_count , SECOND , CRIT);
+			if(symbol2 != NULL)
+				if(symbol2->address < 100)
+					report_error(WAR_MEMORY_NOT_CONFIGURED,line_count, SECOND, CRIT, symbol2->address);
+				else
+				report_error(ERR_SYMBOL_NOT_FOUND, line_count , SECOND , CRIT ,0);
+
 			set_label_into_empty_word(&(line2->word), symbol2->address);
 			
 			printf("(INSIDE WORDS |CASE: DIRECT  obj variable: line2||  ptr address  :%p  registry type %d\n", line2,
@@ -189,7 +192,7 @@ void checkOPCODE_WORDS(symbol_table_t *sym_tbl, word_table_t *table, int idx, in
 			}
 			break;
 		case _ERROR:
-			report_error(ERR_REGISTRY_ILLEGAL, line_count ,SECOND , CRIT);
+			report_error(ERR_REGISTRY_ILLEGAL, line_count ,SECOND , CRIT ,0);
 
 		case _TBD:
 			/*default value is TBD*/
@@ -276,7 +279,7 @@ void checkSymbolsUnique(macro_table_t *macro_table, symbol_table_t *sym_table) {
 		m = &macro_table->slot[i];
 		for (symbol = sym_table->symbol_List; symbol != NULL; symbol = symbol->next_sym) {
 			if (strcmp(m->macro_name, symbol->symbol_name) == 0) {
-				report_error(ERR_MACRO_NAME_OP_DIRECT_SYMBOL, line_count, SECOND, CRIT);
+				report_error(ERR_MACRO_NAME_OP_DIRECT_SYMBOL, line_count, SECOND, CRIT ,0);
 				free(m);
 				free(symbol);
 				return;

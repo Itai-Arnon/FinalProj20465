@@ -25,7 +25,7 @@ void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 	line_count = 0;
 
 	if (tbl == NULL || sym_tbl == NULL) {
-		report_error(ERR_MACRO_TABLE_GENERAL_ERROR, line_count ,FIRST , CRIT);
+		report_error(ERR_MACRO_TABLE_GENERAL_ERROR, line_count ,FIRST , CRIT ,0);
 		return;
 	}
 
@@ -49,7 +49,7 @@ void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 		/*check if sentence is too long */
 		/*find \n in mid sentence means lenght illegal*/
 		if (findSeperator(buffer, "\n", 1) == 1) {
-			report_error(ERR_LINE_LENGTH, line_count,MAC, NON_CRIT);
+			report_error(ERR_LINE_LENGTH, line_count,MAC, CRIT ,0);
 			continue;
 		}
 
@@ -57,11 +57,11 @@ void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 			case MACRO_START:
 				printf("REPORT: macro_start  at line %d\n", line_count);
 				if (dupNameExistsInTable(tbl, macro_name,1) == 1)
-					report_error(ERR_MACRO_NAME_DUP, line_count ,MAC , CRIT);    /*critical error*/
+					report_error(ERR_MACRO_NAME_DUP, line_count ,MAC , CRIT ,0);    /*critical error*/
 				if (tbl->isMacroOpen == 0 && tbl->amount < tbl->size)
 					tbl->isMacroOpen = 1;
 				else
-					report_error(ERR_MACRO_PERMISSION, line_count,MAC ,NON_CRIT);
+					report_error(ERR_MACRO_PERMISSION, line_count,MAC ,CRIT ,0);
 				break;
 			case MACRO_END:
 				printf("REPORT: macro_end %d\n", line_count);
@@ -103,7 +103,7 @@ int typeofline(macro_table_t *tbl, char *line, char *macro_name, symbol_table_t 
 
 	if (sscanf(buffer, "%s%n", start, &pos) == 1) {
 		if (!checkLegalName(start, ALPHANUM_COMBINED)) {
-			report_error(ERR_MACRO_NAME_WRONG, line_count ,MAC , CRIT);
+			report_error(ERR_MACRO_NAME_WRONG, line_count ,MAC , CRIT ,0);
 			return (MACRO_ERROR);
 		} else if (checkMacroStart(buffer, start, macro_name, pos, sym_tbl))
 			return MACRO_START;
@@ -136,18 +136,18 @@ int checkMacroStart(char *buffer, char *start, char *macro_name, int pos, symbol
 			str = str + pos + 1;
 
 			if (strlen(macro_n) >= MAX_MACRO_NAME) {
-				report_error(ERR_MACRO_NAME_LONG, line_count ,MAC , CRIT);/*critical error*/
+				report_error(ERR_MACRO_NAME_LONG, line_count ,MAC , CRIT ,0);/*critical error*/
 				return 0;
 			}
 			/*macro named identified check if contiuation of buffer is empty*/
 			if (!(isRestOfLineEmpty(str))) {
-				report_error(ERR_START_MACRO_DEF, line_count ,MAC , CRIT);  /* critical wait for macro check*/
+				report_error(ERR_START_MACRO_DEF, line_count ,MAC , CRIT ,0);  /* critical wait for macro check*/
 				return 0;
 			}
 			/*final filtering for isMacroStart, test for duplicates*/
 			strcpy(macro_name, macro_n);/*only place in use by typeofline*/
 			if (macro_name_duplicate(macro_name, sym_tbl) == 1) {
-				report_error(ERR_MACRO_NAME_OP_DIRECT_SYMBOL, line_count ,MAC , CRIT);
+				report_error(ERR_MACRO_NAME_OP_DIRECT_SYMBOL, line_count ,MAC , CRIT ,0);
 				return 0;
 			}
 			return 1;/*line with name is correct*/
@@ -162,7 +162,7 @@ int checkMacroEnd(char *buffer, char *start, int pos) {
 		str = str + pos;
 
 		if (!(isRestOfLineEmpty(str))) {
-			report_error(ERR_MACRO_END, line_count ,MAC , CRIT);
+			report_error(ERR_MACRO_END, line_count ,MAC , CRIT ,0);
 			return 0;
 		} else {
 			return 1;
@@ -184,7 +184,7 @@ int checkMacroExpand(macro_table_t *tbl, char *buffer, char *start, char *macro_
 
 		else {
 			/*macro name is the single word allowed on macro expand*/
-			report_error(ERR_MACRO_EXPAND, line_count ,MAC , CRIT);
+			report_error(ERR_MACRO_EXPAND, line_count ,MAC , CRIT ,0);
 			return 0;
 		}
 
