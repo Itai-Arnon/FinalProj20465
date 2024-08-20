@@ -16,11 +16,12 @@
 char *opcode_names[16] = {"mov", "cmp", "add", "sub", "lea", "clr", "not", "inc", "dec", "jmp",
                           "bne", "red", "prn", "jsr", "rts", "stop"};
 
-char *directives[4] = {".data", ".string",  ".entry" ,".extern"};
+char *directives[4] = {".data", ".string", ".entry", ".extern"};
+
 
 
 /* todo 0 failure 1:success*/
-int loadSymbolTable(symbol_table_t *sym_tbl, char symbol_name[], int address, memory_t type) {
+int loadSymbolTable(symbol_table_t *sym_tbl, char symbol_name[], int address, memory_t type ,) {
 	int res = 0;
 	symbol_t *end = sym_tbl->symbol_List;
 	symbol_t *node = create_symbol(sym_tbl, symbol_name, address, type);/*create symbols takes care of error*/
@@ -40,6 +41,31 @@ int loadSymbolTable(symbol_table_t *sym_tbl, char symbol_name[], int address, me
 
 	return 1;
 }
+
+/*adds an existatn symbol to a table*/
+int addSymbolToTable(symbol_table_t *table, symbol_t *_symbol) {
+	symbol_t *head;
+
+	if (table == NULL) {
+		return 0;
+	}
+	head = table->symbol_List;
+
+	if (head == NULL) {
+		table->symbol_List = _symbol;
+		return 1;
+	}
+	else {
+		while (head->next_sym != NULL) {
+			head = head->next_sym;
+		}
+		head->next_sym = _symbol;
+	}
+	return 1;
+
+
+}
+
 
 void print_symbol_table(symbol_table_t *sym_tbl) {
 	symbol_t *head = NULL;
@@ -63,14 +89,14 @@ void print_symbol_table(symbol_table_t *sym_tbl) {
 
 symbol_table_t *init_symbol_table(symbol_table_t *sym_tbl) {
 
-	if(!(sym_tbl = calloc(1, sizeof(symbol_table_t)))){
-		report_error(ERR_FAIL_CREATE_SYMBOL_TBL, line_count ,SYM , CRIT ,0);
+	if (!(sym_tbl = calloc(1, sizeof(symbol_table_t)))) {
+		report_error(ERR_FAIL_CREATE_SYMBOL_TBL, line_count, SYM, CRIT, 0);
 		return NULL;
 	}
-		sym_tbl->size = 0;
-		sym_tbl->symbol_List = NULL;
+	sym_tbl->size = 0;
+	sym_tbl->symbol_List = NULL;
 
-		return sym_tbl;
+	return sym_tbl;
 
 }
 
@@ -98,7 +124,7 @@ symbol_t *create_symbol(symbol_table_t *sym_tbl, char symbol_name[], int address
 		LEN -= 1;
 	/*check similarity with opcodes and directives*/
 	if (is_symbol_name_duplicate(sym_tbl, symbol_name) == 1) {
-		report_error(ERR_DUPLICATE_SYMBOL_NAME, line_count ,SYM , CRIT ,0);
+		report_error(ERR_DUPLICATE_SYMBOL_NAME, line_count, SYM, CRIT, 0);
 		return NULL;
 	}
 
@@ -111,7 +137,7 @@ symbol_t *create_symbol(symbol_table_t *sym_tbl, char symbol_name[], int address
 		node->next_sym = NULL;
 		return node;
 	}
-	report_error(ERR_FAIL_CREATE_SYMBOL, line_count ,SYM , CRIT ,0);
+	report_error(ERR_FAIL_CREATE_SYMBOL, line_count, SYM, CRIT, 0);
 	return NULL;
 }
 
@@ -144,7 +170,7 @@ int if_Symbol_if_Duplicate(symbol_table_t *sym_tbl, char *cmd, symbol_loci_t isH
 	switch (isHEadOrMid) {
 		case HEAD:
 			if (cmd[len - 1] != ':') {
-				parser.line_type= ERR;
+				parser.line_type = ERR;
 				return 0;
 			}
 			strncpy(parser.symbol_name, cmd, len - 1);
@@ -210,8 +236,6 @@ int delete_symbol(symbol_table_t *sym_tbl, char *symbol_name) {
 
 	return 0; /*not found*/
 }
-
-
 
 
 /*adds value to memory adresses by memory type*/

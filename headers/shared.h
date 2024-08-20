@@ -79,15 +79,17 @@
 #define ERR_STRING_QUOTATION_MISSING "String Quotations missing or characters invalid"
 #define ERR_STRING_INVALID  "String Line not recognized"
 #define ERR_EXTERN_ENTRY_ILLEGAL "Illegal Extern or Entry Line"
-#define ERR_EXTERN_ENTRY_SYMBOL "Symbol at the start of Extern or Entry Line"
-#define WAR_EXTERN_ENTRY_SYMBOL "Warning: Symbol is Extern or Entry"
+#define
 
 /*word_table*/
 /*pass one and two*/
 #define ERR_WORD_TABLE_ALLOCATION "Word Table Creation or Allocation Failed"
 #define ERR_GENERAL_FIRST_PASS_ERROR "General First Pass Error"
 #define WAR_MEMORY_NOT_CONFIGURED "Warning Memory Not Configured"
-#define ERR_MEMORY_NOT_CONFIGURED "Error Symbol Memory Not Configured"
+#define ERR_MEMORY_NOT_CONFIGURED "Error Symbol Memory Not Configure "
+#define WAR_EXTERN_ENTRY_SYMBOL "Warning: Symbol is Extern or Entry"
+#define ERR_EXTERN_SYMBOL "Symbol for Extern Does Not Exist"
+
 
 
 typedef enum{ AS ,MAC , MACL , SYM , PARS ,FIRST ,SECOND ,UTIL }file_t;
@@ -132,6 +134,6 @@ typedef enum{CRIT,NON_CRIT}err_type_t;
 /*meant to decipher between reg behvior*/
 
 typedef enum { _IMMEDIATE = 0 , _DIRECT  ,_INDIRECT  , _REGULAR  , _ERROR   , _TBD /*5*/ }type_of_register_t;
-typedef enum{ _INSTRUCTION , _DATA}memory_t;
+typedef enum{ _INSTRUCTION , _DATA, _ENTRY , _EXTERN }memory_t;
 
 #endif

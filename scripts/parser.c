@@ -80,7 +80,7 @@ void parse(macro_table_t *macroTable, symbol_table_t *sym_tbl, word_table_t *wor
 		/*scanned how many succesfuly scanned*/
 		if (sscanf(buffer, "%s", cmd) == 1) {
 			switch (if_Symbol_if_Duplicate(sym_tbl, cmd, HEAD)) {
-				/*returns 1 if symbol non existent*/
+				/*returns 1 if symbol not in the table*/
 				case 1:
 					loadSymbolTable(sym_tbl, cmd, 0, _INSTRUCTION);
 					buffer = advance_buffer_if_possible(buffer, cmd);
@@ -88,15 +88,16 @@ void parse(macro_table_t *macroTable, symbol_table_t *sym_tbl, word_table_t *wor
 				case 2: /*doesn't add symbol */
 					sscanf(buffer, "%s%n", cmd_extra, pos);/*check 2nd argument*/
 					(scanned = classify_line(cmd_extra));/*identifies opcode or directives*/
-					if (scanned == -1) { /*extern end cannot have a symbol at their heading*/
+					if (scanned == -1) { /*extern and entry heading symbol should be ignored*/
 						delete_symbol(sym_tbl, parser.symbol_name);/*deletes the symbol that was made*/
-						report_error(ERR_EXTERN_ENTRY_SYMBOL, line_count, PARS, NON_CRIT, 0);
+						report_error(WAR_EXTERN_ENTRY_SYMBOL, line_count, PARS, NON_CRIT, 0);
 					}
 					if (scanned > 0)
 						buffer = buffer + *pos;
 					else
 						report_error(ERR_DIRECTIVE_RECOGNITION, line_count, PARS, CRIT, 0);
-					break; /*end of case 1 & 2*/
+					/*end of case 1 & 2*/
+					break;
 				case 0:
 					if (classify_line(cmd) > 0)
 						buffer = advance_buffer_if_possible(buffer, cmd);
@@ -104,7 +105,6 @@ void parse(macro_table_t *macroTable, symbol_table_t *sym_tbl, word_table_t *wor
 
 			}
 		}else report_error(ERR_LINE_UNRECOGNIZED, line_count, PARS, CRIT, 0);
-
 
 					result = scanned = buff_len = 0;
 					buffer = strstrip(buffer);
@@ -187,7 +187,7 @@ void parse(macro_table_t *macroTable, symbol_table_t *sym_tbl, word_table_t *wor
 									if (isRestOfLineEmpty(buffer) == 0)
 										report_error(ERR_OP_CODE_FAILED_STRUCTURE, line_count, PARS, CRIT, 0);
 									if ((isSymbol = if_Symbol_if_Duplicate(sym_tbl, cmd, MIDDLE)) == 1) {
-										loadSymbolTable(sym_tbl, cmd, 0, _DATA);
+										loadSymbolTable(sym_tbl, cmd, 0, (result == ENTRY)? _ENTRY:_EXTERN);
 										report_error(WAR_EXTERN_ENTRY_SYMBOL, line_count, PARS, CRIT, 0);
 									}
 									if (isSymbol > 0) { /*if the symbol is a duplicant it's still loaded to registry*/

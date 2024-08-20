@@ -60,7 +60,7 @@ int checkMacroExpand(macro_table_t *tbl, char *line, char *start, char *macro_na
  */
 int checkEOFInBuffer(char* buffer);
 /*check if macro name has opcode directive or  symbol*/
-int macro_name_duplicate(char*, symbol_table_t*);
+int macro_name_duplicate(char*);
 
 #endif /*MACRO_H*/
 

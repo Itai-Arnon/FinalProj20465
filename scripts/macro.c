@@ -146,7 +146,7 @@ int checkMacroStart(char *buffer, char *start, char *macro_name, int pos, symbol
 			}
 			/*final filtering for isMacroStart, test for duplicates*/
 			strcpy(macro_name, macro_n);/*only place in use by typeofline*/
-			if (macro_name_duplicate(macro_name, sym_tbl) == 1) {
+			if (macro_name_duplicate(macro_name) == 1) {
 				report_error(ERR_MACRO_NAME_OP_DIRECT_SYMBOL, line_count ,MAC , CRIT ,0);
 				return 0;
 			}
@@ -207,7 +207,7 @@ int checkEOFInBuffer(char *buffer) {
 
 /*checks only opcode and directive*/
 /*symbols will be checked in 2nd pass*/
-int macro_name_duplicate(char *macro_name, symbol_table_t *sym_tbl) {
+int macro_name_duplicate(char *macro_name) {
 	int j = 0;
 
 

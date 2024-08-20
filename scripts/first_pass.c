@@ -249,21 +249,18 @@ void set_STRING_WORDS(symbol_table_t *sym_tbl, word_table_t *table) {
 void set_EXTnEntry(symbol_table_t *sym_tbl,symbol_table_t *entry_sym_tbl,  word_table_t *table) {
 	symbol_t *symbol = findSymbol(sym_tbl, parser.directive.operand.symbol);
 	line_t *line = NULL;
-	int i = 0;
 	ARE_T are = (parser.directive.cmd == EXTERN) ? E : R;
 	EXT_T _ARE = (parser.directive.cmd == EXTERN) ? _EX : _EN;
 
-
 	if (symbol != NULL) {
 		symbol->address = DC + 1; /*considers in advanced the creation of line*/
-		symbol->type = _DATA;
+		symbol->type = (parser.directive.cmd == EXTERN) ? _EXTERN:_ENTRY;
 		symbol->are = are;
 	}
 
 	switch(parser.directive.cmd) {
 
 		case EXTERN:
-
 		line = add_line(table, DC, symbol, _ARE);
 		line->_ARE = _ARE;
 		/*in case EXTERN we are done, label address is zero*/
@@ -275,7 +272,7 @@ void set_EXTnEntry(symbol_table_t *sym_tbl,symbol_table_t *entry_sym_tbl,  word_
 
 		case ENTRY:
 			if(symbol!=NULL){
-				loadSymbolTable(entry_sym_tbl,symbol->symbol_name , symbol->address ,_DATA);
+				loadSymbolTable(entry_sym_tbl,symbol->symbol_name , symbol->address ,_ENTRY);
 			}
 
 	}

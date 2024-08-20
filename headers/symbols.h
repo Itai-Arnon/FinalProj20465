@@ -60,7 +60,7 @@ void addConstantToSymbols(symbol_table_t *sym_tbl, memory_t type, int value);
  /* Option 1: Check if symbols of type ARE_T E have the same name as symbols of type ARE_T A.
  * Option 2: Check if symbols of type ARE_T E have the same name as symbols of type ARE_T R.*/
 int checkExternSymbols(symbol_table_t *table, int option);
-
-
+/*adds an existatn symbol to a table*/
+int addSymbolToTable(symbol_table_t *table, symbol_t *_symbol);
 
 #endif /*M14_SYMBOLS_H*/
