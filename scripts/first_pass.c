@@ -18,6 +18,12 @@ int DC;
 /**  out.txt ***/
 void first_pass(macro_table_t* macroTable,  symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataTable) {
 	int result = 0, n = 0;
+	symbol_table_t *entrySTable = NULL;
+
+	entrySTable = init_symbol_table(entrySTable);
+
+
+
 	if(isError) {
 		return;
 	}
@@ -47,7 +53,7 @@ void first_pass(macro_table_t* macroTable,  symbol_table_t *sym_tbl, word_table_
 
 
 			} else if (result == ENTRY || result == EXTERN) {
-				set_EXTnEntry(sym_tbl, dataTable);
+				set_EXTnEntry(sym_tbl, entrySTable, dataTable);
 
 			}
 			break;
@@ -146,7 +152,7 @@ void setOPCODE_WORDS(symbol_table_t *sym_tbl, word_table_t *table, int idx, int 
 			symbol2 = findSymbol(sym_tbl, parser.operands[idx].operand.symbol);
 			(symbol2 != NULL) ?: report_error(ERR_SYMBOL_NOT_FOUND, line_count ,FIRST , CRIT,IC);
 			set_label_into_empty_word(&(line2->word), symbol2->address);
-			set_ARE_into_word(&(line2->word), A);
+			set_ARE_into_word(&(line2->word), R);
 			printf("(INSIDE WORDS |CASE: DIRECT  obj variable: line2||  ptr address  :%p  registry type %d\n", line2,
 			       parser.operands[idx].type_of_register);
 			printBinary(line2->word);
@@ -240,31 +246,42 @@ void set_STRING_WORDS(symbol_table_t *sym_tbl, word_table_t *table) {
 
 }
 /*sets the entry or extern word*/
-void set_EXTnEntry(symbol_table_t *sym_tbl, word_table_t *table) {
+void set_EXTnEntry(symbol_table_t *sym_tbl,symbol_table_t *entry_sym_tbl,  word_table_t *table) {
 	symbol_t *symbol = findSymbol(sym_tbl, parser.directive.operand.symbol);
 	line_t *line = NULL;
 	int i = 0;
 	ARE_T are = (parser.directive.cmd == EXTERN) ? E : R;
 	EXT_T _ARE = (parser.directive.cmd == EXTERN) ? _EX : _EN;
 
+
 	if (symbol != NULL) {
 		symbol->address = DC + 1; /*considers in advanced the creation of line*/
 		symbol->type = _DATA;
 		symbol->are = are;
 	}
-/* unlike the rest |symbol is a registry*/
 
-	line = add_line(table, DC, symbol, _ARE);
-	line->_ARE = _ARE;
-	/*in case EXTERN we are done, no info goes to the word*/
-	if (are == R) {
-		set_label_into_empty_word(&(line->word), DC);
+	switch(parser.directive.cmd) {
+
+		case EXTERN:
+
+		line = add_line(table, DC, symbol, _ARE);
+		line->_ARE = _ARE;
+		/*in case EXTERN we are done, label address is zero*/
+
+
+		printf(" Extern object address  :%p\n", line);
+		printf("CASE EXTERN we are done word is zeroes \n ");
+		printBinary(line->word);
+
+		case ENTRY:
+			if(symbol!=NULL){
+				loadSymbolTable(entry_sym_tbl,symbol->symbol_name , symbol->address ,_DATA);
+			}
+
 	}
-	printf("Entry Or Extern object address  :%p\n", line);
-	printf("CASE EXTERN we are done word is zeroes \n ");
-	printf("CASE ENTRY if we don't have the address we'll look at it in the 2nd pass  \n ");
-	printBinary(line->word);
 }
+
+
 
 
 int registerSelection() {

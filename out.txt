@@ -1,6 +1,7 @@
-mov r1,r2
-mov r1,r2
-mov r1,r2
-mov r1,r2
-mov r1,r2
+SA: mov r1,r2
+mov r1,SA
+mov r1,SA
+mov r1,SA
+mov r1,SA
+mov r1,SA
 stop

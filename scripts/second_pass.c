@@ -112,7 +112,6 @@ void checkOPCODE_INSTRUCTION(symbol_table_t *sym_tbl, word_table_t *table) {
 	printf("INSIDE OPCODE LINE1 ptr VALUE :%p\n", line1);
 	switch (register_count_by_op(parser.op)) {
 		case 0:
-			
 			printf(" 2nd Pass OPCODE: 0 registries\n");
 			printBinary(line1->word);
 			break;
