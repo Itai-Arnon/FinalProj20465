@@ -18,9 +18,9 @@ int DC;
 /**  out.txt ***/
 void first_pass(macro_table_t* macroTable,  symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataTable) {
 	int result = 0, n = 0;
-	symbol_table_t *entrySTable = NULL;
+	symbol_table_t *entryTable = NULL;
 
-	entrySTable = init_symbol_table(entrySTable);
+	entryTable = init_symbol_table(entryTable);
 
 
 
@@ -33,28 +33,15 @@ void first_pass(macro_table_t* macroTable,  symbol_table_t *sym_tbl, word_table_
 		case OP_CODE:
 			printf("registry%d\n",parser.operands[1].operand.registry);
 			setOPCODE_INSTRUCTION(sym_tbl, wordTable);
-			if (parser.op == stop) {
-				printf("Stop Occured\n");
-				n  = wordTable->lines[wordTable->size - 1].line_num + 1;
-				printf("n: %d\n", n);
-				addConstantToSymbols(sym_tbl,_DATA, n);
-				addNumberToWordTable(dataTable, n );
-				printTable(wordTable);
-				printTable(dataTable);
-				second_pass(macroTable, sym_tbl, wordTable, dataTable);
-			}
 			break;
 		case DIRECTIVE:
 			if ((result = parser.directive.cmd) == DATA) {
 				set_DATA_WORDS(sym_tbl, dataTable);
-
 			} else if (result == STRING) {
 				set_STRING_WORDS(sym_tbl, dataTable);
 
-
 			} else if (result == ENTRY || result == EXTERN) {
-				set_EXTnEntry(sym_tbl, entrySTable, dataTable);
-
+				set_EXTnEntry(sym_tbl, entryTable, dataTable);
 			}
 			break;
 		case ERR:
@@ -66,6 +53,7 @@ void first_pass(macro_table_t* macroTable,  symbol_table_t *sym_tbl, word_table_
 		default:
 			break;
 	}
+	second_pass(macroTable, sym_tbl, entryTable,  wordTable, dataTable);
 }
 
 /*sets the instruction word and the send to othre func to set other words*/
@@ -81,7 +69,6 @@ void setOPCODE_INSTRUCTION(symbol_table_t *sym_tbl, word_table_t *table) {
 	if (symbol != NULL) {
 		symbol->address = IC;
 		symbol->type = _INSTRUCTION;
-		symbol->are = A;
 	}
 	printf("INSIDE OPCODE LINE1 ptr VALUE :%p\n", line1);
 	switch (register_count_by_op(parser.op)) {
@@ -201,7 +188,6 @@ void set_DATA_WORDS(symbol_table_t *sym_tbl, word_table_t *table) {
 	if (symbol != NULL) {
 		symbol->address = DC + 1;
 		symbol->type = _DATA;
-		symbol->are = A;
 	}
 
 	for (i = 0; i < parser.directive.operand.data_len; i++) {
@@ -224,7 +210,6 @@ void set_STRING_WORDS(symbol_table_t *sym_tbl, word_table_t *table) {
 	if (symbol != NULL) {
 		symbol->address = DC + 1;
 		symbol->type = _DATA;
-		symbol->are = A;
 	}
 
 	for (i = 0; i < parser.directive.operand.data_len; i++) {
@@ -249,20 +234,16 @@ void set_STRING_WORDS(symbol_table_t *sym_tbl, word_table_t *table) {
 void set_EXTnEntry(symbol_table_t *sym_tbl,symbol_table_t *entry_sym_tbl,  word_table_t *table) {
 	symbol_t *symbol = findSymbol(sym_tbl, parser.directive.operand.symbol);
 	line_t *line = NULL;
-	ARE_T are = (parser.directive.cmd == EXTERN) ? E : R;
-	EXT_T _ARE = (parser.directive.cmd == EXTERN) ? _EX : _EN;
 
 	if (symbol != NULL) {
-		symbol->address = DC + 1; /*considers in advanced the creation of line*/
+		symbol->address = 0; /*extern is always zero, while entry will be derived in the 2n d pass*/
 		symbol->type = (parser.directive.cmd == EXTERN) ? _EXTERN:_ENTRY;
-		symbol->are = are;
 	}
 
 	switch(parser.directive.cmd) {
 
 		case EXTERN:
-		line = add_line(table, DC, symbol, _ARE);
-		line->_ARE = _ARE;
+		line = add_line(table, DC, symbol, E);
 		/*in case EXTERN we are done, label address is zero*/
 
 
@@ -294,8 +275,8 @@ int registerSelection() {
 				return 2;
 			else
 				return 1;
-			break;
-		defult:
+
+		default:
 			return 2;
 			break;
 	}
@@ -367,7 +348,7 @@ word_table_t *initTable(word_table_t *table , int memInit) {
 
 
 /*adds a line to wordTable/dataTable  the first line has an address 100*/
-line_t *add_line(word_table_t *table, int ic_num, symbol_t *symbol , EXT_T _ARE) {
+line_t *add_line(word_table_t *table, int ic_num, symbol_t *symbol , memory_t _ARE) {
 	line_t *new_ptr = NULL;
 	int word_t_size = sizeof(word_t);
 
@@ -409,30 +390,6 @@ void addNumberToWordTable(word_table_t *table, int number) {
 }
 
 
-void printBinary(unsigned short num) {
-	int i = 0;
-	int bits = sizeof(unsigned short) * 8; /* Number of bits in the unsigned short*/
-	for (i = bits - 1; i >= 0; i--) {
-		unsigned short mask = 1 << i;
-		printf("%d", (num & mask) ? 1 : 0);
-	}
-	printf("\n");
-}
-
-
-void printTable(word_table_t *table) {
-	int i;
-
-	if (table == NULL) {
-		return;
-	}
-
-	for (i = 0; i < table->size; i++) {
-		printf("%05d\t", table->lines[i].line_num); /* Print line number with leading zeros */
-		printf("%05d\t", table->lines[i]._ARE); /* Print line number with leading zeros */
-		printBinary(table->lines[i].word);         /* Print word in binary */
-	}
-}
 
 
 

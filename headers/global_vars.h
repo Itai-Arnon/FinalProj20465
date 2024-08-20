@@ -23,7 +23,7 @@ typedef struct {
 		directive_cmd_t cmd;
 		int symbol_memory;
 		struct {/*characterizes the directives*/
-			char *symbol;
+			char symbol[MAX_SYMBOL_NAME];
 			int *data; /*todo:chcek if malloc*/
 			char *str;
 			int data_len;

@@ -48,8 +48,8 @@ void parse(macro_table_t *macroTable, symbol_table_t *sym_tbl, word_table_t *wor
 	char *directive_str = NULL;/*auxiliary var*/
 	char *sArr = calloc(MAX_SYMBOL_NAME, sizeof(char));/*.string array*/
 	int *pos = calloc(1, sizeof(int));/*promotes the buffer*/
-	int idx, numCount, buff_len, scanned, result, isSymbol; /*auxiliary vars*/
-	idx = numCount = buff_len = scanned = result = isSymbol = 0;
+	int idx, numCount,  scanned, result, buff_len ,isSymbol; /*auxiliary vars*/
+	idx = numCount  = scanned = result = isSymbol = buff_len = 0;
 	line_count = 0;
 
 
@@ -87,9 +87,11 @@ void parse(macro_table_t *macroTable, symbol_table_t *sym_tbl, word_table_t *wor
 					buffer = strstrip(buffer);
 				case 2: /*doesn't add symbol */
 					sscanf(buffer, "%s%n", cmd_extra, pos);/*check 2nd argument*/
+					/*scanned == 3 means is entry/extern*/
 					(scanned = classify_line(cmd_extra));/*identifies opcode or directives*/
-					if (scanned == -1) { /*extern and entry heading symbol should be ignored*/
-						delete_symbol(sym_tbl, parser.symbol_name);/*deletes the symbol that was made*/
+					if (scanned == 3) { /*extern and entry heading symbol should be ignored*/
+						delete_symbol(sym_tbl, parser.symbol_name);
+						parser.symbol_name[0] = '\0';
 						report_error(WAR_EXTERN_ENTRY_SYMBOL, line_count, PARS, NON_CRIT, 0);
 					}
 					if (scanned > 0)
@@ -106,7 +108,7 @@ void parse(macro_table_t *macroTable, symbol_table_t *sym_tbl, word_table_t *wor
 			}
 		}else report_error(ERR_LINE_UNRECOGNIZED, line_count, PARS, CRIT, 0);
 
-					result = scanned = buff_len = 0;
+					result = scanned =  0;
 					buffer = strstrip(buffer);
 					memset(cmd, '\0', sizeof(cmd));
 					memset(cmd_extra, '\0', sizeof(cmd_extra));
@@ -183,15 +185,16 @@ void parse(macro_table_t *macroTable, symbol_table_t *sym_tbl, word_table_t *wor
 							} else if (result == ENTRY || result == EXTERN) {
 
 								if (sscanf(buffer, "%s%n", cmd, pos) == 1) {
+									strstrip(buffer);
 									buffer += *pos;
 									if (isRestOfLineEmpty(buffer) == 0)
 										report_error(ERR_OP_CODE_FAILED_STRUCTURE, line_count, PARS, CRIT, 0);
 									if ((isSymbol = if_Symbol_if_Duplicate(sym_tbl, cmd, MIDDLE)) == 1) {
 										loadSymbolTable(sym_tbl, cmd, 0, (result == ENTRY)? _ENTRY:_EXTERN);
-										report_error(WAR_EXTERN_ENTRY_SYMBOL, line_count, PARS, CRIT, 0);
+										report_error(WAR_EXTERN_ENTRY_SYMBOL, line_count, PARS, NON_CRIT, 0);
 									}
 									if (isSymbol > 0) { /*if the symbol is a duplicant it's still loaded to registry*/
-										parser.directive.operand.symbol = calloc(MAX_SYMBOL_NAME, sizeof(char));
+
 										strcpy(parser.directive.operand.symbol, cmd);
 										parser.directive.operand.data_len = 1;
 
@@ -241,7 +244,8 @@ void parse(macro_table_t *macroTable, symbol_table_t *sym_tbl, word_table_t *wor
 					/*extern and entry can't have a label before them*/
 					if (parser.directive.cmd == EXTERN || parser.directive.cmd == ENTRY) {
 						if (parser.symbol_name[0] != '\0')
-							return -1;
+							parser.directive.cmd = directArray[j].cmd;
+							return 3;
 					}
 					return 1;
 				}
@@ -472,10 +476,10 @@ void parse(macro_table_t *macroTable, symbol_table_t *sym_tbl, word_table_t *wor
 			/* Initialize line type */
 			parser.line_type = ERR;
 			/* Initialize symbol name */
-			memset(parser.symbol_name, '\0', sizeof(parser.symbol_name));
+			parser.symbol_name[0] = '\0';
 			/* Initialize directive fields */
 			parser.directive.cmd = DATA; /* Assuming DATA is a default value */
-			parser.directive.operand.symbol = '\0'; /*array dynamic alloc*/
+			parser.directive.operand.symbol[0] = '\0'; /*non dynamic alloc*/
 			parser.directive.operand.data = NULL;
 			parser.directive.operand.str = NULL;
 			parser.directive.operand.data_len = 0;

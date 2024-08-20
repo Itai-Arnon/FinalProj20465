@@ -14,12 +14,17 @@
 #include "headers/assembler.h"
 
 
-void second_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataTable) {
-	word_table_t *eTable; /*entry table*/
+void second_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, symbol_table_t *entryTable ,word_table_t *wordTable, word_table_t *dataTable) {
 	line_t *current_line;
 	symbol_t *symbol1, *symbol2;
 	char *boo;
 	int idx, result = 0, n = 0;
+	if(isError == 1){
+		return;
+
+	}
+
+
 
 	IC = 0;
 	DC = 0;
@@ -33,8 +38,11 @@ void second_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, word_table_
 				printf("Stop Occured\n");
 				n = wordTable->lines[wordTable->size - 1].line_num + 1;
 				printf("n: %d\n", n);
+				addConstantToSymbols(sym_tbl,_DATA, n);
+				addNumberToWordTable(dataTable, n );
 				printTable(wordTable);
 				printTable(dataTable);
+
 			}
 			break;
 		case DIRECTIVE:
@@ -44,11 +52,14 @@ void second_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, word_table_
 			} else if (result == STRING) {
 				checkSTRING_WORDS(sym_tbl, dataTable);
 
-
-			} else if (result == ENTRY || result == EXTERN) {
-				checkEXTnEntry(sym_tbl, dataTable);
-
+			} else if (result == EXTERN) {
+				checkEXTERN(sym_tbl,wordTable);
+			/*entry*/
+			}else{
+				moveSymbolsToEntry(sym_tbl,entryTable);
+				printEntrySymbolTable(entryTable, "" , 0 );
 			}
+
 			break;
 		case ERR:
 			report_error(ERR_GENERAL_FIRST_PASS_ERROR, line_count, SECOND, CRIT, 0);
@@ -63,15 +74,6 @@ void second_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, word_table_
 
 	print_symbol_table(sym_tbl);
 	printTableToFile(wordTable, dataTable, boo);
-
-	/*if (isError) {
-		return;
-	}
-
-		}*/
-
-
-	/*checkSymbolsUnique(macroTable,sym_tbl);*/
 }
 
 
@@ -217,15 +219,16 @@ void checkSTRING_WORDS(symbol_table_t *sym_tbl, word_table_t *table) {
 
 }
 
-void checkEXTnEntry(symbol_table_t *sym_tbl, word_table_t *table) {
+void checkEXTERN(symbol_table_t *sym_tbl, word_table_t *table) {
 	line_t *line = &table->lines[DC];
-	symbol_t *symbol = &table->lines[DC].symbol;
+	symbol_t *symbol = line->symbol;
 
 /* unlike the rest |symbol is a registry*/
 	if (symbol != NULL) {
-		report_error(ERR_EXTERN_SYMBOL, line_count, SECOND, CRIT, DC);
+
 		DC++;
-	}
+	}else
+		report_error(ERR_EXTERN_SYMBOL, line_count, SECOND, CRIT, DC);
 	printf("Extern object ptr address  :%p\n", line);
 	printf("CASE EXTERN we are done word is zeroes \n ");
 	printf("CASE ENTRY if we don't have the address we'll look at it in the 2nd pass  \n ");
@@ -253,6 +256,7 @@ void checkSymbolsUnique(macro_table_t *macro_table, symbol_table_t *sym_table) {
 	}
 
 }
+
 /*int (all machine language) to octal */
 int convertToOctal(int num) {
 	int ans = 0, y = 1;
@@ -264,6 +268,7 @@ int convertToOctal(int num) {
 	}
 	return ans;
 }
+
 /*printing table in octal */
 void printTableToFile(word_table_t *wTable, word_table_t *dTable, char *file_name) {
 	int i = 0, num = 0;
@@ -305,56 +310,38 @@ symbol_t * firstSymbolMissingValue(symbol_table_t *table) {
 }
 
 
-
 /*check for faults w/ extern symbols*/
-int checkExternSymbols(symbol_table_t *table, int option) {
+int checkExternSymbols(symbol_table_t *table) {
 	symbol_t *symbol1, *symbol2;
 
 	if (table == NULL) {
 		return 0;
 	}
-	/*option 1:compare extern with absolute*/
-	switch (option) {
-		case 1:
+
+
 			for (symbol1 = table->symbol_List; symbol1 != NULL; symbol1 = symbol1->next_sym) {
-				if (symbol1->are == E) {
+				if (symbol1->type == _EXTERN) {
 					for (symbol2 = table->symbol_List; symbol2 != NULL; symbol2 = symbol2->next_sym) {
-						if (symbol2->are == A && strcmp(symbol1->symbol_name, symbol2->symbol_name) == 0) {
+						if ((symbol2->type == _INSTRUCTION || symbol2->type== _DATA) && strcmp(symbol1->symbol_name, symbol2->symbol_name) == 0)
 							return 1;
-						}
+
 					}
 				}
 			}
-			break;
-			/*option 2:compare extern with absolute*/
-		case 2:
-			for (symbol1 = table->symbol_List; symbol1 != NULL; symbol1 = symbol1->next_sym) {
-				if (symbol1->are == E) {
-					for (symbol2 = table->symbol_List; symbol2 != NULL; symbol2 = symbol2->next_sym) {
-						if (symbol2->are == R && strcmp(symbol1->symbol_name, symbol2->symbol_name) == 0) {
-							return 1;
-						}
-					}
-				}
-			}
-			break;
-		default:
-			return 0;
-	}
 	return 0;
 }
 
-/*entry has a specific table , all entry are move to it*/
-int moveSymbolsToEntry(symbol_table_t *sym_tbl ,symbol_table_t *entrySTable){
-	symbol_t  *head = NULL;
-	int i = 0 ,counter = 0;
+/*entry has a specific table , all entry are moved to it*/
+int moveSymbolsToEntry(symbol_table_t *sym_tbl ,symbol_table_t *entrySTable) {
+	symbol_t *head = NULL;
+	int i = 0, counter = 0;
 
-	if(sym_tbl == NULL || entrySTable == NULL){
+	if (sym_tbl == NULL || entrySTable == NULL) {
 		return 0;
 	}
 
-	for(head = sym_tbl->symbol_List ;head != NULL ; head = head->next_sym ){
-		if(head->type ==_ENTRY ){
+	for (head = sym_tbl->symbol_List; head != NULL; head = head->next_sym) {
+		if (head->type == _ENTRY) {
 			addSymbolToTable(entrySTable, head);
 			counter++;
 		}
@@ -362,5 +349,131 @@ int moveSymbolsToEntry(symbol_table_t *sym_tbl ,symbol_table_t *entrySTable){
 	return counter;
 }
 
+/*adds an existatn symbol to a table*/
+int addSymbolToTable(symbol_table_t *table, symbol_t *_symbol) {
+		symbol_t *head;
+
+		if (table == NULL) {
+			return 0;
+		}
+		head = table->symbol_List;
+
+		if (head == NULL) {
+			table->symbol_List = _symbol;
+			return 1;
+		}else {
+			while (head->next_sym != NULL) {
+				head = head->next_sym;
+			}
+			head->next_sym = _symbol;
+		}
+		return 1;
+}
 
 
+
+void print_symbol_table(symbol_table_t *sym_tbl) {
+	symbol_t *head = NULL;
+
+	printf("Symbol Table:\n");
+
+	if (sym_tbl == NULL || sym_tbl->symbol_List == NULL) {
+		printf("SYMBOL_TABLE_EMPTY");
+		return;
+	}
+
+	head = sym_tbl->symbol_List;
+
+	while (head != NULL) {
+		printf("name: %s , address: %d\n", head->symbol_name, head->address);
+		head = head->next_sym;
+	}
+	printf("\n");
+	return;
+}
+/*print to file ps.ext or stdout  extern information */
+void printExternTable(word_table_t *table, FILE *file, int outputType) {
+	line_t *line;
+	int i;
+
+	if (table == NULL) {
+		return;
+	}
+	switch (outputType) {
+		case 1: /* Print to stdout */
+			for (i = 0; i < table->size; i++) {
+				line = &table->lines[i];
+				if (line->_ARE == E) {
+					printf("%s  %4d\n", line->symbol->symbol_name, line->line_num);
+				}
+			}
+			break;
+		case 2: /* Print to file */
+			if (file == NULL) {
+				return;
+			}
+			for (i = 0; i < table->size; i++) {
+				line = &table->lines[i];
+				if (line->_ARE == E) {
+					fprintf(file, "%s  %4d\n", line->symbol->symbol_name, line->line_num);
+				}
+			}
+			break;
+		default:
+			return;
+	}
+}
+
+/*print to file ps.ent or stdout  entry information - use a specific symbol table */
+void printEntrySymbolTable(symbol_table_t *table, FILE *file, int outputType) {
+		symbol_t *symbol;
+
+		if (table == NULL) {
+			return;
+		}
+
+		switch (outputType) {
+			case 1: /* Print to stdout */
+				for (symbol = table->symbol_List; symbol != NULL; symbol = symbol->next_sym) {
+					printf("%s %04d\n", symbol->symbol_name, symbol->address);
+				}
+				break;
+			case 2: /* Print to file */
+				if (file == NULL) {
+					return;
+				}
+				for (symbol = table->symbol_List; symbol != NULL; symbol = symbol->next_sym) {
+					fprintf(file, "%s %04d\n", symbol->symbol_name, symbol->address);
+				}
+				break;
+			default:
+				return;
+		}
+	}
+
+
+
+void printBinary(unsigned short num) {
+	int i = 0;
+	int bits = sizeof(unsigned short) * 8; /* Number of bits in the unsigned short*/
+	for (i = bits - 1; i >= 0; i--) {
+		unsigned short mask = 1 << i;
+		printf("%d", (num & mask) ? 1 : 0);
+	}
+	printf("\n");
+}
+
+
+void printTable(word_table_t *table) {
+	int i;
+
+	if (table == NULL) {
+		return;
+	}
+
+	for (i = 0; i < table->size; i++) {
+		printf("%05d\t", table->lines[i].line_num); /* Print line number with leading zeros */
+		printf("%05d\t", table->lines[i]._ARE); /* Print line number with leading zeros */
+		printBinary(table->lines[i].word);         /* Print word in binary */
+	}
+}

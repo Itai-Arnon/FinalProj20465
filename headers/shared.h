@@ -79,7 +79,7 @@
 #define ERR_STRING_QUOTATION_MISSING "String Quotations missing or characters invalid"
 #define ERR_STRING_INVALID  "String Line not recognized"
 #define ERR_EXTERN_ENTRY_ILLEGAL "Illegal Extern or Entry Line"
-#define
+
 
 /*word_table*/
 /*pass one and two*/

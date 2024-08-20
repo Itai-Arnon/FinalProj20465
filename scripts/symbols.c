@@ -19,9 +19,8 @@ char *opcode_names[16] = {"mov", "cmp", "add", "sub", "lea", "clr", "not", "inc"
 char *directives[4] = {".data", ".string", ".entry", ".extern"};
 
 
-
 /* todo 0 failure 1:success*/
-int loadSymbolTable(symbol_table_t *sym_tbl, char symbol_name[], int address, memory_t type ,) {
+int loadSymbolTable(symbol_table_t *sym_tbl, char symbol_name[], int address, memory_t type) {
 	int res = 0;
 	symbol_t *end = sym_tbl->symbol_List;
 	symbol_t *node = create_symbol(sym_tbl, symbol_name, address, type);/*create symbols takes care of error*/
@@ -42,50 +41,6 @@ int loadSymbolTable(symbol_table_t *sym_tbl, char symbol_name[], int address, me
 	return 1;
 }
 
-/*adds an existatn symbol to a table*/
-int addSymbolToTable(symbol_table_t *table, symbol_t *_symbol) {
-	symbol_t *head;
-
-	if (table == NULL) {
-		return 0;
-	}
-	head = table->symbol_List;
-
-	if (head == NULL) {
-		table->symbol_List = _symbol;
-		return 1;
-	}
-	else {
-		while (head->next_sym != NULL) {
-			head = head->next_sym;
-		}
-		head->next_sym = _symbol;
-	}
-	return 1;
-
-
-}
-
-
-void print_symbol_table(symbol_table_t *sym_tbl) {
-	symbol_t *head = NULL;
-
-	printf("Symbol Table:\n");
-
-	if (sym_tbl == NULL || sym_tbl->symbol_List == NULL) {
-		printf("SYMBOL_TABLE_EMPTY");
-		return;
-	}
-
-	head = sym_tbl->symbol_List;
-
-	while (head != NULL) {
-		printf("name: %s , address: %d\n", head->symbol_name, head->address);
-		head = head->next_sym;
-	}
-	printf("\n");
-	return;
-}
 
 symbol_table_t *init_symbol_table(symbol_table_t *sym_tbl) {
 
@@ -119,21 +74,22 @@ symbol_t *findSymbol(symbol_table_t *sym_tbl, char *symbol_name) {
 
 symbol_t *create_symbol(symbol_table_t *sym_tbl, char symbol_name[], int address, memory_t type) {
 	symbol_t *node = NULL;
+
 	int LEN = strlen(symbol_name);
 	if (symbol_name[LEN - 1] == ':')
 		LEN -= 1;
 	/*check similarity with opcodes and directives*/
+
 	if (is_symbol_name_duplicate(sym_tbl, symbol_name) == 1) {
 		report_error(ERR_DUPLICATE_SYMBOL_NAME, line_count, SYM, CRIT, 0);
 		return NULL;
 	}
 
 	if (node = malloc(sizeof(symbol_t))) {
-		memset(node->symbol_name, 0, MAX_SYMBOL_NAME);
+		memset(node->symbol_name, 0, sizeof(node->symbol_name));
 		strncpy(node->symbol_name, symbol_name, LEN);
 		node->address = 0;
 		node->type = type;
-		node->are = A;
 		node->next_sym = NULL;
 		return node;
 	}
@@ -221,20 +177,31 @@ int delete_symbol(symbol_table_t *sym_tbl, char *symbol_name) {
 	if (symbol_name[LEN - 1] == ':')
 		LEN -= 1;
 
-	while (head != NULL) {
-		if (strncmp(symbol_name, head->symbol_name, (LEN)) == 0) {
-			if (prev != NULL)
-				prev->next_sym = head->next_sym;
-			free(head);
-			head = prev;
-			/*if deletion successful returns 1*/
-			return 1;
-		}
+	if(sym_tbl == NULL || sym_tbl->symbol_List == NULL)
+		return 0;
+
+	/*case head is the first node */
+	if (head != NULL && strncmp(symbol_name, head->symbol_name, (LEN)) == 0) {
+		sym_tbl->symbol_List = head->next_sym;
+		free(head);
+		head = NULL;
+		return 1;
+	}
+	/*search for requested node*/
+	while (head != NULL && strncmp(symbol_name, head->symbol_name, (LEN)) != 0) {
 		prev = head;
 		head = head->next_sym;
 	}
+	if(head == NULL)
+		return 0; /*node not found*/
 
-	return 0; /*not found*/
+	/*if head is the requested one, we unlink it*/
+	prev->next_sym = head->next_sym;
+
+	free(head);
+	head = NULL;
+
+	return 1; /*not found*/
 }
 
 
