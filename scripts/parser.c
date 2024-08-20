@@ -58,21 +58,21 @@ void parse(macro_table_t *macroTable, symbol_table_t *sym_tbl, word_table_t *wor
 /*number of sscanf arguments*/
 
 
-
-
 	if (sym_tbl == NULL) {
 		report_error(ERR_FAIL_CREATE_SYMBOL, line_count, PARS, CRIT, 0);
 		return;
 	}
 
 	while (fgets(buffer, LINE_LENGTH, fptr_after) != NULL) {
+		initParser();
+		line_count++;
+		buffer = strstrip(buffer);
+
 		if (isError) {
 			return;
 		}
 
-		initParser();
-		line_count++;
-		buffer = strstrip(buffer);
+
 
 		if (buffer[0] == '\0') continue;
 
@@ -83,9 +83,9 @@ void parse(macro_table_t *macroTable, symbol_table_t *sym_tbl, word_table_t *wor
 				/*returns 1 if symbol not in the table*/
 				case 1:
 					loadSymbolTable(sym_tbl, cmd, 0, _INSTRUCTION);
+				case 2: /*doesn't add symbol */
 					buffer = advance_buffer_if_possible(buffer, cmd);
 					buffer = strstrip(buffer);
-				case 2: /*doesn't add symbol */
 					sscanf(buffer, "%s%n", cmd_extra, pos);/*check 2nd argument*/
 					/*scanned == 3 means is entry/extern*/
 					(scanned = classify_line(cmd_extra));/*identifies opcode or directives*/

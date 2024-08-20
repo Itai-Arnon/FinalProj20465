@@ -1,2 +1,4 @@
-SB: .entry SA
+mov  r1, LABEL
+LABEL: mov  r1, r2
+mov  r1, r2
 stop

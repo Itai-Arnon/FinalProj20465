@@ -31,7 +31,6 @@ void first_pass(macro_table_t* macroTable,  symbol_table_t *sym_tbl, word_table_
 
 	switch (parser.line_type) {
 		case OP_CODE:
-			printf("registry%d\n",parser.operands[1].operand.registry);
 			setOPCODE_INSTRUCTION(sym_tbl, wordTable);
 			break;
 		case DIRECTIVE:
@@ -70,13 +69,12 @@ void setOPCODE_INSTRUCTION(symbol_table_t *sym_tbl, word_table_t *table) {
 		symbol->address = IC;
 		symbol->type = _INSTRUCTION;
 	}
-	printf("INSIDE OPCODE LINE1 ptr VALUE :%p\n", line1);
 	switch (register_count_by_op(parser.op)) {
 		case 0:
 
 			set_opcode_into_word(&(line1->word), parser.op);
 			set_ARE_into_word(&(line1->word), A);
-			printf("INSIDE OPCODE: 0 registries\n");
+
 			printBinary(line1->word);
 			break;
 		case 1:
@@ -85,7 +83,7 @@ void setOPCODE_INSTRUCTION(symbol_table_t *sym_tbl, word_table_t *table) {
 			set_ARE_into_word(&(line1->word), A);
 			set_operand_type_into_word(&(line1->word), DESTINATION, parser.operands[1].type_of_register);
 			setOPCODE_WORDS(sym_tbl, table, 1, 0);
-			printf("INSIDE OPCODE  case: 1 registries");
+
 			printBinary(line1->word);
 			break;
 		case 2:
@@ -94,7 +92,7 @@ void setOPCODE_INSTRUCTION(symbol_table_t *sym_tbl, word_table_t *table) {
 			set_ARE_into_word(&(line1->word), A);
 			set_operand_type_into_word(&(line1->word), DESTINATION, parser.operands[0].type_of_register);
 			set_operand_type_into_word(&(line1->word), SOURCE, parser.operands[1].type_of_register);
-			printf("INSIDE OPCODE  case 2 registries and opcode");
+
 			printBinary(line1->word);
 
 			/*INDIRECT and DIRECT Register are set only once to setOPCODE_WORDS register selection decides*/
@@ -108,10 +106,6 @@ void setOPCODE_INSTRUCTION(symbol_table_t *sym_tbl, word_table_t *table) {
 				/*INDIRECT and Regular registry, type is one*/
 				setOPCODE_WORDS(sym_tbl, table, 1, 1);
 	}
-	printf("register 0 value: %d\n", parser.operands[0].type_of_register);
-	printf("register 1 value:%d\n", parser.operands[1].type_of_register);
-	printf("typeof registry in operand 0 value: %d\n", parser.operands[0].operand.registry);
-	printf("typeof registry in operand 1 value: %d\n", parser.operands[1].operand.registry);
 
 
 }
@@ -120,8 +114,8 @@ void setOPCODE_INSTRUCTION(symbol_table_t *sym_tbl, word_table_t *table) {
 /*if type = 1  2 regists indirect and/or direct |type=0 only one */
 void setOPCODE_WORDS(symbol_table_t *sym_tbl, word_table_t *table, int idx, int type) {
 	symbol_t *symbol2 = NULL;
-	line_t *line2 = add_line(table, IC, NULL, _NO);
-	printf("line2 :%p  registry %d\n", line2, parser.operands[idx].type_of_register);
+	line_t *line2 = add_line(table, IC, NULL, A);
+
 	unsigned short num;
 	IC++;
 	switch (parser.operands[idx].type_of_register) {
@@ -131,7 +125,6 @@ void setOPCODE_WORDS(symbol_table_t *sym_tbl, word_table_t *table, int idx, int 
 			num = convertToTwoComp(num);
 			set_immediate_into_empty_word(&(line2->word), num);
 			set_ARE_into_word(&(line2->word), A);
-			printf(" INSIDE WORDS CASE: _immediate ||ptr address  :%p   ", line2);
 			printBinary(line2->word);
 			break;
 
@@ -140,8 +133,6 @@ void setOPCODE_WORDS(symbol_table_t *sym_tbl, word_table_t *table, int idx, int 
 			(symbol2 != NULL) ?: report_error(ERR_SYMBOL_NOT_FOUND, line_count ,FIRST , CRIT,IC);
 			set_label_into_empty_word(&(line2->word), symbol2->address);
 			set_ARE_into_word(&(line2->word), R);
-			printf("(INSIDE WORDS |CASE: DIRECT  obj variable: line2||  ptr address  :%p  registry type %d\n", line2,
-			       parser.operands[idx].type_of_register);
 			printBinary(line2->word);
 			break;
 
@@ -152,16 +143,12 @@ void setOPCODE_WORDS(symbol_table_t *sym_tbl, word_table_t *table, int idx, int 
 			if (type == 0) {
 				set_register_into_empty_word(&(line2->word), parser.operands[idx].operand.registry, 0);
 				set_ARE_into_word(&(line2->word), A);
-				printf("INSIDE WORDS |CASE:single registry indirect/regular  || line2-variable :%p   %d\n", line2,
-				       parser.operands[idx].type_of_register);
 				printBinary(line2->word);
 			}
 			if (type == 1) {
 				set_register_into_empty_word(&(line2->word), parser.operands[0].operand.registry, 1);
 				set_register_into_empty_word(&(line2->word), parser.operands[1].operand.registry, 0);
 				set_ARE_into_word(&(line2->word), A);
-				printf("INSIDE WORDS |CASE: (line2) :%p indirect and regular registry %d\n", line2,
-				       parser.operands[idx].type_of_register);
 				printBinary(line2->word);
 
 			}
@@ -196,8 +183,6 @@ void set_DATA_WORDS(symbol_table_t *sym_tbl, word_table_t *table) {
 		num = parser.directive.operand.data[i];
 		num = convertToTwoComp(num);
 		set_number_data_word(&(line->word), num);
-		printf(" LINE obj address :%p\n", line);
-		printf("data - fills with numbers all 15 bit\n ");
 		printBinary(line->word);
 		DC++;
 	}
@@ -216,16 +201,12 @@ void set_STRING_WORDS(symbol_table_t *sym_tbl, word_table_t *table) {
 		/*only the first line has a potential symbol*/
 		line = add_line(table, DC, (i == 0) ? symbol : NULL, _NO);
 		set_char_string_word(&(line->word), parser.directive.operand.str[i]);
-		printf("string line object address :%p\n", line);
-		printf("string -  char list and a null\t ");
 		printBinary(line->word);
 		DC++;
 	}
 	/*adding '\0' */
 	line = add_line(table, DC, NULL, A);
 	set_number_data_word(&(line->word), '\0');
-	printf("string line object address  :%p\n", line);
-	printf("string -  char list and a null ");
 	printBinary(line->word);
 	DC++;
 
@@ -247,8 +228,6 @@ void set_EXTnEntry(symbol_table_t *sym_tbl,symbol_table_t *entry_sym_tbl,  word_
 		/*in case EXTERN we are done, label address is zero*/
 
 
-		printf(" Extern object address  :%p\n", line);
-		printf("CASE EXTERN we are done word is zeroes \n ");
 		printBinary(line->word);
 
 		case ENTRY:

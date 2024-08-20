@@ -18,7 +18,7 @@ FILE *fptr_before;
 FILE *fptr_after;
 char *current_filename;
 int isError = 0;
-
+int erase_this_flag = 30;
 int main(int argc, char *argv[]) {
 
 	macro_table_t *mac_tbl = NULL;
@@ -139,11 +139,11 @@ void report_error(char *err, int line_count, file_t fenum, err_type_t type, int 
 
 	/* case there is a warning with symbols in wordTable*/
 	if ((fenum == FIRST || fenum == SECOND) && IC_ADDRESS > 0 && type == NON_CRIT)
-		printf("%s at WordTable IC  line %lu || At: %s\n", WAR_MEMORY_NOT_CONFIGURED, IC_ADDRESS, line_count,
+		printf("%s at WordTable Address %d  line %lu || At: %s\n", WAR_MEMORY_NOT_CONFIGURED, IC_ADDRESS, line_count,
 		       fname[fenum]);
 		/* case there is an error with symbols in wordTable*/
 	else if ((fenum == FIRST || fenum == SECOND) && IC_ADDRESS > 0 && type == CRIT )
-			printf("%s at WordTable IC  line %lu || At: %s\n", ERR_MEMORY_NOT_CONFIGURED, IC_ADDRESS, line_count,
+			printf("%s at WordTable Address %d  line %lu || At: %s\n", ERR_MEMORY_NOT_CONFIGURED, IC_ADDRESS, line_count,
 			       fname[fenum]);
 	else if (type == CRIT) {
 		printf("%s at line %lu || At: %s\n", err, line_count, fname[fenum]);

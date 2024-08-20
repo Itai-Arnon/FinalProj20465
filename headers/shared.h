@@ -71,7 +71,7 @@
 #define ERR_OP_CODE_REGISTRY_ILLEGAL "One or both OP Code register isn't legal"
 #define ERR_REGISTRY_ILLEGAL "Failed to Recognize Registry"
 
-#define ERR_LINE_UNRECOGNIZED "Line Not Recognized as OP_CODE or DIRECTIVE"
+#define ERR_LINE_UNRECOGNIZED "Line Not Recognized as OP_CODE or DIRECTIVE or Symbol"
 /* directive related errors*/
 #define ERR_DIRECTIVE_RECOGNITION "Directive Not Recognized"
 #define ERR_FAILED_TO_CONVERT_NUMBER "Failed to convert Number"

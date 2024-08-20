@@ -24,6 +24,11 @@ void second_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, symbol_tabl
 
 	}
 
+	n = wordTable->lines[wordTable->size - 1].line_num + 1;
+	printf("n: %d\n", n);
+	addConstantToSymbols(sym_tbl,_DATA, n);
+	addNumberToWordTable(dataTable, n );
+
 
 
 	IC = 0;
@@ -32,14 +37,12 @@ void second_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, symbol_tabl
 
 	switch (parser.line_type) {
 		case OP_CODE:
+
 			printf("registry%d\n", parser.operands[1].operand.registry);
 			checkOPCODE_INSTRUCTION(sym_tbl, wordTable);
+
 			if (parser.op == stop) {
 				printf("Stop Occured\n");
-				n = wordTable->lines[wordTable->size - 1].line_num + 1;
-				printf("n: %d\n", n);
-				addConstantToSymbols(sym_tbl,_DATA, n);
-				addNumberToWordTable(dataTable, n );
 				printTable(wordTable);
 				printTable(dataTable);
 
@@ -56,7 +59,6 @@ void second_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, symbol_tabl
 				checkEXTERN(sym_tbl,wordTable);
 			/*entry*/
 			}else{
-				moveSymbolsToEntry(sym_tbl,entryTable);
 				printEntrySymbolTable(entryTable, "" , 0 );
 			}
 
@@ -73,7 +75,7 @@ void second_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, symbol_tabl
 
 
 	print_symbol_table(sym_tbl);
-	printTableToFile(wordTable, dataTable, boo);
+
 }
 
 
@@ -351,7 +353,7 @@ int moveSymbolsToEntry(symbol_table_t *sym_tbl ,symbol_table_t *entrySTable) {
 
 /*adds an existatn symbol to a table*/
 int addSymbolToTable(symbol_table_t *table, symbol_t *_symbol) {
-		symbol_t *head;
+		symbol_t *head = NULL;
 
 		if (table == NULL) {
 			return 0;
@@ -378,7 +380,7 @@ void print_symbol_table(symbol_table_t *sym_tbl) {
 	printf("Symbol Table:\n");
 
 	if (sym_tbl == NULL || sym_tbl->symbol_List == NULL) {
-		printf("SYMBOL_TABLE_EMPTY");
+		printf("SYMBOL_TABLE_EMPTY\n");
 		return;
 	}
 
