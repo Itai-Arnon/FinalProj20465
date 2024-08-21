@@ -66,6 +66,7 @@ void setOPCODE_INSTRUCTION(symbol_table_t *sym_tbl, word_table_t *table) {
 	if (symbol != NULL && symbol->address < 100) {
 		symbol->address = line1->line_num;
 		symbol->type = _INSTRUCTION;
+		line1->symbol = symbol;
 	}
 	switch (register_count_by_op(parser.op)) {
 		case 0:
@@ -112,12 +113,13 @@ void setOPCODE_INSTRUCTION(symbol_table_t *sym_tbl, word_table_t *table) {
 /*if type = 1  2 regists indirect and/or direct |type=0 only one */
 void setOPCODE_WORDS(symbol_table_t *sym_tbl, word_table_t *table, int idx, int type) {
 	symbol_t *symbol2 = NULL;
-	line_t *line2 = add_line(table, _offset, NULL, A);
+	line_t *line2 = NULL;
 
 	unsigned short num;
 	IC++;
 	switch (parser.operands[idx].type_of_register) {
 		case _IMMEDIATE:
+			 line2 = add_line(table, _offset, NULL, A);
 			num = parser.operands[idx].operand.num;
 			/*conversion to two complement*/
 			num = convertToTwoComp(num);
@@ -126,9 +128,11 @@ void setOPCODE_WORDS(symbol_table_t *sym_tbl, word_table_t *table, int idx, int 
 			break;
 
 		case _DIRECT:
+			line2 = add_line(table, _offset, NULL, A);
 			symbol2 = findSymbol(sym_tbl, parser.operands[idx].operand.symbol);
 			(symbol2 != NULL) ?: report_error(ERR_SYMBOL_NOT_FOUND, line_count, FIRST, CRIT, IC);
-
+			printf("line2 address : %p\n", line2);
+			line2->symbol = symbol2;
 			set_label_into_empty_word(&(line2->word), symbol2->address);
 			set_ARE_into_word(&(line2->word), R);
 			break;
@@ -136,6 +140,7 @@ void setOPCODE_WORDS(symbol_table_t *sym_tbl, word_table_t *table, int idx, int 
 		case _INDIRECT:/*here a check is made if there are two regiters or not*/
 		case _REGULAR:
 
+			line2 = add_line(table, _offset, NULL, A);
 
 			if (type == 0) {
 				set_register_into_empty_word(&(line2->word), parser.operands[idx].operand.registry, 0);
@@ -176,11 +181,10 @@ void set_DATA_WORDS(symbol_table_t *sym_tbl, word_table_t *table) {
 
 	for (i = 0; i < parser.directive.operand.data_len; i++) {
 		/*only the first line has a potential symbol*/
-		line = add_line(table, 0, (i == 0) ? symbol : NULL, _NO);
+		line = add_line(table, 0, (i == 0) ? symbol : NULL, A);
 		num = parser.directive.operand.data[i];
 		num = convertToTwoComp(num);
 		set_number_data_word(&(line->word), num);
-		printBinary(line->word);
 		DC++;
 	}
 }
@@ -197,15 +201,14 @@ void set_STRING_WORDS(symbol_table_t *sym_tbl, word_table_t *table) {
 
 	for (i = 0; i < parser.directive.operand.data_len; i++) {
 		/*only the first line has a potential symbol*/
-		line = add_line(table, 0, (i == 0) ? symbol : NULL, _NO);
+		line = add_line(table, 0, (i == 0) ? symbol : NULL, A);
 		set_char_string_word(&(line->word), parser.directive.operand.str[i]);
-		printBinary(line->word);
 		DC++;
 	}
 	/*adding '\0' */
-	line = add_line(table, 0, NULL, A);
+	line = add_line(table, 0,NULL , A);
 	set_number_data_word(&(line->word), '\0');
-	printBinary(line->word);
+
 	DC++;
 
 }
@@ -225,9 +228,6 @@ void set_EXTnEntry(symbol_table_t *sym_tbl, symbol_table_t *entry_sym_tbl, word_
 		case EXTERN:
 			line = add_line(table, 0, symbol, E);
 			/*in case EXTERN we are done, label address is zero*/
-
-
-			printBinary(line->word);
 
 		case ENTRY:
 			if (symbol != NULL) {

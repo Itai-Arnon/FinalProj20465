@@ -56,20 +56,24 @@ symbol_table_t *init_symbol_table(symbol_table_t *sym_tbl) {
 }
 
 symbol_t *findSymbol(symbol_table_t *sym_tbl, char *symbol_name) {
-	symbol_t *head = sym_tbl->symbol_List;
+	symbol_t *head = NULL;
 	int LEN = strlen(symbol_name);
 
-	if (sym_tbl != NULL) {
+	if(sym_tbl == NULL){
+		return NULL;
+	}
+	/*in case the colon is attached LEN will be shortened and strncmp is used*/
 		LEN = (symbol_name[LEN - 1] == ':') ? LEN - 1 : LEN;
+
+		head = sym_tbl->symbol_List;
 
 		while (head != NULL) {
 			if (strncmp(head->symbol_name, symbol_name, LEN) == 0)
 				return head;
-			else
-				head = head->next_sym;
+
+			head = head->next_sym;
 		}
-	}
-	return NULL;
+	return NULL; /*didn't find symbol*/
 }
 
 symbol_t *create_symbol(symbol_table_t *sym_tbl, char symbol_name[], int address, memory_t type) {

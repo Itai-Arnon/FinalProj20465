@@ -13,12 +13,11 @@
 #include "headers/first_pass.h"
 #include "headers/assembler.h"
 
-static int IC = 100; /*first address of the instruction table is preset in tabel init*/
+static int IC = 0; /*first address of the instruction table is preset in tabel init*/
 static int DC;
 
 
-void
-second_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, symbol_table_t *entryTable, word_table_t *wordTable,
+void second_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, symbol_table_t *entryTable, word_table_t *wordTable,
             word_table_t *dataTable) {
 	line_t *current_line;
 	symbol_t *symbol1, *symbol2;
@@ -81,17 +80,17 @@ second_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, symbol_table_t *
 
 
 void checkOPCODE_INSTRUCTION(symbol_table_t *sym_tbl, word_table_t *table) {
-	symbol_t *symbol = findSymbol(sym_tbl, parser.symbol_name);
+
 
 	line_t *line1 = &table->lines[IC];
 
 	type_of_register_t type0 = parser.operands[0].type_of_register;
 	type_of_register_t type1 = parser.operands[1].type_of_register;
 	IC++;
-	if (symbol != NULL) {
+	if (line1->symbol != NULL) {
 		/*notifies about address problem*/
-		if (symbol->address < 100)
-			report_error(WAR_MEMORY_NOT_CONFIGURED, line_count, SECOND, NON_CRIT, symbol->address);
+		if (line1->symbol->address < 100)
+			report_error(WAR_MEMORY_NOT_CONFIGURED, line_count, SECOND, NON_CRIT, line1->symbol->address);
 
 	}
 	switch (register_count_by_op(parser.op)) {
@@ -124,12 +123,12 @@ void checkOPCODE_WORDS(symbol_table_t *sym_tbl, word_table_t *table, int idx, in
 	/*the follow is type Direct Operand Check*/
 
 	if(parser.operands[idx].type_of_register ==  _DIRECT) {
-		symbol2 = findSymbol(sym_tbl, parser.operands[idx].operand.symbol);
-		if (symbol2 != NULL) {
-			if (symbol2->address < 100)
-				report_error(WAR_MEMORY_NOT_CONFIGURED, line_count, SECOND, NON_CRIT, symbol2->address);
-		} else
-			report_error(ERR_SYMBOL_NOT_FOUND, line_count, SECOND, CRIT, 0);
+		if (line2->symbol != NULL) {
+				report_error(ERR_SYMBOL_NOT_FOUND, line_count, SECOND, CRIT, 0);
+				return;
+		}
+		if (symbol2->address < 100)
+			report_error(WAR_MEMORY_NOT_CONFIGURED, line_count, SECOND, NON_CRIT, 0);
 
 		set_label_into_empty_word(&(line2->word), symbol2->address);
 	}
@@ -146,32 +145,33 @@ void checkDATA_WORDS(symbol_table_t *sym_tbl, word_table_t *table) {
 	if (symbol != NULL && symbol->address == 0) {
 		/*todo change to critical*/
 		report_error(WAR_MEMORY_NOT_CONFIGURED, line_count, SECOND, NON_CRIT, line->line_num);
+		return;
 	}
 
 	for (i = DC; i < parser.directive.operand.data_len; i++) {
 		/*only the first line has a potential symbol*/
 		line = &table->lines[i];
+		if (i == DC && line->symbol != NULL && line->symbol->address < 100) {
+			report_error(WAR_MEMORY_NOT_CONFIGURED, line_count, SECOND, NON_CRIT, line->line_num);
+			DC++;
+		}
 		DC++;
 	}
-	DC++;
 }
 
 void checkSTRING_WORDS(symbol_table_t *sym_tbl, word_table_t *table) {
-	symbol_t *symbol = findSymbol(sym_tbl, parser.symbol_name);
+
 	int i = DC;
 	line_t *line = NULL;
 
-	if (symbol != NULL) {
-		report_error(WAR_MEMORY_NOT_CONFIGURED, line_count, SECOND, NON_CRIT, line->line_num);
-	}
-
 	for (; i < parser.directive.operand.data_len; i++) {
 		line = &table->lines[i];
-		DC++;
+		if (i == DC && line->symbol != NULL && line->symbol->address <100 ) {
+			report_error(WAR_MEMORY_NOT_CONFIGURED, line_count, SECOND, NON_CRIT, line->line_num);
+		}
+		DC++;/*raise count for the \0 inserted at the end of the command */
 
 	}
-
-
 }
 
 void checkEXTERN(symbol_table_t *sym_tbl, word_table_t *table) {
@@ -180,7 +180,6 @@ void checkEXTERN(symbol_table_t *sym_tbl, word_table_t *table) {
 
 /* unlike the rest |symbol is a registry*/
 	if (symbol != NULL) {
-
 		DC++;
 	} else
 		report_error(ERR_EXTERN_SYMBOL, line_count, SECOND, CRIT, DC);

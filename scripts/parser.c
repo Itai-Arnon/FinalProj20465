@@ -476,10 +476,10 @@ void parse(macro_table_t *macroTable, symbol_table_t *sym_tbl, word_table_t *wor
 			/* Initialize line type */
 			parser.line_type = ERR;
 			/* Initialize symbol name */
-			parser.symbol_name[0] = '\0';
+			memset(parser.symbol_name,'\0',sizeof(parser.symbol_name));
 			/* Initialize directive fields */
 			parser.directive.cmd = DATA; /* Assuming DATA is a default value */
-			parser.directive.operand.symbol[0] = '\0'; /*non dynamic alloc*/
+			memset(parser.directive.operand.symbol,0,sizeof(parser.directive.operand.symbol)); /*non dynamic alloc*/
 			parser.directive.operand.data = NULL;
 			parser.directive.operand.str = NULL;
 			parser.directive.operand.data_len = 0;
@@ -489,7 +489,7 @@ void parse(macro_table_t *macroTable, symbol_table_t *sym_tbl, word_table_t *wor
 			for (i = 0; i < 2; ++i) {
 
 				parser.operands[i].type_of_register = _TBD; /*type of register*/
-				parser.operands[i].operand.symbol[0] = '\0';
+				memset(parser.operands[i].operand.symbol, 0 , sizeof(parser.operands[i].operand.symbol));
 				parser.operands[i].operand.num = 0;
 				parser.operands[i].operand.registry = 0;
 			}
