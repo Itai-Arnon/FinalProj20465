@@ -47,43 +47,6 @@ void second_pass( symbol_table_t *sym_tbl,  word_table_t *wordTable,
 		print_symbol_table(sym_tbl);
 	}
 }
-/*
-
-			}
-			break;
-		case DIRECTIVE:
-			if ((result = parser.directive.cmd) == DATA) {
-		checkDATA_WORDS(sym_tbl, dataTable);
-
-	} else if (result == STRING) {
-		checkSTRING_WORDS(sym_tbl, dataTable);
-
-	} else if (result == EXTERN) {
-		checkEXTERN(sym_tbl, wordTable);
-	}
-			*/
-/*entry*//*
-
-			*/
-/*}else{
-				printEntrySymbolTable(entryTable, "" , 0 );
-			}
-*//*
-
-			break;
-		case ERR:
-			report_error(ERR_GENERAL_FIRST_PASS_ERROR, line_count, SECOND, CRIT, 0);
-			break;
-		case TBD:
-			report_error(ERR_LINE_UNRECOGNIZED, line_count, SECOND, CRIT, 0);
-			break;
-		default:
-			break;
-	}
-
-*/
-
-
 
 
 void checkOPCODE_INSTRUCTION(symbol_table_t *sym_tbl, word_table_t *table) {
