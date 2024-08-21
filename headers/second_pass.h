@@ -41,6 +41,7 @@ void printExternTable(word_table_t *table, FILE *file, int outputType);
 /*print to file ps.ent or stdout  entry information - use a specific symbol table */
 /*void printEntrySymbolTable(symbol_table_t *table, FILE *file, int outputType);*/
 
+void update_Reloc_Lines(word_table_t *table);
 void printBinary(unsigned short num);
 
 void printTable(word_table_t *table);

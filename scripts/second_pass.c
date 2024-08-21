@@ -27,25 +27,28 @@ void second_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, symbol_tabl
 		return;
 
 	}
-
-
+/*
 	switch (parser.line_type) {
 		case OP_CODE:
 
-			checkOPCODE_INSTRUCTION(sym_tbl, wordTable);
+			checkOPCODE_INSTRUCTION(sym_tbl, wordTable);*/
 
-			if (parser.op == stop) {
-				printf("Stop Occured\n");
+	if (parser.op == stop) {
+		printf("Stop Occured\n");
 
-				/*n = wordTable->lines[wordTable->size - 1].line_num + 1;
-				printf("n: %d\n", n);
-				addConstantToSymbols(sym_tbl, _DATA, n);
-				addNumberToWordTable(dataTable, n);*/
-				printTable(wordTable);
-				printf("-------------\n");
-				printTable(dataTable);
-				printf("------------\n");
-				print_symbol_table(sym_tbl);
+		n = wordTable->size;
+		printf(" DATA TABLE ADDRESS CHAGE :n: %d\n", n);
+		addConstantToSymbols(sym_tbl, _DATA, n);
+		addNumberToWordTable(dataTable, n);
+		update_Reloc_Lines(wordTable);
+		printTable(wordTable);
+		printf("-------------\n");
+		printTable(dataTable);
+		printf("------------\n");
+		print_symbol_table(sym_tbl);
+	}
+}
+/*
 
 			}
 			break;
@@ -59,11 +62,15 @@ void second_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, symbol_tabl
 	} else if (result == EXTERN) {
 		checkEXTERN(sym_tbl, wordTable);
 	}
-			/*entry*/
-			/*}else{
+			*/
+/*entry*//*
+
+			*/
+/*}else{
 				printEntrySymbolTable(entryTable, "" , 0 );
 			}
-*/
+*//*
+
 			break;
 		case ERR:
 			report_error(ERR_GENERAL_FIRST_PASS_ERROR, line_count, SECOND, CRIT, 0);
@@ -75,8 +82,9 @@ void second_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, symbol_tabl
 			break;
 	}
 
+*/
 
-}
+
 
 
 void checkOPCODE_INSTRUCTION(symbol_table_t *sym_tbl, word_table_t *table) {
@@ -260,6 +268,9 @@ symbol_t *firstSymbolMissingValue(symbol_table_t *table) {
 }
 
 
+
+
+
 /*check for faults w/ extern symbols*/
 int checkExternSymbols(symbol_table_t *table) {
 	symbol_t *symbol1, *symbol2;
@@ -426,5 +437,27 @@ void printTable(word_table_t *table) {
 		printf("%05d\t", table->lines[i].line_num); /* Print line number with leading zeros */
 		printf("%05d\t", table->lines[i]._ARE); /* Print line number with leading zeros */
 		printBinary(table->lines[i].word);         /* Print word in binary */
+	}
+}
+
+
+
+void update_Reloc_Lines(word_table_t *table) {
+	int i, newSize = 0;
+	line_t *line = NULL;
+
+	if (table == NULL) {
+		return;
+	}
+	for (i = 0; i < table->size; i++) {
+		if (table->lines[i]._ARE == R) {
+			line = &table->lines[i];
+			if(line->symbol!=NULL){
+				set_label_into_empty_word(&(line->word), line->symbol->address);
+				set_ARE_into_word(&(line->word), R);
+			}
+			else
+				report_error(ERR_SYMBOL_NOT_FOUND,line_count,SECOND,CRIT,0);
+		}
 	}
 }

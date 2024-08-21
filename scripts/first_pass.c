@@ -28,6 +28,9 @@ void first_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, word_table_t
 	switch (parser.line_type) {
 		case OP_CODE:
 			setOPCODE_INSTRUCTION(sym_tbl, wordTable);
+			if(parser.op  == stop){
+				printf("First Pass Completed\n");
+			}
 			break;
 		case DIRECTIVE:
 			if ((result = parser.directive.cmd) == DATA) {
@@ -128,7 +131,7 @@ void setOPCODE_WORDS(symbol_table_t *sym_tbl, word_table_t *table, int idx, int 
 			break;
 
 		case _DIRECT:
-			line2 = add_line(table, _offset, NULL, A);
+			line2 = add_line(table, _offset, NULL, R);
 			symbol2 = findSymbol(sym_tbl, parser.operands[idx].operand.symbol);
 			(symbol2 != NULL) ?: report_error(ERR_SYMBOL_NOT_FOUND, line_count, FIRST, CRIT, IC);
 			printf("line2 address : %p\n", line2);
