@@ -16,7 +16,7 @@ static int IC = 100; /*first address of the instruction table is preset in tabel
 static int DC = 0;
 
 /**  out.txt ***/
-void first_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataTable) {
+void first_pass( symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataTable) {
 	int result = 0, n = 0;
 	symbol_table_t *entryTable = NULL;
 
@@ -57,7 +57,7 @@ void first_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, word_table_t
 	printTable(dataTable);
 	print_symbol_table(sym_tbl);
 	printf("before second passs!!!\n");
-	second_pass(macroTable, sym_tbl, entryTable, wordTable, dataTable);
+	second_pass( sym_tbl,  wordTable, dataTable);
 }
 
 /*sets the instruction word and the send to othre func to set other words*/

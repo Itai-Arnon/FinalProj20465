@@ -59,7 +59,7 @@ void manage_files(int _argc, char **_argv, macro_table_t *macro_tbl, symbol_tabl
 			break;
 		}
 		fptr_before = initSourceFiles(_argc, _argv, fptr_before, idx);
-		parse(macro_tbl, sym_tbl, wordTable, dataTable);
+		parse( sym_tbl, wordTable, dataTable);
 
 
 		/*	read_preprocessor(macro_tbl, sym_tbl);*/

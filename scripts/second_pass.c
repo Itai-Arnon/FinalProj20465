@@ -17,8 +17,9 @@ static int IC = 0; /*first address of the instruction table is preset in tabel i
 static int DC;
 
 
-void second_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, symbol_table_t *entryTable, word_table_t *wordTable,
-            word_table_t *dataTable) {
+void second_pass( symbol_table_t *sym_tbl,  word_table_t *wordTable,
+                  word_table_t *dataTable) {
+	symbol_table_t *entryTable;
 	line_t *current_line;
 	symbol_t *symbol1, *symbol2;
 	char *boo;
@@ -27,7 +28,7 @@ void second_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, symbol_tabl
 		return;
 
 	}
-
+	entryTable = init_symbol_table(entryTable);
 
 	if (parser.op == stop) {
 		printf("Stop Occured\n");
@@ -38,6 +39,7 @@ void second_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, symbol_tabl
 		addNumberToWordTable(dataTable, n);
 		update_Reloc_Lines(wordTable);
 		update_Reloc_Lines(dataTable);
+		moveSymbolsToEntry(sym_tbl ,entryTable);
 		printTable(wordTable);
 		printf("-------------\n");
 		printTable(dataTable);
@@ -291,11 +293,14 @@ int checkExternSymbols(symbol_table_t *table) {
 }
 
 /*entry has a specific table , all entry are moved to it*/
-int moveSymbolsToEntry(symbol_table_t *sym_tbl, symbol_table_t *entrySTable) {
+
+
+int moveSymbolsToEntry(symbol_table_t *sym_tbl ,symbol_table_t *entrySTable) {
 	symbol_t *head = NULL;
-	int i = 0, counter = 0;
+	int counter = 0;
 
 	if (sym_tbl == NULL || entrySTable == NULL) {
+		printf("Symbol Table or Entry Symbol Table are Empty\n");
 		return 0;
 	}
 
@@ -304,8 +309,9 @@ int moveSymbolsToEntry(symbol_table_t *sym_tbl, symbol_table_t *entrySTable) {
 			addSymbolToTable(entrySTable, head);
 			counter++;
 		}
+		printf("%d have been moved\n", counter);
 	}
-	return counter;
+	return (counter == 0) ? 0:1;
 }
 
 /*adds an existatn symbol to a table*/

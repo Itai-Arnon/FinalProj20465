@@ -9,7 +9,7 @@
 #include "first_pass.h"
 #include "macro_list.h"
 /*main function| checks for symbol problems and other address*/
-void second_pass(macro_table_t *, symbol_table_t *, symbol_table_t * ,word_table_t *, word_table_t *);
+void second_pass(symbol_table_t *, word_table_t *, word_table_t *);
 
 		void moveEntryValues(word_table_t *table , symbol_table_t *symbolTable);
 

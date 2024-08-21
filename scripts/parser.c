@@ -41,7 +41,7 @@ parser_t parser;
 sep_commas_t seperator_c;
 
 
-void parse(macro_table_t *macroTable, symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataTable) {
+void parse( symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataTable) {
 	char *buffer = calloc(LINE_LENGTH, sizeof(char));/*sentence analyzed*/
 	char *cmd = calloc(MAX_SYMBOL_NAME, sizeof(char));/*cmd parse*/
 	char *cmd_extra = calloc(MAX_SYMBOL_NAME, sizeof(char)); /* 2nd cmd parse*/
@@ -216,7 +216,7 @@ void parse(macro_table_t *macroTable, symbol_table_t *sym_tbl, word_table_t *wor
 					if (isError) {
 						break;
 					}
-					first_pass(macroTable, sym_tbl, wordTable, dataTable);
+					first_pass( sym_tbl, wordTable, dataTable);
 			}
 		} /*END OF PARSE*/
 

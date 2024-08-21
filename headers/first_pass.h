@@ -37,7 +37,7 @@ typedef struct word_table_t {
 
 
 /*processes parser struct one line at a time and translates to machine language*/
-void first_pass(macro_table_t*, symbol_table_t *, word_table_t *, word_table_t *);
+void first_pass( symbol_table_t *, word_table_t *, word_table_t *);
 
 /*process .string directive*/
 void set_STRING_WORDS(symbol_table_t *sym_tbl, word_table_t *dataTable);
