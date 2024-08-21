@@ -24,14 +24,7 @@ void second_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, symbol_tabl
 
 	}
 
-	n = wordTable->lines[wordTable->size - 1].line_num + 1;
-	printf("n: %d\n", n);
-	addConstantToSymbols(sym_tbl,_DATA, n);
-	addNumberToWordTable(dataTable, n );
-
-
-
-	IC = 0;
+	IC = 100;
 	DC = 0;
 
 
@@ -43,8 +36,16 @@ void second_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, symbol_tabl
 
 			if (parser.op == stop) {
 				printf("Stop Occured\n");
+
+				n = wordTable->lines[wordTable->size - 1].line_num + 1;
+				printf("n: %d\n", n);
+				addConstantToSymbols(sym_tbl,_DATA, n);
+				addNumberToWordTable(dataTable, n );
 				printTable(wordTable);
+				printf("-------------\n");
 				printTable(dataTable);
+				printf("------------\n");
+				print_symbol_table(sym_tbl);
 
 			}
 			break;
@@ -56,12 +57,13 @@ void second_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, symbol_tabl
 				checkSTRING_WORDS(sym_tbl, dataTable);
 
 			} else if (result == EXTERN) {
-				checkEXTERN(sym_tbl,wordTable);
+				checkEXTERN(sym_tbl, wordTable);
+			}
 			/*entry*/
-			}else{
+			/*}else{
 				printEntrySymbolTable(entryTable, "" , 0 );
 			}
-
+*/
 			break;
 		case ERR:
 			report_error(ERR_GENERAL_FIRST_PASS_ERROR, line_count, SECOND, CRIT, 0);
@@ -74,7 +76,7 @@ void second_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, symbol_tabl
 	}
 
 
-	print_symbol_table(sym_tbl);
+
 
 }
 
@@ -87,14 +89,12 @@ void checkOPCODE_INSTRUCTION(symbol_table_t *sym_tbl, word_table_t *table) {
 	type_of_register_t type0 = parser.operands[0].type_of_register;
 	type_of_register_t type1 = parser.operands[1].type_of_register;
 	IC++;
-	printf("IC: %d\n", IC);
 	if (symbol != NULL) {
 		/*notifies about address problem*/
 		if (symbol->address < 100)
 			report_error(WAR_MEMORY_NOT_CONFIGURED, line_count, SECOND, NON_CRIT, symbol->address);
 
 	}
-	printf("INSIDE OPCODE LINE1 ptr VALUE :%p\n", line1);
 	switch (register_count_by_op(parser.op)) {
 		case 0:
 			printf(" 2nd Pass OPCODE: 0 registries\n");
@@ -122,10 +122,6 @@ void checkOPCODE_INSTRUCTION(symbol_table_t *sym_tbl, word_table_t *table) {
 				/*INDIRECT and Regular registry, type is one*/
 				checkOPCODE_WORDS(sym_tbl, table, 1, 1);
 	}
-	printf("register 0 value: %d\n", parser.operands[0].type_of_register);
-	printf("register 1 value:%d\n", parser.operands[1].type_of_register);
-	printf("typeof registry in operand 0 value: %d\n", parser.operands[0].operand.registry);
-	printf("typeof registry in operand 1 value: %d\n", parser.operands[1].operand.registry);
 
 
 }
@@ -133,14 +129,11 @@ void checkOPCODE_INSTRUCTION(symbol_table_t *sym_tbl, word_table_t *table) {
 void checkOPCODE_WORDS(symbol_table_t *sym_tbl, word_table_t *table, int idx, int type) {
 	symbol_t *symbol2 = NULL;
 	line_t *line2 = &table->lines[IC];
-	printf("line2 :%p  registry %d\n", line2, parser.operands[idx].type_of_register);
 
 	IC++;
 	switch (parser.operands[idx].type_of_register) {
 		case _IMMEDIATE:
 
-			printf("2nd Pass INSIDE WORDS CASE: _immediate ||ptr address  :%p   ", line2);
-			printBinary(line2->word);
 			break;
 
 		case _DIRECT:
@@ -154,9 +147,6 @@ void checkOPCODE_WORDS(symbol_table_t *sym_tbl, word_table_t *table, int idx, in
 
 			set_label_into_empty_word(&(line2->word), symbol2->address);
 
-			printf("(INSIDE WORDS |CASE: DIRECT  obj variable: line2||  ptr address  :%p  registry type %d\n", line2,
-			       parser.operands[idx].type_of_register);
-			printBinary(line2->word);
 			break;
 
 		case _INDIRECT:/*here a check is made if there are two regiters or not*/
@@ -164,20 +154,10 @@ void checkOPCODE_WORDS(symbol_table_t *sym_tbl, word_table_t *table, int idx, in
 
 			if (type == 0) {
 
-				printf("INSIDE WORDS |CASE:single registry indirect/regular  || line2-variable :%p   %d\n", line2,
-				       parser.operands[idx].type_of_register);
 				printBinary(line2->word);
 			}
 			if (type == 1) {
-				printf("INSIDE WORDS |CASE: (line2) :%p indirect and regular registry %d\n", line2,
-				       parser.operands[idx].type_of_register);
-				printBinary(line2->word);
 			}
-			break;
-		case _ERROR:
-			report_error(ERR_REGISTRY_ILLEGAL, line_count, SECOND, CRIT, 0);
-		case _TBD:
-			/*default value is TBD*/
 			break;
 	}
 }
@@ -427,7 +407,7 @@ void printExternTable(word_table_t *table, FILE *file, int outputType) {
 }
 
 /*print to file ps.ent or stdout  entry information - use a specific symbol table */
-void printEntrySymbolTable(symbol_table_t *table, FILE *file, int outputType) {
+/*void printEntrySymbolTable(symbol_table_t *table, FILE *file, int outputType) {
 		symbol_t *symbol;
 
 		if (table == NULL) {
@@ -435,12 +415,12 @@ void printEntrySymbolTable(symbol_table_t *table, FILE *file, int outputType) {
 		}
 
 		switch (outputType) {
-			case 1: /* Print to stdout */
+			case 1: *//* Print to stdout *//*
 				for (symbol = table->symbol_List; symbol != NULL; symbol = symbol->next_sym) {
 					printf("%s %04d\n", symbol->symbol_name, symbol->address);
 				}
 				break;
-			case 2: /* Print to file */
+			case 2: *//* Print to file *//*
 				if (file == NULL) {
 					return;
 				}
@@ -451,7 +431,7 @@ void printEntrySymbolTable(symbol_table_t *table, FILE *file, int outputType) {
 			default:
 				return;
 		}
-	}
+	}*/
 
 
 

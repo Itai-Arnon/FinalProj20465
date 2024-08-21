@@ -22,13 +22,9 @@ void first_pass(macro_table_t* macroTable,  symbol_table_t *sym_tbl, word_table_
 
 	entryTable = init_symbol_table(entryTable);
 
-
-
 	if(isError) {
 		return;
 	}
-
-
 	switch (parser.line_type) {
 		case OP_CODE:
 			setOPCODE_INSTRUCTION(sym_tbl, wordTable);
@@ -52,6 +48,10 @@ void first_pass(macro_table_t* macroTable,  symbol_table_t *sym_tbl, word_table_
 		default:
 			break;
 	}
+	print_symbol_table(sym_tbl);
+	printTable(wordTable);
+	printTable(dataTable);
+	printf("before second passs!!!\n");
 	second_pass(macroTable, sym_tbl, entryTable,  wordTable, dataTable);
 }
 
@@ -59,7 +59,7 @@ void first_pass(macro_table_t* macroTable,  symbol_table_t *sym_tbl, word_table_
 void setOPCODE_INSTRUCTION(symbol_table_t *sym_tbl, word_table_t *table) {
 	symbol_t *symbol = findSymbol(sym_tbl, parser.symbol_name);
 
-	line_t *line1 = add_line(table, IC, symbol,_NO);
+	line_t *line1 = add_line(table, IC, symbol,A);
 
 	type_of_register_t type0 = parser.operands[0].type_of_register;
 	type_of_register_t type1 = parser.operands[1].type_of_register;
@@ -316,11 +316,10 @@ word_table_t *initTable(word_table_t *table , int memInit) {
 
 	table = calloc(1, sizeof(word_table_t));
 	table->lines = calloc(1, sizeof(line_t));
-	table->size = 1;
-	table->isFirst = 1;
+	table->size = 0;
 	table->lines->line_num = memInit;
 	table->lines->symbol = NULL;
-	table->lines->_ARE = _NO;
+	table->lines->_ARE = A;
 
 	return table;
 }
@@ -334,10 +333,7 @@ line_t *add_line(word_table_t *table, int ic_num, symbol_t *symbol , memory_t _A
 	if (table == NULL)
 		return NULL;
 
-	if(table->isFirst == 1) {
-		table->isFirst = 0;
-		return &(table->lines[0]);
-	}
+
 	table->size++;
 
 	if (!(new_ptr = (line_t *) realloc(table->lines, (table->size) * sizeof(line_t)))) {
@@ -348,7 +344,7 @@ line_t *add_line(word_table_t *table, int ic_num, symbol_t *symbol , memory_t _A
 		table->lines = new_ptr;
 
 	/*data assignmet to new member */
-	table->lines[table->size - 1].line_num = ic_num; /*address*/
+	table->lines[table->size - 1].line_num = table->size; /*address*/
 	table->lines[table->size - 1].symbol = symbol;/*pointer to symbol*/
 	table->lines[table->size - 1].word = 0;
 	table->lines[table->size - 1]._ARE = _ARE;

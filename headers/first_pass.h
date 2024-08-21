@@ -32,7 +32,6 @@ typedef struct line_t {
 typedef struct word_table_t {
 	line_t *lines;
 	int size;
-	int isFirst;
 } word_table_t;
 
 

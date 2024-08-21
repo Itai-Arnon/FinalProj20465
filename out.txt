@@ -1,4 +1,35 @@
-mov  r1, LABEL
-LABEL: mov  r1, r2
+ mov r2 , *r3
 mov  r1, r2
+mov r2 , r3
+mov r2 , r3
+mov r2 , r3
+mov r2 , r3
+mov r2 , r3
+mov r2 , r3
+mov r2 , r3
+mov r2 , r3
+mov r2 , r3
+mov r2 , r3
+mov r2 , r3
+mov r2 , r3
+mov r2 , r3
+mov r2 , r3
+mov r2 , r3
+mov r2 , r3
+mov r2 , r3
+mov r2 , r3
+mov r2 , r3
+mov r2 , r3
+mov r2 , r3
+mov r2 , r3
+mov r2 , r3
+mov r2 , r3
+mov r2 , r3
+mov r2 , r3
+mov r2 , r3
+mov r2 , r3
+mov r2 , r3
+mov r2 , r3
+mov r2 , r3
+mov r2 , r3
 stop

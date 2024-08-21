@@ -39,7 +39,7 @@ void print_symbol_table(symbol_table_t *sym_tbl);
 void printExternTable(word_table_t *table, FILE *file, int outputType);
 
 /*print to file ps.ent or stdout  entry information - use a specific symbol table */
-void printEntrySymbolTable(symbol_table_t *table, FILE *file, int outputType);
+/*void printEntrySymbolTable(symbol_table_t *table, FILE *file, int outputType);*/
 
 void printBinary(unsigned short num);
 
