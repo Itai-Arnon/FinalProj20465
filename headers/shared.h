@@ -26,9 +26,11 @@
 #define PATH_BASE "..\\"                                           /*ALternate PATH_BASE */
 #define EXT_BEFORE ".txt" /*TODO change to appropriate extension once in linux*/
 #define EXT_AFTER "a.txt"
+#define START_PRE ".as"
+#define END_PRE   ".am"
 
 
-#define MACRO_TABLE_FULL "Macro Table full allocate more place"
+
 
 /*writing Macro Error and File Errors*/
 

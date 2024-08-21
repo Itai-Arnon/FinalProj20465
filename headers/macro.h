@@ -10,18 +10,11 @@
 
 
 
- /*returns a file ptr based and argv and argc, based on index the last param
-  * require more management to increment the index*/
-FILE* initSourceFiles(int ,char**,FILE*, int );/*returns ptr to current .as  */
-
 /**
- * Creates a destination file & returns it file pointer.
+
  *
- * @param fptr The file pointer to be updated with the new file's pointer.
- * @return FILE* The updated file pointer if successful, NULL if an error occurred.
  */
 
-FILE *initDestinationPointer(FILE *fptr, char *filename ,char []);
 
 /**
  * prime function of the pre-compiler

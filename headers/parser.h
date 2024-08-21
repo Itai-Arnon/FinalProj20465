@@ -27,7 +27,7 @@ typedef struct {/*array*/
 
 
 /*finds error in lines and loads correct line to parser*/
-void parse( symbol_table_t * ,  word_table_t *, word_table_t *);
+void parse( symbol_table_t * ,  word_table_t *, word_table_t *, FILE*);
 
 /*initiate parser incharge of checking line correctness*/
 void initParser();

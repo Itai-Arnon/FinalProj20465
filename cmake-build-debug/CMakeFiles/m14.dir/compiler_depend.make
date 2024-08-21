@@ -8,6 +8,7 @@ CMakeFiles/m14.dir/scripts/assembler.c.obj: C:/OPU/20465/m/m14/scripts/assembler
   C:/OPU/20465/m/m14/headers/macro.h \
   C:/OPU/20465/m/m14/headers/macro_list.h \
   C:/OPU/20465/m/m14/headers/parser.h \
+  C:/OPU/20465/m/m14/headers/second_pass.h \
   C:/OPU/20465/m/m14/headers/shared.h \
   C:/OPU/20465/m/m14/headers/symbols.h \
   C:/OPU/20465/m/m14/headers/utils.h \
@@ -293,6 +294,10 @@ C:/OPU/20465/m/m14/headers/global_vars.h:
 
 C:/OPU/20465/m/m14/headers/first_pass.h:
 
+C:/Users/hybo/AppData/Local/Programs/CLion/bin/mingw/x86_64-w64-mingw32/include/vadefs.h:
+
+C:/OPU/20465/m/m14/headers/second_pass.h:
+
 C:/OPU/20465/m/m14/headers/macro.h:
 
 C:/OPU/20465/m/m14/headers/parser.h:
@@ -344,10 +349,6 @@ C:/Users/hybo/AppData/Local/Programs/CLion/bin/mingw/x86_64-w64-mingw32/include/
 C:/OPU/20465/m/m14/scripts/utils.c:
 
 C:/Users/hybo/AppData/Local/Programs/CLion/bin/mingw/x86_64-w64-mingw32/include/stdio.h:
-
-C:/OPU/20465/m/m14/headers/second_pass.h:
-
-C:/Users/hybo/AppData/Local/Programs/CLion/bin/mingw/x86_64-w64-mingw32/include/vadefs.h:
 
 C:/OPU/20465/m/m14/scripts/macro.c:
 

@@ -52,7 +52,7 @@ extern FILE *fptr_before;
 extern FILE *fptr_after;
 extern int line_count;
 extern int isError;
-extern char* current_filename;
-extern int erase_this_flag;
+
+
 
 #endif /*M14_GLOBAL_VARS_H*/

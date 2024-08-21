@@ -18,7 +18,7 @@ static int DC;
 
 
 void second_pass( symbol_table_t *sym_tbl,  word_table_t *wordTable,
-                  word_table_t *dataTable) {
+                  word_table_t *dataTable , FILE* filename) {
 	symbol_table_t *entryTable;
 	line_t *current_line;
 	symbol_t *symbol1, *symbol2;
@@ -49,133 +49,6 @@ void second_pass( symbol_table_t *sym_tbl,  word_table_t *wordTable,
 }
 
 
-void checkOPCODE_INSTRUCTION(symbol_table_t *sym_tbl, word_table_t *table) {
-
-
-	line_t *line1 = &table->lines[IC];
-
-	type_of_register_t type0 = parser.operands[0].type_of_register;
-	type_of_register_t type1 = parser.operands[1].type_of_register;
-	IC++;
-	if (line1->symbol != NULL) {
-		/*notifies about address problem*/
-		if (line1->symbol->address < 100)
-			report_error(WAR_MEMORY_NOT_CONFIGURED, line_count, SECOND, NON_CRIT, line1->symbol->address);
-
-	}
-	switch (register_count_by_op(parser.op)) {
-		case 0:
-			break;
-		case 1:
-
-			checkOPCODE_WORDS(sym_tbl, table, 1, 0);
-			break;
-		case 2:
-
-
-			if (registerSelection() == 2) {
-				/*all combinations except INDIRECT and Regular registry(4th type) type is zero*/
-				checkOPCODE_WORDS(sym_tbl, table, 0, 0);
-				checkOPCODE_WORDS(sym_tbl, table, 1, 0);
-			} else
-				/*INDIRECT and Regular registry, type is one*/
-				checkOPCODE_WORDS(sym_tbl, table, 1, 1);
-	}
-
-
-}
-
-void checkOPCODE_WORDS(symbol_table_t *sym_tbl, word_table_t *table, int idx, int type) {
-	symbol_t *symbol2 = NULL;
-	line_t *line2 = &table->lines[IC];
-
-	IC++;
-	/*the follow is type Direct Operand Check*/
-
-	if(parser.operands[idx].type_of_register ==  _DIRECT) {
-		if (line2->symbol != NULL) {
-				report_error(ERR_SYMBOL_NOT_FOUND, line_count, SECOND, CRIT, 0);
-				return;
-		}
-		if (symbol2->address < 100)
-			report_error(WAR_MEMORY_NOT_CONFIGURED, line_count, SECOND, NON_CRIT, 0);
-
-		set_label_into_empty_word(&(line2->word), symbol2->address);
-	}
-}
-
-
-void checkDATA_WORDS(symbol_table_t *sym_tbl, word_table_t *table) {
-
-	symbol_t *symbol = findSymbol(sym_tbl, parser.symbol_name);
-	line_t *line = NULL;
-	int i = 0;
-	unsigned short num = 0;
-
-	if (symbol != NULL && symbol->address == 0) {
-		/*todo change to critical*/
-		report_error(WAR_MEMORY_NOT_CONFIGURED, line_count, SECOND, NON_CRIT, line->line_num);
-		return;
-	}
-
-	for (i = DC; i < parser.directive.operand.data_len; i++) {
-		/*only the first line has a potential symbol*/
-		line = &table->lines[i];
-		if (i == DC && line->symbol != NULL && line->symbol->address < 100) {
-			report_error(WAR_MEMORY_NOT_CONFIGURED, line_count, SECOND, NON_CRIT, line->line_num);
-			DC++;
-		}
-		DC++;
-	}
-}
-
-void checkSTRING_WORDS(symbol_table_t *sym_tbl, word_table_t *table) {
-
-	int i = DC;
-	line_t *line = NULL;
-
-	for (; i < parser.directive.operand.data_len; i++) {
-		line = &table->lines[i];
-		if (i == DC && line->symbol != NULL && line->symbol->address <100 ) {
-			report_error(WAR_MEMORY_NOT_CONFIGURED, line_count, SECOND, NON_CRIT, line->line_num);
-		}
-		DC++;/*raise count for the \0 inserted at the end of the command */
-
-	}
-}
-
-void checkEXTERN(symbol_table_t *sym_tbl, word_table_t *table) {
-	line_t *line = &table->lines[DC];
-	symbol_t *symbol = line->symbol;
-
-/* unlike the rest |symbol is a registry*/
-	if (symbol != NULL) {
-		DC++;
-	} else
-		report_error(ERR_EXTERN_SYMBOL, line_count, SECOND, CRIT, DC);
-}
-
-
-/*check if there are duplicate symbols with macro table*/
-void checkSymbolsUnique(macro_table_t *macro_table, symbol_table_t *sym_table) {
-	macro_node_t *m;
-	symbol_t *symbol;
-	int i = 0;
-
-	for (i = 0; i < macro_table->size; ++i) {
-		m = &macro_table->slot[i];
-		for (symbol = sym_table->symbol_List; symbol != NULL; symbol = symbol->next_sym) {
-			if (strcmp(m->macro_name, symbol->symbol_name) == 0) {
-				report_error(ERR_MACRO_NAME_OP_DIRECT_SYMBOL, line_count, SECOND, CRIT, 0);
-				free(m);
-				free(symbol);
-				return;
-			}
-		}
-
-	}
-
-}
 
 /*int (all machine language) to octal */
 int convertToOctal(int num) {
@@ -352,6 +225,9 @@ void printExternTable(word_table_t *table, FILE *file, int outputType) {
 	}
 }
 
+
+
+
 /*print to file ps.ent or stdout  entry information - use a specific symbol table */
 /*void printEntrySymbolTable(symbol_table_t *table, FILE *file, int outputType) {
 		symbol_t *symbol;
@@ -426,4 +302,53 @@ void update_Reloc_Lines(word_table_t *table) {
 				report_error(ERR_SYMBOL_NOT_FOUND,line_count,SECOND,CRIT,0);
 		}
 	}
+}
+
+void printEntryTableFile(symbol_table_t *table, FILE *file, int type) {
+	symbol_t *symbol;
+
+	if (table == NULL) {
+		return;
+	}
+
+	switch (type) {
+		case 1: /* Print to stdout */
+			for (symbol = table->symbol_List; symbol != NULL; symbol = symbol->next_sym) {
+				printf("%s  %04d\n", symbol->symbol_name, symbol->address);
+			}
+			break;
+		case 2: /* Print to file */
+			if (file == NULL) {
+				return;
+			}
+			for (symbol = table->symbol_List; symbol != NULL; symbol = symbol->next_sym) {
+				fprintf(file, "%s  %0d\n", symbol->symbol_name, symbol->address);
+			}
+			break;
+		default:
+			return;
+	}
+}
+
+
+
+/*check if there are duplicate symbols with macro table*/
+void checkSymbolsUnique(macro_table_t *macro_table, symbol_table_t *sym_table) {
+	macro_node_t *m;
+	symbol_t *symbol;
+	int i = 0;
+
+	for (i = 0; i < macro_table->size; ++i) {
+		m = &macro_table->slot[i];
+		for (symbol = sym_table->symbol_List; symbol != NULL; symbol = symbol->next_sym) {
+			if (strcmp(m->macro_name, symbol->symbol_name) == 0) {
+				report_error(ERR_MACRO_NAME_OP_DIRECT_SYMBOL, line_count, SECOND, CRIT, 0);
+				free(m);
+				free(symbol);
+				return;
+			}
+		}
+
+	}
+
 }

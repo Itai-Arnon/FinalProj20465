@@ -11,10 +11,16 @@ void manage_files(int, char **, macro_table_t *, symbol_table_t *, word_table_t 
 
 void move_one_directory_up(char *path);
 
-FILE *initSourceFiles(int _argc, char **_argv, FILE *fptr, int index);
 
-FILE *initDestinationPointer(FILE *fptr, char *filename, char mode[]);
+/*returns a file ptr based and argv and argc, based on index the last param
+ * require more management to increment the index*/
+FILE *initSourceFiles(int _argc, char **_argv, FILE *fptr, int index ,int);
 
+/* Creates a destination file & returns it file pointer. According to number of given files
+ * can also change mode r/w/a */
+FILE *initDestinationPointer(FILE *fptr, char *filename, char mode[] , int);
+
+/*add an extension to a given file name*/
 char *addExtension(char *file_name, char *ext);
 
 void report_error(char *, int, file_t, err_type_t, int);
