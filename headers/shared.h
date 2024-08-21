@@ -19,7 +19,6 @@
 #define MACRO_END_LEN 7
 #define MACRO_START_LEN 4
 #define MAX_DIRECTIVE_NAME 8
-#define IC_SHIFT 100
 
 
 /*text add in */

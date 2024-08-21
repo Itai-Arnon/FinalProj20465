@@ -13,34 +13,35 @@
 #include "headers/first_pass.h"
 #include "headers/assembler.h"
 
+static int IC = 100; /*first address of the instruction table is preset in tabel init*/
+static int DC;
 
-void second_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, symbol_table_t *entryTable ,word_table_t *wordTable, word_table_t *dataTable) {
+
+void
+second_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, symbol_table_t *entryTable, word_table_t *wordTable,
+            word_table_t *dataTable) {
 	line_t *current_line;
 	symbol_t *symbol1, *symbol2;
 	char *boo;
 	int idx, result = 0, n = 0;
-	if(isError == 1){
+	if (isError == 1) {
 		return;
 
 	}
-
-	IC = 100;
-	DC = 0;
 
 
 	switch (parser.line_type) {
 		case OP_CODE:
 
-			printf("registry%d\n", parser.operands[1].operand.registry);
 			checkOPCODE_INSTRUCTION(sym_tbl, wordTable);
 
 			if (parser.op == stop) {
 				printf("Stop Occured\n");
 
-				n = wordTable->lines[wordTable->size - 1].line_num + 1;
+				/*n = wordTable->lines[wordTable->size - 1].line_num + 1;
 				printf("n: %d\n", n);
-				addConstantToSymbols(sym_tbl,_DATA, n);
-				addNumberToWordTable(dataTable, n );
+				addConstantToSymbols(sym_tbl, _DATA, n);
+				addNumberToWordTable(dataTable, n);*/
 				printTable(wordTable);
 				printf("-------------\n");
 				printTable(dataTable);
@@ -51,14 +52,14 @@ void second_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, symbol_tabl
 			break;
 		case DIRECTIVE:
 			if ((result = parser.directive.cmd) == DATA) {
-				checkDATA_WORDS(sym_tbl, dataTable);
+		checkDATA_WORDS(sym_tbl, dataTable);
 
-			} else if (result == STRING) {
-				checkSTRING_WORDS(sym_tbl, dataTable);
+	} else if (result == STRING) {
+		checkSTRING_WORDS(sym_tbl, dataTable);
 
-			} else if (result == EXTERN) {
-				checkEXTERN(sym_tbl, wordTable);
-			}
+	} else if (result == EXTERN) {
+		checkEXTERN(sym_tbl, wordTable);
+	}
 			/*entry*/
 			/*}else{
 				printEntrySymbolTable(entryTable, "" , 0 );
@@ -74,8 +75,6 @@ void second_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, symbol_tabl
 		default:
 			break;
 	}
-
-
 
 
 }
@@ -97,21 +96,12 @@ void checkOPCODE_INSTRUCTION(symbol_table_t *sym_tbl, word_table_t *table) {
 	}
 	switch (register_count_by_op(parser.op)) {
 		case 0:
-			printf(" 2nd Pass OPCODE: 0 registries\n");
-			printBinary(line1->word);
 			break;
 		case 1:
 
 			checkOPCODE_WORDS(sym_tbl, table, 1, 0);
-			printf("2nd PASS INSIDE OPCODE  case: 1 registries");
-			printBinary(line1->word);
 			break;
 		case 2:
-
-
-			printBinary(line1->word);
-
-			/*INDIRECT and DIRECT Register are set only once to checkOPCODE_WORDS register selection decides*/
 
 
 			if (registerSelection() == 2) {
@@ -131,36 +121,20 @@ void checkOPCODE_WORDS(symbol_table_t *sym_tbl, word_table_t *table, int idx, in
 	line_t *line2 = &table->lines[IC];
 
 	IC++;
-	switch (parser.operands[idx].type_of_register) {
-		case _IMMEDIATE:
+	/*the follow is type Direct Operand Check*/
 
-			break;
+	if(parser.operands[idx].type_of_register ==  _DIRECT) {
+		symbol2 = findSymbol(sym_tbl, parser.operands[idx].operand.symbol);
+		if (symbol2 != NULL) {
+			if (symbol2->address < 100)
+				report_error(WAR_MEMORY_NOT_CONFIGURED, line_count, SECOND, NON_CRIT, symbol2->address);
+		} else
+			report_error(ERR_SYMBOL_NOT_FOUND, line_count, SECOND, CRIT, 0);
 
-		case _DIRECT:
-			symbol2 = findSymbol(sym_tbl, parser.operands[idx].operand.symbol);
-			if (symbol2 != NULL) {
-				if (symbol2->address < 100)
-					report_error(WAR_MEMORY_NOT_CONFIGURED, line_count, SECOND, NON_CRIT, symbol2->address);
-			}
-			else
-					report_error(ERR_SYMBOL_NOT_FOUND, line_count, SECOND, CRIT, 0);
-
-			set_label_into_empty_word(&(line2->word), symbol2->address);
-
-			break;
-
-		case _INDIRECT:/*here a check is made if there are two regiters or not*/
-		case _REGULAR:
-
-			if (type == 0) {
-
-				printBinary(line2->word);
-			}
-			if (type == 1) {
-			}
-			break;
+		set_label_into_empty_word(&(line2->word), symbol2->address);
 	}
 }
+
 
 void checkDATA_WORDS(symbol_table_t *sym_tbl, word_table_t *table) {
 
@@ -169,35 +143,34 @@ void checkDATA_WORDS(symbol_table_t *sym_tbl, word_table_t *table) {
 	int i = 0;
 	unsigned short num = 0;
 
-	if (symbol != NULL) {
-		printf("2nd pass Symbol Address %d\n", symbol->address);
+	if (symbol != NULL && symbol->address == 0) {
+		/*todo change to critical*/
+		report_error(WAR_MEMORY_NOT_CONFIGURED, line_count, SECOND, NON_CRIT, line->line_num);
 	}
+
 	for (i = DC; i < parser.directive.operand.data_len; i++) {
 		/*only the first line has a potential symbol*/
 		line = &table->lines[i];
-		printBinary(line->word);
 		DC++;
 	}
+	DC++;
 }
 
 void checkSTRING_WORDS(symbol_table_t *sym_tbl, word_table_t *table) {
 	symbol_t *symbol = findSymbol(sym_tbl, parser.symbol_name);
+	int i = DC;
 	line_t *line = NULL;
-	int i = 0;
+
 	if (symbol != NULL) {
-		printf("String Symbol Address %d\n", symbol->address);
+		report_error(WAR_MEMORY_NOT_CONFIGURED, line_count, SECOND, NON_CRIT, line->line_num);
 	}
 
-	for (i = DC; i < parser.directive.operand.data_len; i++) {
+	for (; i < parser.directive.operand.data_len; i++) {
 		line = &table->lines[i];
-		printBinary(line->word);
 		DC++;
-	}
-	/*adding '\0' */
-	line = &table->lines[DC];
 
-	printBinary(line->word);
-	DC++;
+	}
+
 
 }
 
@@ -209,12 +182,8 @@ void checkEXTERN(symbol_table_t *sym_tbl, word_table_t *table) {
 	if (symbol != NULL) {
 
 		DC++;
-	}else
+	} else
 		report_error(ERR_EXTERN_SYMBOL, line_count, SECOND, CRIT, DC);
-	printf("Extern object ptr address  :%p\n", line);
-	printf("CASE EXTERN we are done word is zeroes \n ");
-	printf("CASE ENTRY if we don't have the address we'll look at it in the 2nd pass  \n ");
-	printBinary(line->word);
 }
 
 
@@ -273,7 +242,7 @@ void printTableToFile(word_table_t *wTable, word_table_t *dTable, char *file_nam
 }
 
 /*check for symbol with undefined address*/
-symbol_t * firstSymbolMissingValue(symbol_table_t *table) {
+symbol_t *firstSymbolMissingValue(symbol_table_t *table) {
 	symbol_t *head = NULL;
 	int i = 0;
 
@@ -284,7 +253,7 @@ symbol_t * firstSymbolMissingValue(symbol_table_t *table) {
 
 	while (head != NULL) {
 		if (head->address == 0) {
-			 return head;
+			return head;
 		}
 		head = head->next_sym;
 	}
@@ -301,20 +270,21 @@ int checkExternSymbols(symbol_table_t *table) {
 	}
 
 
-			for (symbol1 = table->symbol_List; symbol1 != NULL; symbol1 = symbol1->next_sym) {
-				if (symbol1->type == _EXTERN) {
-					for (symbol2 = table->symbol_List; symbol2 != NULL; symbol2 = symbol2->next_sym) {
-						if ((symbol2->type == _INSTRUCTION || symbol2->type== _DATA) && strcmp(symbol1->symbol_name, symbol2->symbol_name) == 0)
-							return 1;
+	for (symbol1 = table->symbol_List; symbol1 != NULL; symbol1 = symbol1->next_sym) {
+		if (symbol1->type == _EXTERN) {
+			for (symbol2 = table->symbol_List; symbol2 != NULL; symbol2 = symbol2->next_sym) {
+				if ((symbol2->type == _INSTRUCTION || symbol2->type == _DATA) &&
+				    strcmp(symbol1->symbol_name, symbol2->symbol_name) == 0)
+					return 1;
 
-					}
-				}
 			}
+		}
+	}
 	return 0;
 }
 
 /*entry has a specific table , all entry are moved to it*/
-int moveSymbolsToEntry(symbol_table_t *sym_tbl ,symbol_table_t *entrySTable) {
+int moveSymbolsToEntry(symbol_table_t *sym_tbl, symbol_table_t *entrySTable) {
 	symbol_t *head = NULL;
 	int i = 0, counter = 0;
 
@@ -333,25 +303,24 @@ int moveSymbolsToEntry(symbol_table_t *sym_tbl ,symbol_table_t *entrySTable) {
 
 /*adds an existatn symbol to a table*/
 int addSymbolToTable(symbol_table_t *table, symbol_t *_symbol) {
-		symbol_t *head = NULL;
+	symbol_t *head = NULL;
 
-		if (table == NULL) {
-			return 0;
-		}
-		head = table->symbol_List;
+	if (table == NULL) {
+		return 0;
+	}
+	head = table->symbol_List;
 
-		if (head == NULL) {
-			table->symbol_List = _symbol;
-			return 1;
-		}else {
-			while (head->next_sym != NULL) {
-				head = head->next_sym;
-			}
-			head->next_sym = _symbol;
-		}
+	if (head == NULL) {
+		table->symbol_List = _symbol;
 		return 1;
+	} else {
+		while (head->next_sym != NULL) {
+			head = head->next_sym;
+		}
+		head->next_sym = _symbol;
+	}
+	return 1;
 }
-
 
 
 void print_symbol_table(symbol_table_t *sym_tbl) {
@@ -373,6 +342,7 @@ void print_symbol_table(symbol_table_t *sym_tbl) {
 	printf("\n");
 	return;
 }
+
 /*print to file ps.ext or stdout  extern information */
 void printExternTable(word_table_t *table, FILE *file, int outputType) {
 	line_t *line;

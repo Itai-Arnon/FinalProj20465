@@ -91,6 +91,7 @@ symbol_t *create_symbol(symbol_table_t *sym_tbl, char symbol_name[], int address
 		node->address = 0;
 		node->type = type;
 		node->next_sym = NULL;
+		node->isUpdate = 0;
 		return node;
 	}
 	report_error(ERR_FAIL_CREATE_SYMBOL, line_count, SYM, CRIT, 0);

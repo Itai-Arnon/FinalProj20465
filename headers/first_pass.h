@@ -16,7 +16,8 @@
 #define label_shift 3
 
 
-#define initTableSize 1
+
+#define _offset  99
 
 
 typedef unsigned short word_t;

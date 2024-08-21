@@ -17,8 +17,8 @@ macro_table_t *initMacroTable(macro_table_t *tbl) {
 	tbl->isEmpty = 1;
 	tbl->isMacroOpen = 0;
 	tbl->amount = 0;
-	tbl->size = 1;
-	tbl->isFirst = 1;
+	tbl->size = 0;
+
 
 
 	if (!(tbl->slot = calloc(1, sizeof(macro_node_t)))) {
@@ -38,10 +38,7 @@ macro_node_t *constructMacroNode(macro_table_t *tbl, char *macro_name, char *lin
 	if (tbl == NULL)
 		return NULL;
 
-	if (tbl->isFirst == 1) {
-		tbl->isFirst = 0;
-		return &(tbl->slot[0]);
-	}
+
 
 	if (!(tbl->slot = realloc(tbl->slot, (tbl->size) * sizeof(macro_node_t)))) {
 		report_error(ERR_MACRO_NODE_CREATION_FAILED, line_count ,MACL , CRIT ,0);    /*critical error*/

@@ -11,7 +11,8 @@
 typedef struct symbol_t{
 	char symbol_name[MAX_SYMBOL_NAME];
 	int address;
-	memory_t type;/*_INSTRUCTION OR DATA*/
+	memory_t type;/*_INSTRUCTION OR DATA or _Extern or _Entry*/
+	int isUpdate; /*signifies if it has been updated*/
 	struct symbol_t *next_sym;
 }symbol_t;
 
@@ -35,7 +36,7 @@ symbol_t  *findSymbol(symbol_table_t *sym_tbl , char *symbol_name);
 
 symbol_table_t * init_symbol_table(symbol_table_t *sym_tbl);
 
-symbol_t *create_symbol(symbol_table_t *sym_tbl , char[] ,int ,  memory_t );
+symbol_t *create_symbol(symbol_table_t *sym_tbl , char[] ,int ,  memory_t  );
 
 
 /*fills parser and checks if symbol- then returns 1  non duplicate , 2 for duplicate

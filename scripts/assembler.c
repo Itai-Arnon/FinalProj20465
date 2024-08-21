@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
 
 	mac_tbl = initMacroTable(mac_tbl);
 	sym_tbl = init_symbol_table(sym_tbl);
-	wordTable = initTable(wordTable, 100);
+	wordTable = initTable(wordTable, 0);
 	dataTable = initTable(dataTable, 0);
 
 

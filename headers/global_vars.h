@@ -45,8 +45,8 @@ extern char *directives[4];
  /*extern char *directives[4] = {".data", ".string", ".extern", ".entry"};*/
 
 
-extern int IC;
-extern int DC;
+
+
 extern parser_t parser;
 extern FILE *fptr_before;
 extern FILE *fptr_after;
