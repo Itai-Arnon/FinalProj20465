@@ -1,4 +1,5 @@
 mov r2 , LABEL
 LABEL: mov r2 , r3
-mov r2, LABEL
+mov r2, M
+M: mov r2, r3
 stop
