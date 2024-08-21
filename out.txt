@@ -1,5 +1,28 @@
-mov r2 , LABEL
-LABEL: mov r2 , r3
-mov r2, M
-M: mov r2, r3
+mov r1 , r3
+mov #33 , r2
+mov #404 , r2
+mov r1 , r3
+mov #33 , r2
+mov #404 , r2
+mov r1 , r3
+mov #33 , r2
+mov #404 , r2
+mov r1 , r3
+mov #33 , r2
+mov #404 , r2
+mov r1 , r3
+mov #33 , r2
+mov #404 , r2
+mov r1 , r3
+mov #33 , r2
+mov #404 , r2
+mov r1 , r3
+mov #33 , r2
+mov #404 , r2
+mov r1 , r3
+mov #33 , r2
+mov #404 , r2
+mov r1 , r3
+mov #33 , r2
+mov #404 , r2
 stop

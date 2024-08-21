@@ -27,11 +27,7 @@ void second_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, symbol_tabl
 		return;
 
 	}
-/*
-	switch (parser.line_type) {
-		case OP_CODE:
 
-			checkOPCODE_INSTRUCTION(sym_tbl, wordTable);*/
 
 	if (parser.op == stop) {
 		printf("Stop Occured\n");
@@ -41,6 +37,7 @@ void second_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, symbol_tabl
 		addConstantToSymbols(sym_tbl, _DATA, n);
 		addNumberToWordTable(dataTable, n);
 		update_Reloc_Lines(wordTable);
+		update_Reloc_Lines(dataTable);
 		printTable(wordTable);
 		printf("-------------\n");
 		printTable(dataTable);
@@ -429,7 +426,7 @@ void printBinary(unsigned short num) {
 void printTable(word_table_t *table) {
 	int i;
 
-	if (table == NULL) {
+	if (table == NULL || table->size == 0) {
 		return;
 	}
 

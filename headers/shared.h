@@ -87,7 +87,8 @@
 #define WAR_MEMORY_NOT_CONFIGURED "Warning Memory Not Configured"
 #define ERR_MEMORY_NOT_CONFIGURED "Error Symbol Memory Not Configure "
 #define WAR_EXTERN_ENTRY_SYMBOL "Warning: Symbol is Extern or Entry"
-#define ERR_EXTERN_SYMBOL "Symbol for Extern Does Not Exist"
+#define ERR_EXTERN_SYMBOL "Symbol for Extern Does Not Exist or other Errors"
+#define ERR_ENTRY_SYMBOL_PROB "Symbol for Entry Missing or other Errors"
 
 
 

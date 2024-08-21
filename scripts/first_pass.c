@@ -39,7 +39,8 @@ void first_pass(macro_table_t *macroTable, symbol_table_t *sym_tbl, word_table_t
 				set_STRING_WORDS(sym_tbl, dataTable);
 
 			} else if (result == ENTRY || result == EXTERN) {
-				set_EXTnEntry(sym_tbl, entryTable, dataTable);
+
+				set_EXTnEntry(sym_tbl,  dataTable);
 			}
 			break;
 		case ERR:
@@ -134,7 +135,6 @@ void setOPCODE_WORDS(symbol_table_t *sym_tbl, word_table_t *table, int idx, int 
 			line2 = add_line(table, _offset, NULL, R);
 			symbol2 = findSymbol(sym_tbl, parser.operands[idx].operand.symbol);
 			(symbol2 != NULL) ?: report_error(ERR_SYMBOL_NOT_FOUND, line_count, FIRST, CRIT, IC);
-			printf("line2 address : %p\n", line2);
 			line2->symbol = symbol2;
 			set_label_into_empty_word(&(line2->word), symbol2->address);
 			set_ARE_into_word(&(line2->word), R);
@@ -217,24 +217,21 @@ void set_STRING_WORDS(symbol_table_t *sym_tbl, word_table_t *table) {
 }
 
 /*sets the entry or extern word*/
-void set_EXTnEntry(symbol_table_t *sym_tbl, symbol_table_t *entry_sym_tbl, word_table_t *table) {
+void set_EXTnEntry(symbol_table_t *sym_tbl,  word_table_t *table) {
 	symbol_t *symbol = findSymbol(sym_tbl, parser.directive.operand.symbol);
 	line_t *line = NULL;
 
-	if (symbol != NULL) {
-		symbol->address = 0; /*extern is always zero, while entry will be derived in the 2n d pass*/
-		symbol->type = (parser.directive.cmd == EXTERN) ? _EXTERN : _ENTRY;
-	}
 
 	switch (parser.directive.cmd) {
 
 		case EXTERN:
 			line = add_line(table, 0, symbol, E);
+			set_ARE_into_word(&line->word,E);
 			/*in case EXTERN we are done, label address is zero*/
 
 		case ENTRY:
-			if (symbol != NULL) {
-				loadSymbolTable(entry_sym_tbl, symbol->symbol_name, symbol->address, _ENTRY);
+			if(symbol == NULL){
+				report_error(ERR_ENTRY_SYMBOL_PROB, line_count,FIRST,CRIT,0);
 			}
 
 	}
@@ -324,7 +321,7 @@ word_table_t *initTable(word_table_t *table, int memInit) {
 		return NULL;
 	}
 	table->size = 0;
-	/*table->lines->line_num*/
+	table->lines->line_num = table->size + memInit;
 	table->lines->symbol = NULL;
 	table->lines->_ARE = A;
 
@@ -335,11 +332,9 @@ word_table_t *initTable(word_table_t *table, int memInit) {
 /*adds a line to wordTable/dataTable  the first line has an address 100*/
 line_t *add_line(word_table_t *table, int offset, symbol_t *symbol, memory_t _ARE) {
 	line_t *new_ptr = NULL;
-	int word_t_size = sizeof(word_t);
 
 	if (table == NULL)
 		return NULL;
-
 
 	table->size++;
 
@@ -351,7 +346,7 @@ line_t *add_line(word_table_t *table, int offset, symbol_t *symbol, memory_t _AR
 		table->lines = new_ptr;
 
 	/*data assignmet to new member */
-	table->lines[table->size - 1].line_num = table->size + offset; /*address*/
+	table->lines[table->size - 1].line_num = table->size + offset - 1; /*address*/
 	table->lines[table->size - 1].symbol = symbol;/*pointer to symbol*/
 	table->lines[table->size - 1].word = 0;
 	table->lines[table->size - 1]._ARE = _ARE;

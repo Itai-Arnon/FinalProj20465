@@ -17,7 +17,7 @@
 
 
 
-#define _offset  99
+#define _offset  100
 
 
 typedef unsigned short word_t;
@@ -51,7 +51,7 @@ void setOPCODE_WORDS(symbol_table_t *, word_table_t *, int, int);
 /*process .data directive*/
 void set_DATA_WORDS(symbol_table_t *, word_table_t *);
 
-void set_EXTnEntry(symbol_table_t *sym_tbl,symbol_table_t *entry_sym_tbl, word_table_t *dataTable);
+void set_EXTnEntry(symbol_table_t *sym_tbl, word_table_t *dataTable);
 
 void set_number_data_word(word_t *word, char value);
 
