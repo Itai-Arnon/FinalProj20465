@@ -216,6 +216,12 @@ void parse(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataT
 		}
 		first_pass(sym_tbl, wordTable, dataTable, filename);
 	}
+	free(buffer);
+	free(cmd);
+	free(cmd_extra);
+	free(directive_str);
+	free(sArr);
+	free(pos);
 } /*END OF PARSE*/
 
 

@@ -24,6 +24,9 @@ macro_table_t *initMacroTable(macro_table_t *tbl) {
 	}
 
 	tbl->slot->macro_lock = 0;
+	tbl->slot->index = tbl->size;
+	tbl->slot->macro_line[0] = '\0';
+	tbl->slot->macro_name[0]='\0';
 
 
 	return tbl;
@@ -42,15 +45,11 @@ macro_node_t *constructMacroNode(macro_table_t *tbl, char *macro_name, char *lin
 		return NULL;
 	}
 
-	/*problem with conflicting address macr_name and line*/
-	if (macro_name[0] != '\0' || line[0] != '\0') {
 		strcpy(tbl->slot[tbl->size - 1].macro_name, macro_name);
 		strcpy(tbl->slot[tbl->size - 1].macro_line, line);
 		tbl->slot[tbl->size - 1].macro_lock = 0;
 		tbl->slot[tbl->size - 1].index = tbl->size;
 		return &tbl->slot[tbl->size - 1];
-	}
-	return NULL;
 }
 
 
@@ -61,7 +60,7 @@ int loadMacroTable(macro_table_t *tbl, char *macro_name, char *line) {
 		report_error(ERR_MACRO_NODE_CREATION_FAILED, line_count, MACL, CRIT, 0);    /*critical error*/
 		return 0;
 	}
-
+	/*at init equal 1*/
 	tbl->isEmpty = 0;
 	return 1;
 }
@@ -77,7 +76,7 @@ void expandMacro(macro_table_t *tbl, char *macro_name) {
 		return;
 	}
 
-	if (macro_start = retMacro(tbl, macro_name)) {
+	if ((macro_start = retMacro(tbl, macro_name))) {
 		LEN = getMacroLength(tbl, macro_name);
 	}else{
 		printf("Macro Not Found");
@@ -86,11 +85,9 @@ void expandMacro(macro_table_t *tbl, char *macro_name) {
 
 	for (i = macro_start->index; i < LEN; i++) {
 		if (strcmp(tbl->slot[i].macro_name, macro_name) == 0) {
-			printf("%s\n", tbl->slot[i].macro_line);
 			fprintf(fptr_after, "%s", tbl->slot[i].macro_line);
 		}
 	}
-
 	return ;
 }
 
@@ -117,6 +114,7 @@ macro_node_t *retMacro(macro_table_t *tbl, char *macro_name) {
 	int i = 0;
 
 	if (tbl == NULL || tbl->size == 0) return NULL;
+
 
 	for (i = 0; i < tbl->size; i++) {
 		if ((strcmp(macro_name, tbl->slot[i].macro_name)) == 0) {

@@ -18,9 +18,6 @@ static int DC = 0;
 /**  out.txt ***/
 void first_pass( symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataTable ,char* filename) {
 	int result = 0, n = 0;
-	symbol_table_t *entryTable = NULL;
-
-	entryTable = init_symbol_table(entryTable);
 
 	if (isError) {
 		return;
