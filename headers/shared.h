@@ -10,16 +10,21 @@
 #define MIN_12Bit_NUM -2048
 
 #define LINE_LENGTH 80
+#define SET_BUFFER_LENGTH 85
+
 #define MAX_MACRO_NAME 31
 #define MAX_MACROS 20
-#define MAX_SYMBOL_NAME 31
+#define MAX_DIRECTIVE_NAME 8
 
+/*macros*/
+#define MAX_SYMBOL_NAME 31
 #define MACRO_START_WORD "macr"
 #define MACRO_END_WORD "endmacr"
 #define MACRO_END_LEN 7
 #define MACRO_START_LEN 4
-#define MAX_DIRECTIVE_NAME 8
 
+/*second passs*/
+#define MAX_WORDS 4096
 
 /*text add in */
 /*#define PATH_BASE "c:\\OPU\\20465\\m\\m14\\"*/          /*TODO change when moving to linux*/
@@ -35,11 +40,15 @@
 /*writing Macro Error and File Errors*/
 
 
-
+/*file problems*/
 #define ERR_LINE_LENGTH "Line is too long"
+#define ERR_ILLEGAL_CHAR "Line has an Illegal char"
 #define ERR_FILE_BEFORE ".as File Failed To Open"
 #define ERR_FILE_AFTER ".am File Failed To Create"
-
+#define ERR_FILE_OBJ_EXT_ENT "Error in creating OB EXT or ENT file"
+#define ERR_NO_FILES "No Files Inserted"
+#define ERR_FILE_DESTINATION "Error with Destination file or files"
+#define ERR_FILE_SOURCE "Error with Source file or files"
 
 /*macro related*/
 #define ERR_WRITING_MACRO  "Failed to write Macro"
@@ -50,7 +59,6 @@
 #define ERR_MACRO_NODE_CREATION_FAILED "Macro Node Allocation Failed"
 #define ERR_MACRO_NAME_LONG "Macro Name Too Long"
 #define ERR_MACRO_NAME_WRONG "Macro Name Illegal"
-#define ERR_NO_FILES "No Files Inserted"
 #define ERR_START_MACRO_DEF "Error In Macro Start Definition"
 #define ERR_MACRO_END "Error In Macro End Definition"
 #define ERR_MACRO_EXPAND "Error In Macro Expand Definition"
@@ -86,6 +94,7 @@
 /*pass one and two*/
 #define ERR_WORD_TABLE_ALLOCATION "Word Table Creation or Allocation Failed"
 #define ERR_GENERAL_FIRST_PASS_ERROR "General First Pass Error"
+#define ERR_TOO_MANY_WORDS "Table size has surpassed 4096 words"
 #define WAR_MEMORY_NOT_CONFIGURED "Warning Memory Not Configured"
 #define ERR_MEMORY_NOT_CONFIGURED "Error Symbol Memory Not Configure "
 #define WAR_EXTERN_ENTRY_SYMBOL "Warning: Symbol is Extern or Entry"
@@ -93,49 +102,52 @@
 #define ERR_ENTRY_SYMBOL_PROB "Symbol for Entry Missing or other Errors"
 
 
-
+/*report error uses this to identify in whihc file an error occured*/
 typedef enum{ AS ,MAC , MACL , SYM , PARS ,FIRST ,SECOND ,UTIL }file_t;
 
-
+/*type for 4 diretives - used mainly in parser*/
 typedef enum {
 	DATA,
 	STRING,
 	ENTRY,
 	EXTERN,
 }directive_cmd_t;
-/*pass1 and pass2*/
+
+/*16 opcodes meant to identify lines in the files*/
 typedef enum {
 	mov, cmp, add, sub, lea, clr, not, inc, dec, jmp,
 	bne, red, prn, jsr, rts, stop
 } op_code_t;
 
-/*macros*/
+/*macros enums used in preprocessor , for switch purposes*/
 typedef enum{MACRO_START, MACRO_END , MACRO_EXPAND , LINE_INSIDE , LINE_OUTSIDE, EMPTY_LINE , MACRO_ERROR }MACRO_STATE_T;
-/*utils */
+/*utils - enums for macros func check legal name, ALPHA allows only ALPHA chars,
+ * ALPHANUM both type & ALPHANUM_COMB begins w/ alpha char and continues with a combinations*/
 typedef enum{ALPHA,ALPHANUM, ALPHANUM_COMBINED}check_legal_name;
 
-
-/*extern entry*/
-typedef enum {
-	_EX, _EN ,_NO
-}EXT_T;
-
-
+/*specifies what kind of line->word each line would be*/
 typedef enum {E, R,	A } ARE_T;
 
+/*update the addresss of  a symbol or not*/
 typedef  enum{NO, YES }update_address_t;
+/*convertORcheckStringToNum from utils, check if string is changeable to int
+ * Convert: converts  from string to int*/
 typedef enum {CONVERT  , CHECK} convert_func_t;
+
+
+/*symbols MIDDLE Direct type symbols Head-ones that are upfront */
 typedef enum{  MIDDLE, HEAD}symbol_loci_t;
 
-
+/*line->word loci of regiters in the word*/
 typedef enum{DESTINATION , SOURCE}operand_t;
 
-/*CRIT -terminates NON_CRIT doesn't*/
+/*Report ERROR  CRIT -terminates and free table NON_CRIT is only for warnings*/
 typedef enum{CRIT,NON_CRIT}err_type_t;
 
-/*meant to decipher between reg behvior*/
-
+/*type of registries use to indetify opcode operands*/
 typedef enum { _IMMEDIATE = 0 , _DIRECT  ,_INDIRECT  , _REGULAR  , _ERROR   , _TBD /*5*/ }type_of_register_t;
+
+/*the four type of symbol types*/
 typedef enum{ _INSTRUCTION , _DATA, _ENTRY , _EXTERN }memory_t;
 
 #endif

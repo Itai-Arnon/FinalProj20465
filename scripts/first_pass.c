@@ -16,7 +16,7 @@ static int IC = 100; /*first address of the instruction table is preset in tabel
 static int DC = 0;
 
 /**  out.txt ***/
-void first_pass( symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataTable ,FILE* filename) {
+void first_pass( symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataTable ,char* filename) {
 	int result = 0, n = 0;
 	symbol_table_t *entryTable = NULL;
 
@@ -350,7 +350,6 @@ line_t *add_line(word_table_t *table, int offset, symbol_t *symbol, memory_t _AR
 	table->lines[table->size - 1].symbol = symbol;/*pointer to symbol*/
 	table->lines[table->size - 1].word = 0;
 	table->lines[table->size - 1]._ARE = _ARE;
-
 
 
 	return &(table->lines[(table->size - 1)]);

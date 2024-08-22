@@ -10,19 +10,16 @@
 macro_table_t *initMacroTable(macro_table_t *tbl) {
 	int i = 0;
 	if (!(tbl = calloc(1, sizeof(macro_table_t)))) {
-		report_error(ERR_MACRO_TABLE_GENERAL_ERROR, line_count , MACL , CRIT ,0);    /*critical error*/
+		report_error(ERR_MACRO_TABLE_GENERAL_ERROR, line_count, MACL, CRIT, 0);    /*critical error*/
 		return NULL;
 	}
-
 	tbl->isEmpty = 1;
 	tbl->isMacroOpen = 0;
-	tbl->amount = 0;
 	tbl->size = 0;
 
 
-
 	if (!(tbl->slot = calloc(1, sizeof(macro_node_t)))) {
-		report_error(ERR_MACRO_TABLE_GENERAL_ERROR, line_count ,MACL , CRIT ,0);    /*critical error*/
+		report_error(ERR_MACRO_TABLE_GENERAL_ERROR, line_count, MACL, CRIT, 0);    /*critical error*/
 		return NULL;
 	}
 
@@ -33,15 +30,15 @@ macro_table_t *initMacroTable(macro_table_t *tbl) {
 }
 
 
-macro_node_t *constructMacroNode(macro_table_t *tbl, char *macro_name, char *line, int len) {
+macro_node_t *constructMacroNode(macro_table_t *tbl, char *macro_name, char *line) {
 
 	if (tbl == NULL)
 		return NULL;
 
-
+	tbl->size++;
 
 	if (!(tbl->slot = realloc(tbl->slot, (tbl->size) * sizeof(macro_node_t)))) {
-		report_error(ERR_MACRO_NODE_CREATION_FAILED, line_count ,MACL , CRIT ,0);    /*critical error*/
+		report_error(ERR_MACRO_NODE_CREATION_FAILED, line_count, MACL, CRIT, 0);    /*critical error*/
 		return NULL;
 	}
 
@@ -50,7 +47,7 @@ macro_node_t *constructMacroNode(macro_table_t *tbl, char *macro_name, char *lin
 		strcpy(tbl->slot[tbl->size - 1].macro_name, macro_name);
 		strcpy(tbl->slot[tbl->size - 1].macro_line, line);
 		tbl->slot[tbl->size - 1].macro_lock = 0;
-		tbl->slot[tbl->size - 1].len = len;
+		tbl->slot[tbl->size - 1].index = tbl->size;
 		return &tbl->slot[tbl->size - 1];
 	}
 	return NULL;
@@ -60,71 +57,81 @@ macro_node_t *constructMacroNode(macro_table_t *tbl, char *macro_name, char *lin
 int loadMacroTable(macro_table_t *tbl, char *macro_name, char *line) {
 	macro_node_t *temp = NULL;
 
-
-	if (!(temp = constructMacroNode(tbl, macro_name, line, 1))) {
-		report_error(ERR_MACRO_NODE_CREATION_FAILED, line_count ,MACL , CRIT ,0);    /*critical error*/
+	if (!(temp = constructMacroNode(tbl, macro_name, line))) {
+		report_error(ERR_MACRO_NODE_CREATION_FAILED, line_count, MACL, CRIT, 0);    /*critical error*/
 		return 0;
 	}
 
-	tbl->amount += 1;
 	tbl->isEmpty = 0;
 	return 1;
 }
 
 /*expands macro writing to  file*/
-int expandMacro(macro_table_t *tbl, char *macro_name) {
-	int i = 0;
-	if (tbl->isEmpty == 1) return 0;
+void expandMacro(macro_table_t *tbl, char *macro_name) {
+	macro_node_t *macro_start;
+	int i;
+	int LEN = 0;
 
-	for (i = 0; i < tbl->size; i++) {
+	if (tbl == NULL || tbl->size == 0) {
+		printf("Macro Table Empty");
+		return;
+	}
+
+	if (macro_start = retMacro(tbl, macro_name)) {
+		LEN = getMacroLength(tbl, macro_name);
+	}else{
+		printf("Macro Not Found");
+		return;
+	}
+
+	for (i = macro_start->index; i < LEN; i++) {
 		if (strcmp(tbl->slot[i].macro_name, macro_name) == 0) {
 			printf("%s\n", tbl->slot[i].macro_line);
 			fprintf(fptr_after, "%s", tbl->slot[i].macro_line);
-			return 1;
 		}
-		i++;
 	}
-	return 0;
+
+	return ;
 }
 
 
 void MacroName(macro_node_t *head) {
 	if (head != NULL) {
 		printf("%s\n", head->macro_name);
-	} else report_error(ERR_MACRO_NOT_FOUND, line_count,MACL, NON_CRIT , 0);
+	} else report_error(ERR_MACRO_NOT_FOUND, line_count, MACL, NON_CRIT, 0);
 }
 
-int getLengthMacro(macro_table_t *tbl, char *macro_name) {
+int getMacroLength(macro_table_t *tbl, char *macro_name) {
 	int i = 0;
 	int length = 0;
 	for (i = 0; i < tbl->size; i++) {
 		if ((strcmp(macro_name, tbl->slot[i].macro_name)) == 0) {
-			tbl->slot[i].len = length++;
+			length++;
 		}
-
 	}
+
 	return length;
 }
 
 macro_node_t *retMacro(macro_table_t *tbl, char *macro_name) {
 	int i = 0;
-	if (tbl->isEmpty == 1) return NULL;
+
+	if (tbl == NULL || tbl->size == 0) return NULL;
 
 	for (i = 0; i < tbl->size; i++) {
 		if ((strcmp(macro_name, tbl->slot[i].macro_name)) == 0) {
-
 			return &(tbl->slot[i]);
 		}
 	}
 /*not found*/
 	return NULL;
 
-
 }
 
+/*return the first index of macro by macro name*/
 int retSlot(macro_table_t *tbl, char *macro_name) {
 	int i = 0;
-	if (tbl->isEmpty == 1) return 0;
+	if (tbl == NULL || tbl->isEmpty == 1) return 0;
 
 	for (i = 0; i < tbl->size; i++) {
 		if ((strcmp(macro_name, tbl->slot[i].macro_name)) == 0) {
@@ -134,41 +141,33 @@ int retSlot(macro_table_t *tbl, char *macro_name) {
 	}
 	/*not found*/
 	return -1;
-
-
 }
 
 
-/* Checks if a given name exists in any slot of the macro table  true 1 , false 0*/
-int dupNameExistsInTable(macro_table_t *tbl, char *macro_name, int locked ) {
-	/*locked = 1  checks if it exists and  locked | 0 exist but not locked */
+/* Checks if a given name exists  |true 1 | false 0*/
+/*locked = 1  checks if it exists and  locked | 0 exist but not locked */
+int dupNameExistsInTable(macro_table_t *tbl, char *macro_name) {
 	int i = 0;
-	if (tbl->isEmpty == 1) return 0;
+	if (tbl == NULL || tbl->isEmpty == 1) return 0;
 
 	for (i = 0; i < tbl->size; ++i) {
-
-			switch(locked) {
-				case 1:
-					/* Compare the macro_name of the first node in this slot with the given name*/
-					if (strcmp(tbl->slot[i].macro_name, macro_name) == 0 && tbl->slot[i].macro_lock == 1)
-						return 1;  /*Name found*/
-				case 2:
-					if (strcmp(tbl->slot[i].macro_name, macro_name) == 0 && tbl->slot[i].macro_lock == 0)
-						return 1;  /*Name found*/
-			}
+		if (strcmp(tbl->slot[i].macro_name, macro_name) == 0)
+			return 1;  /*Name found*/
 	}
 	return 0;/* Name not found*/
 }
-
+/*locks the all macro lines  from overriding*/
 void macro_lock(macro_table_t *tbl, char *macro_name) {
 	int slot_index;
 	int i = 0, len = 0;
-	if (tbl->isEmpty == 1) return;
+	if (tbl == NULL ||tbl->isEmpty == 1) return;
 
 	slot_index = retSlot(tbl, macro_name);
-	len = getLengthMacro(tbl, macro_name);
-	for (i = slot_index; i < len; i++)
+	len = getMacroLength(tbl, macro_name);
+	for (i = slot_index; i < len; i++) {
 		tbl->slot[i].macro_lock = 1;
-
-
+	}
 }
+
+
+

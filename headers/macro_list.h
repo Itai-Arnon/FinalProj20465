@@ -9,15 +9,13 @@ typedef struct  {
 	char macro_name[MAX_MACRO_NAME];/*ref to macro name*/
 	char macro_line[LINE_LENGTH];/*holds all contents of macro - dynamically allocated*/
 	int macro_lock;
-	int len;
+	int index;
 }macro_node_t;
 
 typedef struct {
 	int isEmpty;
 	int isMacroOpen;
-	int amount;
 	int size;
-	int isFirst;
 	macro_node_t *slot;
 } macro_table_t;
 
@@ -27,7 +25,7 @@ macro_table_t *initMacroTable(macro_table_t *tbl);
 
 /*the table structure*/
 /*allocation of new node with its params*/
-macro_node_t *constructMacroNode(macro_table_t *tbl, char *macro_name, char *line, int len);
+macro_node_t *constructMacroNode(macro_table_t *tbl, char *macro_name, char *line);
 
 /*return the end of the LL inside a table row*/
 int retLengthMacro(macro_table_t *, char *);
@@ -39,11 +37,11 @@ int loadMacroTable(macro_table_t *tbl, char *macr_name, char *line);
 /* @return index of table slot of macro_name or a new null slot ,-1 if not found*/
 int retSlot(macro_table_t *tbl, char *macro_name);
 
-int getLengthMacro(macro_table_t *tbl, char *macro_name);
+int getMacroLength(macro_table_t *tbl, char *macro_name);
 
-int dupNameExistsInTable(macro_table_t *tbl, char *macro_name ,int);
+int dupNameExistsInTable(macro_table_t *tbl, char *macro_name );
 
-int expandMacro(macro_table_t *tbl, char *macro_name);
+void expandMacro(macro_table_t *tbl, char *macro_name);
 
 macro_node_t *retMacro(macro_table_t *tbl, char *macro_name);
 

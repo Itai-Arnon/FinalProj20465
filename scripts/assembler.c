@@ -19,6 +19,7 @@ FILE *fptr_before;
 FILE *fptr_after;
 char *current_filename;
 int isError = 0;
+
 int main(int argc, char *argv[]) {
 
 	macro_table_t *mac_tbl = NULL;
@@ -31,15 +32,10 @@ int main(int argc, char *argv[]) {
 	wordTable = initTable(wordTable, 0);
 	dataTable = initTable(dataTable, 0);
 
-	char f[20] = "matil";
-	char *str;
-
-	str = addExtension(f,"symbolic");
-	printf("str: %s\n",str);
-	/*manage_files(argc, argv, mac_tbl, sym_tbl, wordTable, dataTable);
+	manage_files(argc, argv, mac_tbl, sym_tbl, wordTable, dataTable);
 
 
-	fclose(fptr_before);*/
+	fclose(fptr_before);
 	fclose(fptr_after);
 
 	return 0;
@@ -49,45 +45,40 @@ void manage_files(int _argc, char **_argv, macro_table_t *macro_tbl, symbol_tabl
                   word_table_t *dataTable) {
 	int idx;
 	int num_files = _argc;
-	char buffer[LINE_LENGTH];
-
 
 	if (_argc == 1) {
 		report_error(ERR_NO_FILES, line_count, AS, CRIT, 0);
 		return;
 	}
-	fptr_after = initDestinationPointer(fptr_after, "out.txt", "a+" ,0);
 
-	for (idx = 1; idx < num_files; ++idx) {
+	/*argc  must always be subtracted by one*/
+	for (idx = 1; idx < _argc; ++idx) {
 		if (isError) {
-			break;
+			return;
 		}
-		fptr_before = initSourceFiles(_argc, _argv, fptr_before, idx,0 );
+		fptr_before = initSourceFiles( _argv, fptr_before, idx, 0);
+		fptr_after = initDestinationPointer(_argv ,fptr_after, idx , "a+", 0);
+
 		read_preprocessor(macro_tbl, sym_tbl);
 		rewind(fptr_after);
-		parse( sym_tbl, wordTable, dataTable , current_filename);/*after parse comes first_pass and second_pass*/
-
-
-
-
-
+		parse(sym_tbl, wordTable, dataTable, _argv[idx]); /*after parse comes first_pass and second_pass*/
+		checkSymbolsUnique(macro_tbl, sym_tbl);
 		/*todo last command should be print the final version */
 	}
-	checkSymbolsUnique(macro_tbl, sym_tbl);/*only done once the 1st pass is done*/
+
 	freeAllTables(macro_tbl, sym_tbl, wordTable, dataTable);
 }
 
 /*index signifies argv index*/
 /*TODO: add option to goto next file once a file fails to open*/
-FILE *initSourceFiles(int _argc, char **_argv, FILE *fptr, int index , int os) {
+FILE *initSourceFiles( char **_argv, FILE *fptr, int index, int os) {
 
 	char line[LINE_LENGTH];
-	char filename[64]={'\0'};
-	int argv_len = 0;
-	if (_argc > 1) {/*argc  must always be subtracted by one*/
-		argv_len = nonNullTerminatedLength(_argv[index]);
+	char *filename = calloc(64, sizeof(char));
+	int argv_len = nonNullTerminatedLength(_argv[index]);
 
-	switch(os) {
+
+	switch (os) {
 		case 0:/*windows*/
 			strcpy(filename, PATH_BASE);
 			strncat(filename, _argv[index], argv_len);
@@ -100,33 +91,35 @@ FILE *initSourceFiles(int _argc, char **_argv, FILE *fptr, int index , int os) {
 		default:
 			report_error(ERR_FILE_BEFORE, line_count, AS, CRIT, 0);
 			return NULL;
-		}
-			if (!(fptr = fopen(filename, "r"))) {
-			report_error(ERR_FILE_BEFORE, line_count, AS, CRIT, 0);
-			exit(0);
-		} else return fptr;
-
-	} else {
-		report_error(ERR_NO_FILES, line_count, AS, CRIT, 0);
-		return NULL;
 	}
+
+
+	if (!(fptr = fopen(filename, "r"))) {
+		report_error(ERR_FILE_BEFORE, line_count, AS, CRIT, 0);
+		exit(0);
+	} else return fptr;
+
 }
 
-FILE *initDestinationPointer(FILE *fptr, char *filename, char mode[] , int os) {
-	// Construct the file path by prepending the parent directory
-	char fname[64];
 
-	switch(os) {
+FILE *initDestinationPointer(char **_argv, FILE *fptr, int index, char mode[], int os) {
+	// Construct the file path by prepending the parent directory
+	char *fname = calloc(64, sizeof(char));
+	int argv_len = nonNullTerminatedLength(_argv[index]);
+	switch (os) {
 		case 0:/*windows*/
-		strcpy(fname, PATH_BASE);//*TODO no need in linux*//
-		strcat(fname, filename);
-		printf("%s\n", fname);
-		case 1:			/*linux*/
-		  break;
+			strcpy(fname, PATH_BASE);//*TODO no need in linux*//
+			strncat(fname, _argv[index], argv_len);
+			printf("%s\n", fname);
+		case 1:/*linux*/
+			strncat(fname, _argv[index], argv_len);
+			printf("%s\n", fname);
+			break;
 		default:
 			report_error(ERR_FILE_AFTER, line_count, AS, CRIT, 0);
 			break;
 	}
+	fname = addExtension(fname, ".am");
 	/* Attempt to open the file for writing*/
 	if (!(fptr = fopen(fname, mode))) {
 		report_error(ERR_FILE_AFTER, line_count, AS, CRIT, 0);
@@ -139,11 +132,11 @@ FILE *initDestinationPointer(FILE *fptr, char *filename, char mode[] , int os) {
 char *addExtension(char file_name[], char *ext) {
 
 	char *str = strrchr(file_name, '.');
-	if(str == NULL)
+	if (str == NULL)
 		strcat(file_name, ext);
 	else {
 		*(str + 1) = '\0';
-		strcat(file_name,ext);
+		strcat(file_name, ext);
 	}
 	return file_name;
 
@@ -171,9 +164,9 @@ void report_error(char *err, int line_count, file_t fenum, err_type_t type, int 
 		printf("%s at WordTable Address %d  line %lu || At: %s\n", WAR_MEMORY_NOT_CONFIGURED, IC_ADDRESS, line_count,
 		       fname[fenum]);
 		/* case there is an error with symbols in wordTable*/
-	else if ((fenum == FIRST || fenum == SECOND) && IC_ADDRESS > 0 && type == CRIT )
-			printf("%s at WordTable Address %d  line %lu || At: %s\n", ERR_MEMORY_NOT_CONFIGURED, IC_ADDRESS, line_count,
-			       fname[fenum]);
+	else if ((fenum == FIRST || fenum == SECOND) && IC_ADDRESS > 0 && type == CRIT)
+		printf("%s at WordTable Address %d  line %lu || At: %s\n", ERR_MEMORY_NOT_CONFIGURED, IC_ADDRESS, line_count,
+		       fname[fenum]);
 	else if (type == CRIT) {
 		printf("%s at line %lu || At: %s\n", err, line_count, fname[fenum]);
 		printf("Critical Error,  terminating and Freeing Allocation\n");

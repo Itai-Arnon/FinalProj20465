@@ -11,44 +11,30 @@ int isRestOfLineEmpty(char *line) {
 		return 1;
 
 	for (idx = 0; idx < LEN; idx++) {
-	if (*line && !isspace(line[idx]))
-		return 0;
-}
+		if (*line && !isspace(line[idx]))
+			return 0;
+	}
 	return 1;
 }
 
 
-int findSeperator(char *str, char sep[], int num_of_sep) {
+int findSeperator(char *str, char sep ) {
 	int LEN = strlen(str);
 	int i, j;
 	i = j = 0;
 	for (i = 0; str[i] < LEN; i++) {
-		for (j = 0; j < num_of_sep; j++) {
-			if (str[i] == sep[j] && i < (LEN - 1))
+		if (str[i] == '\n' && i < (LEN - 1)) {
+			while (isspace(*str++));
+			if (!*str)
 				return 1;
 		}
 	}
-	return 0;
+return 0;
 }
 
 int nonNullTerminatedLength(char *arr) {
 	int count = 0;
 	while (arr[++count] != 0);
-	return count;
-}
-
-
-
-
-int count_char_until_not_separator(char line[], char c, int *offset, char separators[], int separators_amount) {
-	int count = 0;
-	int i = 0;
-/* is char operator checks _seperators_ string - it's flexible  */
-	while (is_char_separator(line[*offset + i], separators, separators_amount) == 1) {
-		if (line[*offset + i] == c)
-			count++;
-		(*offset)++;
-	}
 	return count;
 }
 
@@ -63,7 +49,7 @@ int is_char_separator(char c, char separators[], int separators_amount) {
 	return 0;
 }
 
-int extra_char_at_end( char line[], int loc) {
+int extra_char_at_end(char line[], int loc) {
 	while (line[loc] == ' ' || line[loc] == '\t')
 		loc++;
 
@@ -74,7 +60,7 @@ int extra_char_at_end( char line[], int loc) {
 }
 
 
-char * removeColon(char *symbol_name) {
+char *removeColon(char *symbol_name) {
 	int length = strlen(symbol_name);
 	char *symbol_name_c = malloc(sizeof(char));
 	if (symbol_name[length] == ':') {
@@ -83,8 +69,6 @@ char * removeColon(char *symbol_name) {
 	}
 	return symbol_name;
 }
-
-
 
 
 /*removes white spaces from noth sides*/
@@ -164,7 +148,7 @@ int convertOrCheckStringToNum(char *str, convert_func_t type) {
 	switch (type) {
 		case 0:
 			if (*endtoken != '\0') {
-				report_error(ERR_FAILED_TO_CONVERT_NUMBER, line_count ,UTIL , CRIT ,0);
+				report_error(ERR_FAILED_TO_CONVERT_NUMBER, line_count, UTIL, CRIT, 0);
 			} else
 				return (int) num;
 		case 1:
@@ -176,9 +160,8 @@ int convertOrCheckStringToNum(char *str, convert_func_t type) {
 }
 
 
-
 /*count the numbers in a string to check valditiy of .DATA directive */
-int countNumbersInString( char *str) {
+int countNumbersInString(char *str) {
 	int count = 0;
 	int i = 0;
 	int inNumber = 0;
@@ -197,13 +180,14 @@ int countNumbersInString( char *str) {
 	}
 	return count;
 }
+
 /*under the premise that in the string there is no whitespace before or after*/
 int checkQuotes(char *str) { /*todo erase */
 	/*check if string is not empty*/
 	int len = strlen(str);
 	if (len < 2) {
 		return 0;
-	}else len = len - 2;
+	} else len = len - 2;
 
 	return 0;
 }

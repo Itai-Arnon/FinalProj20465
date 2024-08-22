@@ -155,7 +155,6 @@ macro_table_t *initMacroTable(macro_table_t *tbl) {
 
 	tbl->isEmpty = 1;
 	tbl->isMacroOpen = 0;
-	tbl->amount = 0;
 	tbl->size = MAX_MACROS;
 
 	for (i = 0; i < tbl->size; ++i)

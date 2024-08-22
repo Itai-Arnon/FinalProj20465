@@ -23,15 +23,12 @@
 int isRestOfLineEmpty(char *);
 
 /*find the first occurane of chars in sep[]*/
-int findSeperator(char *str, char sep[], int num_of_sep);
+int findSeperator(char *str, char sep);
 
 
 int convertToOctal(int num);
 
 
-void ret_next_word_n_skip(char line_text[], int *offset, char line[], char separators[], int separators_amount);
-
-int count_char_until_not_separator(char line[], char c, int *offset, char separators[], int separators_amount);
 
 /* seperastor char array checks all given amount by __seperators__amont__ */
 int is_char_separator(char c, char separators[], int separators_amount);

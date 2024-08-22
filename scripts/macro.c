@@ -16,11 +16,11 @@
 int line_count;
 
 void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
-	char *buffer = malloc(sizeof(char) * LINE_LENGTH);
+	char *buffer = malloc(sizeof(char) * SET_BUFFER_LENGTH);
 	char *macro_name = (char *) calloc(10, sizeof(char));
 	int idx = 0;
 	int *pos = calloc(1, sizeof(int));
-	memset(buffer, '\0', sizeof(buffer));
+
 
 	line_count = 0;
 
@@ -30,11 +30,17 @@ void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 	}
 
 
-	while (fgets(buffer, LINE_LENGTH, fptr_before) != NULL) {
+	while (fgets(buffer, SET_BUFFER_LENGTH, fptr_before) != NULL) {
 		line_count++;
 		idx = 0;
 		if (isError)
 			return;
+
+		if(strlen(buffer) > LINE_LENGTH) {
+			report_error(ERR_LINE_LENGTH, line_count, MAC, CRIT, 0);
+			return;
+		}
+
 
 		/*check for empty line*/
 		if (isRestOfLineEmpty(buffer)) /*checks case of empty line*/
@@ -48,23 +54,26 @@ void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 		}
 		/*check if sentence is too long */
 		/*find \n in mid sentence means lenght illegal*/
-		if (findSeperator(buffer, "\n", 1) == 1) {
-			report_error(ERR_LINE_LENGTH, line_count,MAC, CRIT ,0);
-			continue;
+		if (findSeperator(buffer, '\n') == 1) {
+			report_error(ERR_ILLEGAL_CHAR, line_count, MAC, CRIT, 0);
+			return;
 		}
+		 if(strlen(buffer) > LINE_LENGTH) {
+			 report_error(ERR_LINE_LENGTH, line_count, MAC, CRIT, 0);
+			 return;
+		 }
+
 
 		switch (typeofline(tbl, buffer, macro_name, sym_tbl)) {
 			case MACRO_START:
-				printf("REPORT: macro_start  at line %d\n", line_count);
-				if (dupNameExistsInTable(tbl, macro_name,1) == 1)
+				if (dupNameExistsInTable(tbl, macro_name) == 1)
 					report_error(ERR_MACRO_NAME_DUP, line_count ,MAC , CRIT ,0);    /*critical error*/
-				if (tbl->isMacroOpen == 0 && tbl->amount < tbl->size)
+				if (tbl->isMacroOpen == 0 )
 					tbl->isMacroOpen = 1;
 				else
 					report_error(ERR_MACRO_PERMISSION, line_count,MAC ,CRIT ,0);
 				break;
 			case MACRO_END:
-				printf("REPORT: macro_end %d\n", line_count);
 				/*closes macro writing*/
 				tbl->isMacroOpen = 0;
 				/*macro is locked from rewriting forever*/
@@ -77,16 +86,14 @@ void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 				expandMacro(tbl, macro_name);
 				break;
 			case LINE_INSIDE:
-				printf("REPORT:line inside %d\n", line_count);
 				loadMacroTable(tbl, macro_name, buffer);
 				break;
 			case LINE_OUTSIDE:
-				printf("REPORT:line outside %d\n", line_count);
 				fprintf(fptr_after, "%s", buffer);
 			default:
 				break;
 		}
-
+		memset(buffer, '\0', sizeof(buffer));
 	}
 }
 
@@ -109,7 +116,6 @@ int typeofline(macro_table_t *tbl, char *line, char *macro_name, symbol_table_t 
 			return MACRO_START;
 		else if (checkMacroEnd(buffer, start, pos))
 			return MACRO_END;
-
 		else if (checkMacroExpand(tbl, line, start, macro_name, pos))
 			return MACRO_EXPAND;
 		else if (tbl->isMacroOpen == 1)
@@ -173,12 +179,13 @@ int checkMacroEnd(char *buffer, char *start, int pos) {
 	return checkEOFInBuffer(buffer);
 }
 
-
+/*check if  ready for expansion i.e macro_name is in table , and table not empty*/
 int checkMacroExpand(macro_table_t *tbl, char *buffer, char *start, char *macro_name, int pos) {
 
-	if (tbl->amount > 0 && (dupNameExistsInTable(tbl, start, 0) == 1)) {
+	if (tbl->size > 0 && (dupNameExistsInTable(tbl, start) == 1)) {
 		strcpy(macro_name, start);
 		buffer += pos;
+		/*macro name is the single word allowed on macro expand*/
 		if (isRestOfLineEmpty(buffer))
 			return 1;
 

@@ -18,7 +18,7 @@ static int DC;
 
 
 void second_pass( symbol_table_t *sym_tbl,  word_table_t *wordTable,
-                  word_table_t *dataTable , FILE* filename) {
+                  word_table_t *dataTable , char* filename) {
 	symbol_table_t *entryTable;
 	line_t *current_line;
 	symbol_t *symbol1, *symbol2;
@@ -32,7 +32,10 @@ void second_pass( symbol_table_t *sym_tbl,  word_table_t *wordTable,
 
 	if (parser.op == stop) {
 		printf("Stop Occured\n");
-
+		if (wordTable->size + dataTable->size > MAX_WORDS) {
+		report_error(ERR_TOO_MANY_WORDS,line_count,SECOND,CRIT,0);
+		return;
+	}
 		n = wordTable->size;
 		printf(" DATA TABLE ADDRESS CHAGE :n: %d\n", n);
 		addConstantToSymbols(sym_tbl, _DATA, n);
