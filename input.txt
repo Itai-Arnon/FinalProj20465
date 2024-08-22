@@ -1,6 +1,0 @@
-mov *r7,*r2
-macr m
-mov *r7,*r2
-endmacr
-m
-

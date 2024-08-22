@@ -62,8 +62,8 @@ int loadMacroTable(macro_table_t *tbl, char *macro_name, char *line) {
 		return 0;
 	}
 
-	tbl->isEmpty = 0;
-	return 1;
+	tbl->isEmpty = 0; /*table stopped being empty*/
+	return 1; /*success*/
 }
 
 /*expands macro writing to  file*/

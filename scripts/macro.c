@@ -21,7 +21,6 @@ void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 	int idx = 0;
 	int *pos = calloc(1, sizeof(int));
 
-
 	line_count = 0;
 
 	if (tbl == NULL || sym_tbl == NULL) {
@@ -29,7 +28,9 @@ void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 		return;
 	}
 
-
+	if(fgets(buffer, SET_BUFFER_LENGTH, fptr_before)  == NULL) {
+		rewind(fptr_before);
+	}
 	while (fgets(buffer, SET_BUFFER_LENGTH, fptr_before) != NULL) {
 		line_count++;
 		idx = 0;
@@ -46,12 +47,15 @@ void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 		if (isRestOfLineEmpty(buffer)) /*checks case of empty line*/
 			continue;
 
-		//removes whitespace
-		removeFrontalWhitespace(buffer, pos);
 		buffer += *pos; /*advances the pointer to end of whitespace*/
 		if (*buffer == ';' || *buffer == '\0') { /*check for comment ;*/
 			continue;
 		}
+
+
+		//removes whitespace
+		removeFrontalWhitespace(buffer, pos);
+
 		/*check if sentence is too long */
 		/*find \n in mid sentence means lenght illegal*/
 		if (findSeperator(buffer, '\n') == 1) {
@@ -75,10 +79,13 @@ void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 				break;
 			case MACRO_END:
 				/*closes macro writing*/
-				tbl->isMacroOpen = 0;
+				if(tbl->isMacroOpen == 1)
+					tbl->isMacroOpen = 0;
+				else
+				report_error(ERR_MACRO_END,line_count,MAC,CRIT,0);
 				/*macro is locked from rewriting forever*/
 				macro_lock(tbl, macro_name);
-				memset(macro_name,'\0', sizeof(macro_name));
+
 
 				break;
 			case MACRO_EXPAND:
@@ -96,6 +103,10 @@ void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 		}
 		memset(buffer, '\0', sizeof(buffer));
 	}
+
+	free(buffer);
+	free(macro_name);
+	free(pos);
 }
 
 /*line- fgets scan , macro_name-in charge of tranfering macro name, sym_tbl - symbols are scanned for */
@@ -123,6 +134,9 @@ int typeofline(macro_table_t *tbl, char *line, char *macro_name, symbol_table_t 
 		else
 			return LINE_OUTSIDE;
 	}
+free(buffer);
+free(start);
+free(macro_name);
 }
 
 

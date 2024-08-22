@@ -1,2 +1,0 @@
-mov *r7,*r2
-stop

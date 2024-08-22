@@ -62,6 +62,8 @@ void parse( symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *data
 		report_error(ERR_FAIL_CREATE_SYMBOL, line_count, PARS, CRIT, 0);
 		return;
 	}
+	if(fgets(buffer, LINE_LENGTH, fptr_after)  == NULL)
+		rewind(fptr_after);
 
 	while (fgets(buffer, LINE_LENGTH, fptr_after) != NULL) {
 		initParser();
@@ -72,9 +74,7 @@ void parse( symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *data
 			return;
 		}
 
-
-
-		if (buffer[0] == '\0') continue;
+		if (buffer[0] == '\0' || strlen(buffer) == 0) continue;
 
 		/*option label is at start - will identify both label and opcode*/
 		/*scanned how many succesfuly scanned*/
@@ -218,6 +218,7 @@ void parse( symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *data
 					}
 					first_pass( sym_tbl, wordTable, dataTable, filename);
 			}
+	memset(buffer,0,sizeof(char)*LINE_LENGTH);
 		} /*END OF PARSE*/
 
 

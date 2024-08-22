@@ -51,17 +51,15 @@ void manage_files(int _argc, char **_argv, macro_table_t *macro_tbl, symbol_tabl
 		return;
 	}
 
+/*	fptr_before = initSourceFiles( _argv, fptr_before, idx, 0);*/
+	fptr_after = initDestinationPointer(_argv ,fptr_after, idx , "a+", 0);
 	/*argc  must always be subtracted by one*/
 	for (idx = 1; idx < _argc; ++idx) {
 		if (isError) {
 			return;
 		}
-		fptr_before = initSourceFiles( _argv, fptr_before, idx, 0);
-		fptr_after = initDestinationPointer(_argv ,fptr_after, idx , "a+", 0);
 
-		read_preprocessor(macro_tbl, sym_tbl);
-		rewind(fptr_before);
-		rewind(fptr_after);
+		/*read_preprocessor(macro_tbl, sym_tbl);*/
 		parse(sym_tbl, wordTable, dataTable, _argv[idx]); /*after parse comes first_pass and second_pass*/
 		checkSymbolsUnique(macro_tbl, sym_tbl);
 
@@ -107,25 +105,10 @@ FILE *initDestinationPointer(char **_argv, FILE *fptr, int index, char mode[], i
 	char *fname = calloc(64, sizeof(char));
 	int argv_len = nonNullTerminatedLength(_argv[index]);
 	int *ch1 = "_.txt", *ch2 = "_.am";
-	switch (os) {
-		case 0:/*windows*/
 
-			strcpy(fname, PATH_BASE);//*TODO no need in linux*//
-			strncat(fname, _argv[index], argv_len);
-			fname = addExtension(fname, ch1);
-			printf("%s\n", fname);
-			break;
-		case 1:/*linux*/
-			strncat(fname, _argv[index], argv_len);
-			fname = addExtension(fname, ch2);
-			printf("%s\n", fname);
-			break;
-		default:
-			report_error(ERR_FILE_AFTER, line_count, AS, CRIT, 0);
-			break;
-	}
-	/* Attempt to open the file for writing*/
-	if (!(fptr = fopen(fname, mode))) {
+
+	
+	if (!(fptr = fopen("post_preproc.txt", mode))) {
 		report_error(ERR_FILE_AFTER, line_count, AS, CRIT, 0);
 		return NULL;
 	}
@@ -162,7 +145,7 @@ void report_error(char *err, int line_count, file_t fenum, err_type_t type, int 
 	char *str = calloc(30, sizeof(char));
 	char fname[8][16] = {"assembler.c", "macro.c", "macro_list.c", "symbols.c",
 	                     "parser.c", "first_pass.c", "second_pass.c", "utils.c"};
-
+/*todo remove addition for IC address*/
 	/* case there is a warning with symbols in wordTable*/
 	if ((fenum == FIRST || fenum == SECOND) && IC_ADDRESS > 0 && type == NON_CRIT)
 		printf("%s at WordTable Address %d  line %lu || At: %s\n", WAR_MEMORY_NOT_CONFIGURED, IC_ADDRESS, line_count,
