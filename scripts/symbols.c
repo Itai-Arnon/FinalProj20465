@@ -13,11 +13,6 @@
 #include "headers/parser.h"
 
 
-char *opcode_names[16] = {"mov", "cmp", "add", "sub", "lea", "clr", "not", "inc", "dec", "jmp",
-                          "bne", "red", "prn", "jsr", "rts", "stop"};
-
-char *directives[4] = {".data", ".string", ".entry", ".extern"};
-
 
 /* todo 0 failure 1:success*/
 int loadSymbolTable(symbol_table_t *sym_tbl, char symbol_name[], int address, memory_t type) {
@@ -146,13 +141,19 @@ int if_Symbol_if_Duplicate(symbol_table_t *sym_tbl, char *cmd, symbol_loci_t isH
 
 /*meant to detect if name is a duplicate directive or opcode or prior labels are */
 int is_symbol_name_duplicate(symbol_table_t *sym_tbl, char *symbol_name) {
-	symbol_t *head = sym_tbl->symbol_List;
+
+	char *opcode_names[16] = {"mov", "cmp", "add", "sub", "lea", "clr", "not", "inc", "dec", "jmp",
+	                          "bne", "red", "prn", "jsr", "rts", "stop"};
+	char *directives[4] = {".data", ".string", ".entry", ".extern"};
+	symbol_t *head;
 	int LEN = strlen(symbol_name);
 	int j = 0;
 
-	if (symbol_name[0] == '\0') {
+
+	if (symbol_name[0] == '\0' || sym_tbl == NULL) {
 		return 0;
 	}
+	 head = sym_tbl->symbol_List;
 
 	for (j = 0; j < 16; ++j) {
 		if (strcmp(symbol_name, opcode_names[j]) == 0)

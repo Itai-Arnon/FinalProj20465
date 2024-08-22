@@ -53,9 +53,7 @@ void first_pass( symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t 
 			break;
 	}
 
-	printTable(wordTable);
-	printTable(dataTable);
-	print_symbol_table(sym_tbl);
+
 	printf("before second passs!!!\n");
 	second_pass( sym_tbl,  wordTable, dataTable, filename);
 }

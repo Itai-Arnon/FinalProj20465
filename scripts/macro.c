@@ -216,7 +216,9 @@ int checkEOFInBuffer(char *buffer) {
 /*symbols will be checked in 2nd pass*/
 int macro_name_duplicate(char *macro_name) {
 	int j = 0;
-
+	char *opcode_names[16] = {"mov", "cmp", "add", "sub", "lea", "clr", "not", "inc", "dec", "jmp",
+	                          "bne", "red", "prn", "jsr", "rts", "stop"};
+	char *directives[4] = {".data", ".string", ".entry", ".extern"};
 
 
 	for (j = 0; j < 16; ++j) {

@@ -56,16 +56,15 @@ void manage_files(int _argc, char **_argv, macro_table_t *macro_tbl, symbol_tabl
 		if (isError) {
 			return;
 		}
-		fptr_before = initSourceFiles( _argv, fptr_before, idx, 0);
+		/*fptr_before = initSourceFiles( _argv, fptr_before, idx, 0);*/
 		fptr_after = initDestinationPointer(_argv ,fptr_after, idx , "a+", 0);
 
-		read_preprocessor(macro_tbl, sym_tbl);
-		rewind(fptr_after);
+		/*read_preprocessor(macro_tbl, sym_tbl);*/
 		parse(sym_tbl, wordTable, dataTable, _argv[idx]); /*after parse comes first_pass and second_pass*/
-		checkSymbolsUnique(macro_tbl, sym_tbl);
 		/*todo last command should be print the final version */
 	}
 
+	checkSymbolsUnique(macro_tbl, sym_tbl);
 	freeAllTables(macro_tbl, sym_tbl, wordTable, dataTable);
 }
 
@@ -82,11 +81,12 @@ FILE *initSourceFiles( char **_argv, FILE *fptr, int index, int os) {
 		case 0:/*windows*/
 			strcpy(filename, PATH_BASE);
 			strncat(filename, _argv[index], argv_len);
-			printf("%s\n", filename);
+			printf("Source File %s\n", filename);
 			break;
 		case 1: /*linux*/
 			strncat(filename, _argv[index], argv_len);
 			printf("%s\n", filename);
+			printf("Source File %s\n", filename);
 			break;
 		default:
 			report_error(ERR_FILE_BEFORE, line_count, AS, CRIT, 0);
@@ -110,16 +110,18 @@ FILE *initDestinationPointer(char **_argv, FILE *fptr, int index, char mode[], i
 		case 0:/*windows*/
 			strcpy(fname, PATH_BASE);//*TODO no need in linux*//
 			strncat(fname, _argv[index], argv_len);
-			printf("%s\n", fname);
+			printf("Destination File %s\n", fname);
+			break;
 		case 1:/*linux*/
 			strncat(fname, _argv[index], argv_len);
-			printf("%s\n", fname);
+			fname = addExtension(fname, ".am");
+			printf("Destination File %s\n", fname);
 			break;
 		default:
 			report_error(ERR_FILE_AFTER, line_count, AS, CRIT, 0);
 			break;
 	}
-	fname = addExtension(fname, ".am");
+
 	/* Attempt to open the file for writing*/
 	if (!(fptr = fopen(fname, mode))) {
 		report_error(ERR_FILE_AFTER, line_count, AS, CRIT, 0);
