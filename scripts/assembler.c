@@ -60,10 +60,11 @@ void manage_files(int _argc, char **_argv, macro_table_t *macro_tbl, symbol_tabl
 		fptr_after = initDestinationPointer(_argv ,fptr_after, idx , "a+", 0);
 
 		read_preprocessor(macro_tbl, sym_tbl);
+		rewind(fptr_before);
 		rewind(fptr_after);
 		parse(sym_tbl, wordTable, dataTable, _argv[idx]); /*after parse comes first_pass and second_pass*/
 		checkSymbolsUnique(macro_tbl, sym_tbl);
-		/*todo last command should be print the final version */
+
 	}
 
 	freeAllTables(macro_tbl, sym_tbl, wordTable, dataTable);
@@ -93,7 +94,6 @@ FILE *initSourceFiles( char **_argv, FILE *fptr, int index, int os) {
 			return NULL;
 	}
 
-
 	if (!(fptr = fopen(filename, "r"))) {
 		report_error(ERR_FILE_BEFORE, line_count, AS, CRIT, 0);
 		exit(0);
@@ -106,20 +106,24 @@ FILE *initDestinationPointer(char **_argv, FILE *fptr, int index, char mode[], i
 	// Construct the file path by prepending the parent directory
 	char *fname = calloc(64, sizeof(char));
 	int argv_len = nonNullTerminatedLength(_argv[index]);
+	int *ch1 = "_.txt", *ch2 = "_.am";
 	switch (os) {
 		case 0:/*windows*/
+
 			strcpy(fname, PATH_BASE);//*TODO no need in linux*//
 			strncat(fname, _argv[index], argv_len);
+			fname = addExtension(fname, ch1);
 			printf("%s\n", fname);
+			break;
 		case 1:/*linux*/
 			strncat(fname, _argv[index], argv_len);
+			fname = addExtension(fname, ch2);
 			printf("%s\n", fname);
 			break;
 		default:
 			report_error(ERR_FILE_AFTER, line_count, AS, CRIT, 0);
 			break;
 	}
-	fname = addExtension(fname, ".am");
 	/* Attempt to open the file for writing*/
 	if (!(fptr = fopen(fname, mode))) {
 		report_error(ERR_FILE_AFTER, line_count, AS, CRIT, 0);
@@ -135,7 +139,7 @@ char *addExtension(char file_name[], char *ext) {
 	if (str == NULL)
 		strcat(file_name, ext);
 	else {
-		*(str + 1) = '\0';
+		*(str) = '\0';
 		strcat(file_name, ext);
 	}
 	return file_name;

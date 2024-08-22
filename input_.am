@@ -1,6 +1,4 @@
 mov *r7,*r2
-macr m
+stop
 mov *r7,*r2
-endmacr
-m
-
+stop

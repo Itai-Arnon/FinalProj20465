@@ -78,7 +78,7 @@ void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 				tbl->isMacroOpen = 0;
 				/*macro is locked from rewriting forever*/
 				macro_lock(tbl, macro_name);
-				/*memset(macro_name,'\0', sizeof(macro_name));*/
+				memset(macro_name,'\0', sizeof(macro_name));
 
 				break;
 			case MACRO_EXPAND:
@@ -90,6 +90,7 @@ void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 				break;
 			case LINE_OUTSIDE:
 				fprintf(fptr_after, "%s", buffer);
+				break;
 			default:
 				break;
 		}
@@ -104,7 +105,6 @@ int typeofline(macro_table_t *tbl, char *line, char *macro_name, symbol_table_t 
 	int pos = 0;
 
 
-	if (*line == '\0') return EMPTY_LINE;
 	strcpy(buffer, line);
 	/*removes white space from the front*/
 
