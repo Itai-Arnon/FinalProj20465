@@ -1,17 +1,16 @@
 mov r2, r3
+.entry MAR
+.entry MAR
+MAR: mov r2, r3
 mov r2, r3
 mov r2, r3
 mov r2, r3
 mov r2, r3
 mov r2, r3
-.extern MIC
-.extern MOD
-.extern MEL
-mov r2,r3
-mov r2,r3
-mov r2,r3
-mov r2,r3
-mov r2,r3
-mov r2,r3
-mov r2,r3
+mov r2, r3
+mov r2, r3
+mov r2, r3
+mov r2, r3
+.extern MAR
+
 stop

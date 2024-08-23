@@ -13,9 +13,8 @@
 #include "headers/parser.h"
 
 
-
 /* todo 0 failure 1:success*/
-int loadSymbolTable(symbol_table_t *sym_tbl, char symbol_name[], int address, memory_t type) {
+int loadSymbolTable(symbol_table_t *sym_tbl, char *symbol_name, int address, memory_t type) {
 	int res = 0;
 	symbol_t *end = sym_tbl->symbol_List;
 	symbol_t *node = create_symbol(sym_tbl, symbol_name, address, type);/*create symbols takes care of error*/
@@ -43,35 +42,14 @@ symbol_table_t *init_symbol_table(symbol_table_t *sym_tbl) {
 		report_error(ERR_FAIL_CREATE_SYMBOL_TBL, line_count, SYM, CRIT, 0);
 		return NULL;
 	}
-	sym_tbl->size = 0;
 	sym_tbl->symbol_List = NULL;
+	sym_tbl->size = 0;
 
 	return sym_tbl;
 
 }
 
-symbol_t *findSymbol(symbol_table_t *sym_tbl, char *symbol_name) {
-	symbol_t *head = NULL;
-	int LEN = strlen(symbol_name);
-
-	if(sym_tbl == NULL){
-		return NULL;
-	}
-	/*in case the colon is attached LEN will be shortened and strncmp is used*/
-		LEN = (symbol_name[LEN - 1] == ':') ? LEN - 1 : LEN;
-
-		head = sym_tbl->symbol_List;
-
-		while (head != NULL) {
-			if (strncmp(head->symbol_name, symbol_name, LEN) == 0)
-				return head;
-
-			head = head->next_sym;
-		}
-	return NULL; /*didn't find symbol*/
-}
-
-symbol_t *create_symbol(symbol_table_t *sym_tbl, char symbol_name[], int address, memory_t type) {
+symbol_t *create_symbol(symbol_table_t *sym_tbl, char *symbol_name, int address, memory_t type) {
 	symbol_t *node = NULL;
 
 	int LEN = strlen(symbol_name);
@@ -84,10 +62,11 @@ symbol_t *create_symbol(symbol_table_t *sym_tbl, char symbol_name[], int address
 		return NULL;
 	}
 
-	if (node = malloc(sizeof(symbol_t))) {
-		memset(node->symbol_name, 0, sizeof(node->symbol_name));
+	if ((node = malloc(sizeof(symbol_t)))) {
+		sym_tbl->size++;
+		memset(node->symbol_name, '\0', sizeof(node->symbol_name));
 		strncpy(node->symbol_name, symbol_name, LEN);
-		node->address = 0;
+		node->address = address;
 		node->type = type;
 		node->next_sym = NULL;
 		node->isUpdate = 0;
@@ -95,6 +74,26 @@ symbol_t *create_symbol(symbol_table_t *sym_tbl, char symbol_name[], int address
 	}
 	report_error(ERR_FAIL_CREATE_SYMBOL, line_count, SYM, CRIT, 0);
 	return NULL;
+}
+
+symbol_t *findSymbol(symbol_table_t *sym_tbl, char *symbol_name) {
+	symbol_t *head = NULL;
+	int LEN = strlen(symbol_name);
+
+	if (sym_tbl == NULL) {
+		return NULL;
+	}
+	/*in case the colon is attached LEN will be shortened and strncmp is used*/
+	LEN = (symbol_name[LEN - 1] == ':') ? LEN - 1 : LEN;
+
+	head = sym_tbl->symbol_List;
+
+	while (head != NULL) {
+		if (strncmp(head->symbol_name, symbol_name, LEN) == 0)
+			return head;
+		head = head->next_sym;
+	}
+	return NULL; /*didn't find symbol*/
 }
 
 /*general func |-1 symbol list is empty, 0-no duplicants , 1 it is a duplicate*/
@@ -153,7 +152,7 @@ int is_symbol_name_duplicate(symbol_table_t *sym_tbl, char *symbol_name) {
 	if (symbol_name[0] == '\0' || sym_tbl == NULL) {
 		return 0;
 	}
-	 head = sym_tbl->symbol_List;
+	head = sym_tbl->symbol_List;
 
 	for (j = 0; j < 16; ++j) {
 		if (strcmp(symbol_name, opcode_names[j]) == 0)
@@ -176,53 +175,44 @@ int is_symbol_name_duplicate(symbol_table_t *sym_tbl, char *symbol_name) {
 }
 
 int delete_symbol(symbol_table_t *sym_tbl, char *symbol_name) {
-	symbol_t *head = sym_tbl->symbol_List;
+	symbol_t *head = NULL;
 	symbol_t *prev = NULL;
 	int LEN = strlen(symbol_name);
 
 	if (symbol_name[LEN - 1] == ':')
 		LEN -= 1;
-
-	if(sym_tbl == NULL || sym_tbl->symbol_List == NULL)
+	if (sym_tbl == NULL || sym_tbl->symbol_List == NULL)
 		return 0;
 
-	/*case head is the first node */
-	if (head != NULL && strncmp(symbol_name, head->symbol_name, (LEN)) == 0) {
-		sym_tbl->symbol_List = head->next_sym;
+
+
+	/*if head is the requested one, we unlink it the free head*/
+	head= sym_tbl->symbol_List;
+
+	if (head->next_sym == NULL && strncmp(symbol_name, head->symbol_name, (LEN)) == 0) {
 		free(head);
 		head = NULL;
 		return 1;
-	}
-	/*search for requested node*/
-	while (head != NULL && strncmp(symbol_name, head->symbol_name, (LEN)) != 0) {
-		prev = head;
-		head = head->next_sym;
-	}
-	if(head == NULL)
-		return 0; /*node not found*/
-
-	/*if head is the requested one, we unlink it*/
-	prev->next_sym = head->next_sym;
-
-	free(head);
-	head = NULL;
-
-	return 1; /*not found*/
-}
-
-
-/*adds value to memory adresses by memory type*/
-
-void addConstantToSymbols(symbol_table_t *sym_tbl, memory_t type, int value) {
-	symbol_t *head = sym_tbl->symbol_List;
-
-	while (head != NULL) {
-		if (head->type == type) {
-			head->address += value;
+		/* search for requested node*/
+	}else {
+		while(head != NULL && ((strncmp(symbol_name, head->symbol_name, LEN)) != 0)) {
+			prev = head;
+			head = head->next_sym;
 		}
-		head = head->next_sym;
-	}
+
+			/*case null the requested symbol was not found*/
+			if (head == NULL)
+				return 0; /*we reached LL End node not found*/
+
+			if (head->next_sym != NULL)
+				prev->next_sym = head->next_sym;
+			else
+				prev->next_sym = NULL;
+
+			free(head);
+			head = NULL;
+			sym_tbl->size--;
+
+			return 1;
+		}
 }
-
-
-

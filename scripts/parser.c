@@ -41,6 +41,7 @@ sep_commas_t seperator_c;
 
 void parse(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataTable, char *filename) {
 	char *buffer = calloc(LINE_LENGTH, sizeof(char));/*sentence analyzed*/
+	char *orig_buffer = buffer;/*meast to restet the buffer*/
 	char *cmd = calloc(MAX_SYMBOL_NAME, sizeof(char));/*cmd parse*/
 	char *cmd_extra = calloc(MAX_SYMBOL_NAME, sizeof(char)); /* 2nd cmd parse*/
 	char *directive_str = NULL;/*auxiliary var*/
@@ -62,6 +63,7 @@ void parse(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataT
 	}
 
 	while (fgets(buffer, LINE_LENGTH, fptr_after) != NULL) {
+
 		initParser();
 		line_count++;
 		buffer = strstrip(buffer);
@@ -214,14 +216,10 @@ void parse(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataT
 		if (isError) {
 			break;
 		}
+
 		first_pass(sym_tbl, wordTable, dataTable, filename);
+		buffer = orig_buffer;
 	}
-	free(buffer);
-	free(cmd);
-	free(cmd_extra);
-	free(directive_str);
-	free(sArr);
-	free(pos);
 } /*END OF PARSE*/
 
 
@@ -337,7 +335,6 @@ int checkRegisterCompliance() {
 			/*check destination operands only */
 			type2 = parser.operands[0].type_of_register;
 
-			printf("ETRAK%s\n", parser.operands[0].type_of_register);
 
 			if (type2 == opcode_specs[opCode][2][0][type1] - '0')
 				return 1;
@@ -346,11 +343,7 @@ int checkRegisterCompliance() {
 		case 2:
 			/*check 2 operands*/
 			type1 = parser.operands[0].type_of_register;
-
-			printf("ETRAK:%d\n", parser.operands[0].type_of_register);
 			type2 = parser.operands[1].type_of_register;
-
-			printf("ETRAK:%d\n", parser.operands[1].type_of_register);
 			/*comparison based opcpde_specs which defines all possible modes for each reg*/
 			/*[OpCode][ 2 = source| 1 = destination][0][regsitry types define index] */
 			if ((type1 == opcode_specs[opCode][2][0][type1] - '0') &&

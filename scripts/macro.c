@@ -17,6 +17,7 @@ int line_count;
 
 void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 	char *buffer = malloc(sizeof(char) * SET_BUFFER_LENGTH);
+	char  *buffer_orig = buffer;
 	char *macro_name = (char *) calloc(10, sizeof(char));
 	int idx = 0;
 	int *pos = calloc(1, sizeof(int));
@@ -93,7 +94,8 @@ void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 			default:
 				break;
 		}
-		memset(buffer, '\0', sizeof(buffer));
+		buffer = buffer_orig;
+		memset(buffer, '\0', SET_BUFFER_LENGTH * sizeof(char));
 	}
 }
 

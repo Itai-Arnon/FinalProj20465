@@ -16,7 +16,7 @@ static int IC = 100; /*first address of the instruction table is preset in tabel
 static int DC = 0;
 
 /**  out.txt ***/
-void first_pass( symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataTable ,char* filename) {
+void first_pass(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataTable, char *filename) {
 	int result = 0, n = 0;
 
 	if (isError) {
@@ -25,7 +25,7 @@ void first_pass( symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t 
 	switch (parser.line_type) {
 		case OP_CODE:
 			setOPCODE_INSTRUCTION(sym_tbl, wordTable);
-			if(parser.op  == stop){
+			if (parser.op == stop) {
 				printf("First Pass Completed\n");
 			}
 			break;
@@ -37,7 +37,7 @@ void first_pass( symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t 
 
 			} else if (result == ENTRY || result == EXTERN) {
 
-				set_EXTnEntry(sym_tbl,  dataTable);
+				set_EXTnEntry(sym_tbl, dataTable);
 			}
 			break;
 		case ERR:
@@ -51,8 +51,7 @@ void first_pass( symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t 
 	}
 
 
-	printf("before second passs!!!\n");
-	second_pass( sym_tbl,  wordTable, dataTable, filename);
+	second_pass(sym_tbl, wordTable, dataTable, filename);
 }
 
 /*sets the instruction word and the send to othre func to set other words*/
@@ -64,9 +63,10 @@ void setOPCODE_INSTRUCTION(symbol_table_t *sym_tbl, word_table_t *table) {
 
 	if (symbol != NULL && symbol->address < 100) {
 		symbol->address = line1->line_num;
-		symbol->type = _INSTRUCTION;
+		(symbol->type == _ENTRY) ? _ENTRY : _INSTRUCTION;
 		line1->symbol = symbol;
 	}
+	IC++;
 	switch (register_count_by_op(parser.op)) {
 		case 0:
 
@@ -113,12 +113,12 @@ void setOPCODE_INSTRUCTION(symbol_table_t *sym_tbl, word_table_t *table) {
 void setOPCODE_WORDS(symbol_table_t *sym_tbl, word_table_t *table, int idx, int type) {
 	symbol_t *symbol2 = NULL;
 	line_t *line2 = NULL;
-
 	unsigned short num;
+
 	IC++;
 	switch (parser.operands[idx].type_of_register) {
 		case _IMMEDIATE:
-			 line2 = add_line(table, _offset, NULL, A);
+			line2 = add_line(table, _offset, NULL, A);
 			num = parser.operands[idx].operand.num;
 			/*conversion to two complement*/
 			num = convertToTwoComp(num);
@@ -192,7 +192,7 @@ void set_STRING_WORDS(symbol_table_t *sym_tbl, word_table_t *table) {
 	line_t *line = NULL;
 	int i = 0;
 	if (symbol != NULL && !(symbol->isUpdate)) {
-		symbol->address = DC + 1;
+		symbol->address = DC;
 		symbol->type = _DATA;
 		symbol->isUpdate = 1;
 	}
@@ -204,15 +204,16 @@ void set_STRING_WORDS(symbol_table_t *sym_tbl, word_table_t *table) {
 		DC++;
 	}
 	/*adding '\0' */
-	line = add_line(table, 0,NULL , A);
+	line = add_line(table, 0, NULL, A);
 	set_number_data_word(&(line->word), '\0');
-
 	DC++;
+
+
 
 }
 
 /*sets the entry or extern word*/
-void set_EXTnEntry(symbol_table_t *sym_tbl,  word_table_t *table) {
+void set_EXTnEntry(symbol_table_t *sym_tbl, word_table_t *table) {
 	symbol_t *symbol = findSymbol(sym_tbl, parser.directive.operand.symbol);
 	line_t *line = NULL;
 
@@ -221,13 +222,23 @@ void set_EXTnEntry(symbol_table_t *sym_tbl,  word_table_t *table) {
 
 		case EXTERN:
 			line = add_line(table, 0, symbol, E);
-			set_ARE_into_word(&line->word,E);
+			symbol->isUpdate = 1;
+			/*symbol address should be updated*/
+			set_ARE_into_word(&line->word, E);
+			DC++;
 			/*in case EXTERN we are done, label address is zero*/
 
 		case ENTRY:
-			if(symbol == NULL){
-				report_error(ERR_ENTRY_SYMBOL_PROB, line_count,FIRST,CRIT,0);
-			}
+
+			if (symbol != NULL) {
+				symbol->type = _ENTRY;
+				symbol->isUpdate = 1;
+				symbol->address = 0; /*TBD*/
+
+			} else report_error(ERR_ENTRY_SYMBOL_PROB, line_count, FIRST, CRIT, 0);
+			break;
+		default:
+			break;
 
 	}
 }

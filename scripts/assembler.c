@@ -57,7 +57,7 @@ void manage_files(int _argc, char **_argv, macro_table_t *macro_tbl, symbol_tabl
 			return;
 		}
 		/*fptr_before = initSourceFiles( _argv, fptr_before, idx, 0);*/
-		fptr_after = initDestinationPointer(_argv ,fptr_after, idx , "a+", 0);
+		fptr_after = initDestinationPointer(_argv, fptr_after, idx, "a+", 0);
 
 		/*read_preprocessor(macro_tbl, sym_tbl);*/
 		parse(sym_tbl, wordTable, dataTable, _argv[idx]); /*after parse comes first_pass and second_pass*/
@@ -65,12 +65,11 @@ void manage_files(int _argc, char **_argv, macro_table_t *macro_tbl, symbol_tabl
 	}
 
 	checkSymbolsUnique(macro_tbl, sym_tbl);
-	freeAllTables(macro_tbl, sym_tbl, wordTable, dataTable);
 }
 
 /*index signifies argv index*/
 /*TODO: add option to goto next file once a file fails to open*/
-FILE *initSourceFiles( char **_argv, FILE *fptr, int index, int os) {
+FILE *initSourceFiles(char **_argv, FILE *fptr, int index, int os) {
 
 	char line[LINE_LENGTH];
 	char *filename = calloc(64, sizeof(char));
@@ -179,7 +178,6 @@ void report_error(char *err, int line_count, file_t fenum, err_type_t type, int 
 
 }
 
-void freeWordTable(word_table_t *wordTable);
 
 void freeWordTable(word_table_t *table) {
 	if (table == NULL) {
@@ -187,41 +185,47 @@ void freeWordTable(word_table_t *table) {
 	}
 	free(table->lines);
 	free(table);
+	table = NULL;
 }
 
 /* Frees the memory allocated for the symbol table */
 void freeSymbolTable(symbol_table_t *symbolTable) {
-	symbol_t *current;
-	symbol_t *next;
+	symbol_t *current = NULL;
+	symbol_t *prev = NULL;
 
-	if (symbolTable == NULL) {
+	if (symbolTable == NULL || symbolTable->size == 0) {
+		free(symbolTable);
+		symbolTable = NULL;
 		return;
 	}
-	current = symbolTable->symbol_List;
 
-	while (current != NULL) {
-		next = current->next_sym;
-		free(current);
-		current = next;
+		current = symbolTable->symbol_List;
+
+		while (current != NULL) {
+			prev = current;
+			current = current->next_sym;
+			free(prev);
+		}
+		free(symbolTable);
+		symbolTable = NULL;
 	}
-	free(symbolTable);
-}
 
-void freeMacroTable(macro_table_t *table) {
-	int idx = 0;
-	if (table == NULL) {
-		return;
+	void freeMacroTable(macro_table_t *table) {
+		int idx = 0;
+		if (table == NULL) {
+			return;
+		}
+		free(table->slot);
+		free(table);
+		table = NULL;;
 	}
-	free(table->slot);
-	free(table);
-}
 
 
-void freeAllTables(macro_table_t *macroTable, symbol_table_t *symbolTable, word_table_t *wordTable,
-                   word_table_t *dataTable) {
-	freeMacroTable(macroTable);
-	freeSymbolTable(symbolTable);
-	freeWordTable(wordTable);
-	freeWordTable(dataTable);
-}
+	void freeAllTables(macro_table_t *macroTable, symbol_table_t *symbolTable, word_table_t *wordTable,
+	                   word_table_t *dataTable) {
+		/*freeMacroTable(macroTable);
+		freeSymbolTable(symbolTable);
+		freeWordTable(wordTable);
+		freeWordTable(dataTable);*/
+	}
 
