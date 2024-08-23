@@ -48,13 +48,14 @@ macro_node_t *constructMacroNode(macro_table_t *tbl, char *macro_name, char *lin
 		strcpy(tbl->slot[tbl->size - 1].macro_name, macro_name);
 		strcpy(tbl->slot[tbl->size - 1].macro_line, line);
 		tbl->slot[tbl->size - 1].macro_lock = 0;
-		tbl->slot[tbl->size - 1].index = tbl->size;
+		tbl->slot[tbl->size - 1].index = tbl->size - 1;
 		return &tbl->slot[tbl->size - 1];
 }
 
 
 int loadMacroTable(macro_table_t *tbl, char *macro_name, char *line) {
 	macro_node_t *temp = NULL;
+	/*increase in size , update of index are done inside constrrct node*/
 
 	if (!(temp = constructMacroNode(tbl, macro_name, line))) {
 		report_error(ERR_MACRO_NODE_CREATION_FAILED, line_count, MACL, CRIT, 0);    /*critical error*/
@@ -62,6 +63,7 @@ int loadMacroTable(macro_table_t *tbl, char *macro_name, char *line) {
 	}
 	/*at init equal 1*/
 	tbl->isEmpty = 0;
+
 	return 1;
 }
 
@@ -84,11 +86,10 @@ void expandMacro(macro_table_t *tbl, char *macro_name) {
 	}
 
 	for (i = macro_start->index; i < LEN; i++) {
-		if (strcmp(tbl->slot[i].macro_name, macro_name) == 0) {
 			fprintf(fptr_after, "%s", tbl->slot[i].macro_line);
 		}
-	}
-	return ;
+
+	return;
 }
 
 
@@ -143,7 +144,7 @@ int retSlot(macro_table_t *tbl, char *macro_name) {
 
 
 /* Checks if a given name exists  |true 1 | false 0*/
-/*locked = 1  checks if it exists and  locked | 0 exist but not locked */
+
 int dupNameExistsInTable(macro_table_t *tbl, char *macro_name) {
 	int i = 0;
 	if (tbl == NULL || tbl->isEmpty == 1) return 0;

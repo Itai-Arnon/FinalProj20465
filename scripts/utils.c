@@ -79,6 +79,15 @@ char *removeColon(char *symbol_name) {
 int checkLegalName(char *str, check_legal_name type) {
 	int i = 0;
 	int len = nonNullTerminatedLength(str);
+	/*for directives*/
+	if(str[0] == '.') {
+		str++;
+		while (isalpha(*str++));
+		if (*str != '\0')
+			return 0;
+		else
+			return 2;
+	}
 	if (!isalpha(str[0])) return 0;
 	switch (type) {
 		case ALPHA:

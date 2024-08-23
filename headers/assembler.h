@@ -21,7 +21,7 @@ FILE *initSourceFiles(char **_argv, FILE *fptr, int index ,int);
 FILE *initDestinationPointer( char **_argv, FILE *fptr, int index, char mode[] , int os);
 
 /*add an extension to a given file name. identifies the current extension and removes it*/
-char *addExtension(char *file_name, char *ext);
+char *replaceExtension(char file_name[], char *ext);
 /*reports error to user. uses a data banks of predmade error, report in which source file the error occured|
  *choice b/w critical and non critical - critcal will exit the program and had an ability to identify error in the wordTables*/
 void report_error(char *, int, file_t, err_type_t, int);

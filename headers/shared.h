@@ -30,7 +30,7 @@
 /*#define PATH_BASE "c:\\OPU\\20465\\m\\m14\\"*/          /*TODO change when moving to linux*/
 #define PATH_BASE "..\\"                                           /*ALternate PATH_BASE */
 #define EXT_BEFORE ".txt" /*TODO change to appropriate extension once in linux*/
-#define EXT_AFTER "a.txt"
+#define EXT_AFTER "asse.txt"
 #define START_PRE ".as"
 #define END_PRE   ".am"
 
@@ -62,7 +62,7 @@
 #define ERR_START_MACRO_DEF "Error In Macro Start Definition"
 #define ERR_MACRO_END "Error In Macro End Definition"
 #define ERR_MACRO_EXPAND "Error In Macro Expand Definition"
-#define ERR_MACRO_NAME_DUP "Error Duplicate Macro Name"
+#define ERR_MACRO_NAME_DUP "Error Duplicate Macro Name or Macro name is a opcode, a Directive"
 #define ERR_MACRO_NOT_FOUND "Cannot find Macro"
 #define ERR_MACRO_NAME_OP_DIRECT_SYMBOL "Macro name is a opcode, a Directive or a Symbol"
 

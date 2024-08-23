@@ -43,31 +43,26 @@ int main(int argc, char *argv[]) {
 
 void manage_files(int _argc, char **_argv, macro_table_t *macro_tbl, symbol_table_t *sym_tbl, word_table_t *wordTable,
                   word_table_t *dataTable) {
-	int idx;
+	int idx = 0;
 	int num_files = _argc;
+	char *str1 = NULL;
 
 	if (_argc == 1) {
 		report_error(ERR_NO_FILES, line_count, AS, CRIT, 0);
 		return;
 	}
-
 	/*argc  must always be subtracted by one*/
 	for (idx = 1; idx < _argc; ++idx) {
-		if (isError) {
-			return;
-		}
-		/*fptr_before = initSourceFiles( _argv, fptr_before, idx, 0);*/
+		printf("%d\n", idx);
+		fptr_before = initSourceFiles(_argv, fptr_before, idx, 0);
 		fptr_after = initDestinationPointer(_argv, fptr_after, idx, "a+", 0);
+		read_preprocessor(macro_tbl, sym_tbl);
 
-		/*read_preprocessor(macro_tbl, sym_tbl);*/
-		parse(sym_tbl, wordTable, dataTable, _argv[idx]); /*after parse comes first_pass and second_pass*/
-		/*todo last command should be print the final version */
+
 	}
-
-	checkSymbolsUnique(macro_tbl, sym_tbl);
 }
 
-/*index signifies argv index*/
+
 /*TODO: add option to goto next file once a file fails to open*/
 FILE *initSourceFiles(char **_argv, FILE *fptr, int index, int os) {
 
@@ -82,6 +77,7 @@ FILE *initSourceFiles(char **_argv, FILE *fptr, int index, int os) {
 			strncat(filename, _argv[index], argv_len);
 			printf("Source File %s\n", filename);
 			break;
+
 		case 1: /*linux*/
 			strncat(filename, _argv[index], argv_len);
 			printf("%s\n", filename);
@@ -108,12 +104,13 @@ FILE *initDestinationPointer(char **_argv, FILE *fptr, int index, char mode[], i
 	switch (os) {
 		case 0:/*windows*/
 			strcpy(fname, PATH_BASE);//*TODO no need in linux*//
+			strcat(fname, "b");
 			strncat(fname, _argv[index], argv_len);
 			printf("Destination File %s\n", fname);
 			break;
 		case 1:/*linux*/
-			strncat(fname, _argv[index], argv_len);
-			fname = addExtension(fname, ".am");
+			strncat(fname, _argv[index], argv_len);//copies and add the .am extension
+			fname = replaceExtension(fname, ".am");
 			printf("Destination File %s\n", fname);
 			break;
 		default:
@@ -130,16 +127,18 @@ FILE *initDestinationPointer(char **_argv, FILE *fptr, int index, char mode[], i
 	return fptr;
 }
 
-char *addExtension(char file_name[], char *ext) {
+char *replaceExtension(char file_name[], char *ext) {
 
 	char *str = strrchr(file_name, '.');
 	if (str == NULL)
 		strcat(file_name, ext);
 	else {
-		*(str + 1) = '\0';
+
+		*str = '\0';
 		strcat(file_name, ext);
 	}
 	return file_name;
+
 
 }
 
@@ -161,14 +160,8 @@ void report_error(char *err, int line_count, file_t fenum, err_type_t type, int 
 	                     "parser.c", "first_pass.c", "second_pass.c", "utils.c"};
 
 	/* case there is a warning with symbols in wordTable*/
-	if ((fenum == FIRST || fenum == SECOND) && IC_ADDRESS > 0 && type == NON_CRIT)
-		printf("%s at WordTable Address %d  line %lu || At: %s\n", WAR_MEMORY_NOT_CONFIGURED, IC_ADDRESS, line_count,
-		       fname[fenum]);
-		/* case there is an error with symbols in wordTable*/
-	else if ((fenum == FIRST || fenum == SECOND) && IC_ADDRESS > 0 && type == CRIT)
-		printf("%s at WordTable Address %d  line %lu || At: %s\n", ERR_MEMORY_NOT_CONFIGURED, IC_ADDRESS, line_count,
-		       fname[fenum]);
-	else if (type == CRIT) {
+
+	if (type == CRIT) {
 		printf("%s at line %lu || At: %s\n", err, line_count, fname[fenum]);
 		printf("Critical Error,  terminating and Freeing Allocation\n");
 		isError = 1;
@@ -199,33 +192,24 @@ void freeSymbolTable(symbol_table_t *symbolTable) {
 		return;
 	}
 
-		current = symbolTable->symbol_List;
+	current = symbolTable->symbol_List;
 
-		while (current != NULL) {
-			prev = current;
-			current = current->next_sym;
-			free(prev);
-		}
-		free(symbolTable);
-		symbolTable = NULL;
+	while (current != NULL) {
+		prev = current;
+		current = current->next_sym;
+		free(prev);
 	}
+	free(symbolTable);
+	symbolTable = NULL;
+}
 
-	void freeMacroTable(macro_table_t *table) {
-		int idx = 0;
-		if (table == NULL) {
-			return;
-		}
-		free(table->slot);
-		free(table);
-		table = NULL;;
+void freeMacroTable(macro_table_t *table) {
+	int idx = 0;
+	if (table == NULL) {
+		return;
 	}
-
-
-	void freeAllTables(macro_table_t *macroTable, symbol_table_t *symbolTable, word_table_t *wordTable,
-	                   word_table_t *dataTable) {
-		/*freeMacroTable(macroTable);
-		freeSymbolTable(symbolTable);
-		freeWordTable(wordTable);
-		freeWordTable(dataTable);*/
-	}
+	free(table->slot);
+	free(table);
+	table = NULL;;
+}
 
