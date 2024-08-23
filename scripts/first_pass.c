@@ -220,7 +220,7 @@ void set_EXTnEntry(symbol_table_t *sym_tbl, symbol_table_t *externTable, word_ta
 			/*in case EXTERN we are done, label address is zero*/
 			symbol = findSymbol(externTable, parser.directive.operand.symbol);
 			if (symbol != NULL) {
-				line = add_line(table, 0, symbol, _EXTERN);
+				line = add_line(table, 0, symbol, E);
 				symbol->address = line->line_num;
 				/*symbol address should be updated*/
 				set_ARE_into_word(&line->word, E);
@@ -337,7 +337,7 @@ word_table_t *initTable(word_table_t *table, int memInit) {
 
 
 /*adds a line to wordTable/dataTable  the first line has an address 100*/
-line_t *add_line(word_table_t *table, int offset, symbol_t *symbol, memory_t _ARE) {
+line_t *add_line(word_table_t *table, int offset, symbol_t *symbol, ARE_T ARE) {
 	line_t *new_ptr = NULL;
 
 	if (table == NULL)
@@ -356,7 +356,7 @@ line_t *add_line(word_table_t *table, int offset, symbol_t *symbol, memory_t _AR
 	table->lines[table->size - 1].line_num = table->size + offset - 1; /*address*/
 	table->lines[table->size - 1].symbol = symbol;/*pointer to symbol*/
 	table->lines[table->size - 1].word = 0;
-	table->lines[table->size - 1]._ARE = _ARE;
+	table->lines[table->size - 1]._ARE = ARE;
 
 
 	return &(table->lines[(table->size - 1)]);

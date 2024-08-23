@@ -83,7 +83,7 @@ void set_value_to_word(word_t *word, int value);
 word_table_t *initTable(word_table_t *wordTable , int memoryInit) ;
 
 /*reallocate more places in table*/
-line_t *add_line(word_table_t *, int, symbol_t * , memory_t _ARE);
+line_t *add_line(word_table_t *, int, symbol_t * , ARE_T _ARE);
 
 
 void addNumberToWordTable(word_table_t *table, int number);

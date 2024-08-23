@@ -45,7 +45,7 @@ void second_pass(symbol_table_t *sym_tbl, symbol_table_t *externTable, word_tabl
 
 		addNumberToWordTable(dataTable, _shift);
 		addConstantToSymbols(sym_tbl, wordTable, _DATA, _shift);
-		addConstantToSymbols(sym_tbl, wordTable, _EXTERN, _shift);
+		addConstantToSymbols(externTable, wordTable, _EXTERN, _shift);
 		addConstantToSymbols(sym_tbl, wordTable, _ENTRY, _shift);
 		/*all ARE = R are given missing addresses*/
 		updateRelocatableLines(wordTable);
@@ -295,14 +295,17 @@ int countExternInTables(word_table_t *table) {
 	int count = 0;
 	int i;
 
+
+
 /* Check if the table is not NULL its size is not zero */
-	if (table != NULL && table->size > 0) {
+	if (table != NULL && (table->size > 0)) {
 		for (i = 0; i < table->size; i++) {
 			if (table->lines[i]._ARE == E) {
 				count++;
 			}
 		}
 	}
+	printf("COUNT COUNT EXTERN %d\n\n\n", count);
 	return count;
 }
 

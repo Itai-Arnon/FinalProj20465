@@ -1,17 +1,6 @@
 mov r2, r3
 .entry MAR
 MAR: mov r2, r3
-.extern BOO
-mov #1, r3
-mov #1, r3
-mov #1, r3
-mov #1, r3
-mov #1, r3
-mov #1, r3
-mov #1, r3
-mov #1, r3
-mov #1, r3
-mov #1, r3
-mov #1, r3
-mov #1, r3
+.extern n
+.extern b
 stop

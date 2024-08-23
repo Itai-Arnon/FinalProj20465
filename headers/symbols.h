@@ -13,6 +13,7 @@ typedef struct symbol_t{
 	int address;
 	memory_t type;/*_INSTRUCTION OR DATA or _Extern or _Entry*/
 	int isUpdate; /*signifies if it has been updated*/
+	int index; /*numbering of the symbols*/
 	struct symbol_t *next_sym;
 }symbol_t;
 

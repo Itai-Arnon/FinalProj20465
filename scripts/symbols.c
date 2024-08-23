@@ -70,6 +70,7 @@ symbol_t *create_symbol(symbol_table_t *sym_tbl, char *symbol_name, int address,
 		node->type = type;
 		node->next_sym = NULL;
 		node->isUpdate = 0;
+		node->index = sym_tbl->size;
 		return node;
 	}
 	report_error(ERR_FAIL_CREATE_SYMBOL, line_count, SYM, CRIT, 0);
@@ -144,15 +145,17 @@ int is_symbol_name_duplicate(symbol_table_t *sym_tbl, char *symbol_name) {
 	char *opcode_names[16] = {"mov", "cmp", "add", "sub", "lea", "clr", "not", "inc", "dec", "jmp",
 	                          "bne", "red", "prn", "jsr", "rts", "stop"};
 	char *directives[4] = {".data", ".string", ".entry", ".extern"};
-	symbol_t *head;
+
+	symbol_t *head = NULL;
 	int LEN = strlen(symbol_name);
 	int j = 0;
+	int first_index = 0;
 
-
-	if (symbol_name[0] == '\0' || sym_tbl == NULL) {
+	if (symbol_name[0] == '\0' || sym_tbl == NULL)
 		return 0;
-	}
-	head = sym_tbl->symbol_List;
+
+
+
 
 	for (j = 0; j < 16; ++j) {
 		if (strcmp(symbol_name, opcode_names[j]) == 0)
@@ -163,9 +166,14 @@ int is_symbol_name_duplicate(symbol_table_t *sym_tbl, char *symbol_name) {
 			return 1;
 	}
 
+		head = sym_tbl->symbol_List;
+		if(head != NULL){
+			first_index = head->index;
+		}
+
 	LEN = (symbol_name[LEN - 1] == ':') ? LEN - 1 : LEN;
 	while (head != NULL) {
-		if (strncmp(head->symbol_name, symbol_name, LEN) == 0)
+		if (strncmp(head->symbol_name, symbol_name, LEN) == 0 && first_index != head->index)
 			return 1;
 		else
 			head = head->next_sym;
