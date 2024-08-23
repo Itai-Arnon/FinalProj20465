@@ -57,7 +57,7 @@ symbol_t *create_symbol(symbol_table_t *sym_tbl, char *symbol_name, int address,
 		LEN -= 1;
 	/*check similarity with opcodes and directives*/
 
-	if (is_symbol_name_duplicate(sym_tbl, symbol_name) == 1) {
+	if (is_symbol_name_duplicate(sym_tbl, symbol_name) == 1 ) {
 		report_error(ERR_DUPLICATE_SYMBOL_NAME, line_count, SYM, CRIT, 0);
 		return NULL;
 	}

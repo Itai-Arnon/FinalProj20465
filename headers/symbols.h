@@ -38,6 +38,8 @@ symbol_table_t * init_symbol_table(symbol_table_t *sym_tbl);
 
 symbol_t *create_symbol(symbol_table_t *sym_tbl , char* ,int ,  memory_t  );
 
+symbol_t *create_extern_symbol(symbol_table_t *sym_tbl, char *symbol_name, int address);
+
 
 /*fills parser and checks if symbol- then returns 1  non duplicate , 2 for duplicate
  *  0 for fail ||if isStartOrMid == 1 will not allow symbol w/o ':"*/

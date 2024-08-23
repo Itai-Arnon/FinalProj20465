@@ -16,7 +16,7 @@ static int IC = 100; /*first address of the instruction table is preset in tabel
 static int DC = 0;
 
 /**  out.txt ***/
-void first_pass(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataTable, char *filename) {
+void first_pass(symbol_table_t *sym_tbl, symbol_table_t  *externTable, word_table_t *wordTable, word_table_t *dataTable, char *filename) {
 	int result = 0, n = 0;
 
 	if (isError) {
@@ -25,9 +25,7 @@ void first_pass(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *
 	switch (parser.line_type) {
 		case OP_CODE:
 			setOPCODE_INSTRUCTION(sym_tbl, wordTable);
-			if (parser.op == stop) {
-				printf("First Pass Completed\n");
-			}
+
 			break;
 		case DIRECTIVE:
 			if ((result = parser.directive.cmd) == DATA) {
@@ -51,7 +49,7 @@ void first_pass(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *
 	}
 
 
-	second_pass(sym_tbl, wordTable, dataTable, filename);
+	second_pass(sym_tbl,  externTable ,wordTable, dataTable, filename);
 }
 
 /*sets the instruction word and the send to othre func to set other words*/
@@ -148,7 +146,6 @@ void setOPCODE_WORDS(symbol_table_t *sym_tbl, word_table_t *table, int idx, int 
 				set_register_into_empty_word(&(line2->word), parser.operands[0].operand.registry, 1);
 				set_register_into_empty_word(&(line2->word), parser.operands[1].operand.registry, 0);
 				set_ARE_into_word(&(line2->word), A);
-				printBinary(line2->word);
 
 			}
 			break;

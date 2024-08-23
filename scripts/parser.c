@@ -47,11 +47,12 @@ void parse(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataT
 	char *directive_str = NULL;/*auxiliary var*/
 	char *sArr = calloc(MAX_SYMBOL_NAME, sizeof(char));/*.string array*/
 	int *pos = calloc(1, sizeof(int));/*promotes the buffer*/
+	symbol_table_t *externTable = NULL;/*auxiliary var*/
 	int idx, numCount, scanned, result, buff_len, isSymbol; /*auxiliary vars*/
 	idx = numCount = scanned = result = isSymbol = buff_len = 0;
 	line_count = 0;
 
-
+	externTable= init_symbol_table(externTable);
 	initEnumArr();
 	initDirectiveArray();/*todo check if needs more*/
 /*number of sscanf arguments*/
@@ -189,35 +190,35 @@ void parse(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataT
 						buffer += *pos;
 						if (isRestOfLineEmpty(buffer) == 0)
 							report_error(ERR_OP_CODE_FAILED_STRUCTURE, line_count, PARS, CRIT, 0);
-						if ((isSymbol = if_Symbol_if_Duplicate(sym_tbl, cmd, MIDDLE)) == 1) {
-							loadSymbolTable(sym_tbl, cmd, 0, (result == ENTRY) ? _ENTRY : _EXTERN);
-							report_error(WAR_EXTERN_ENTRY_SYMBOL, line_count, PARS, NON_CRIT, 0);
-						}
-						if (isSymbol > 0) { /*if the symbol is a duplicant it's still loaded to registry*/
 
-							strcpy(parser.directive.operand.symbol, cmd);
-							parser.directive.operand.data_len = 1;
+						if (result == ENTRY) {
+							loadSymbolTable(sym_tbl, cmd, 0, _ENTRY);
+						} else if (result == EXTERN)
+							loadSymbolTable(externTable, cmd, 0, _EXTERN);
 
-						}
+						report_error(WAR_EXTERN_ENTRY_SYMBOL, line_count, PARS, NON_CRIT, 0);
+						strcpy(parser.directive.operand.symbol, cmd);
+						parser.directive.operand.data_len = 1;
 
 					} else
 						report_error(ERR_DIRECTIVE_RECOGNITION, line_count, PARS, CRIT, 0);
 				}
-				break;
-			case ERR:
-				report_error(ERR_LINE_UNRECOGNIZED, line_count, PARS, CRIT, 0);
-				break;
-			case TBD:
-				report_error(ERR_DIRECTIVE_RECOGNITION, line_count, PARS, CRIT, 0);
-				break;
-			default:
-				break;
-		}
+					break;
+					case ERR:
+						report_error(ERR_LINE_UNRECOGNIZED, line_count, PARS, CRIT, 0);
+					break;
+					case TBD:
+						report_error(ERR_DIRECTIVE_RECOGNITION, line_count, PARS, CRIT, 0);
+					break;
+					default:
+						break;
+
+		}/*end of switch*/
 		if (isError) {
 			break;
 		}
 
-		first_pass(sym_tbl, wordTable, dataTable, filename);
+		first_pass(sym_tbl, externTable, wordTable , dataTable, filename);
 		buffer = orig_buffer;
 	}
 } /*END OF PARSE*/

@@ -17,7 +17,8 @@
 static int IC = 0; /*first address of the instruction table is preset in tabel init*/
 static int DC;
 
-void second_pass(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataTable, char *filename) {
+void second_pass(symbol_table_t *sym_tbl, symbol_table_t *externTable, word_table_t *wordTable, word_table_t *dataTable,
+                 char *filename) {
 	symbol_table_t *entryTable = NULL;
 	char *boo, *filename1, *filename2, *filename3, *filename4;
 
@@ -49,10 +50,10 @@ void second_pass(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t 
 		/*all ARE = R are given missing addresses*/
 		updateRelocatableLines(wordTable);
 		updateRelocatableLines(dataTable);
+		checkExternCollisions(externTable, sym_tbl);
 		moveSymbolsToEntry(sym_tbl, entryTable);
-		checkExternSymbols(sym_tbl);
 		/*2. check for symbols with undefined address*/
-
+		if()
 		printTable(wordTable);
 		printf("-------------\n");
 		printTable(dataTable);
@@ -63,8 +64,14 @@ void second_pass(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t 
 		print_symbol_table(entryTable);
 
 		printTableToFile(wordTable, dataTable, filename1);
+		printf("Entry to file  Symbol Table\n");
 		printEntryTable(entryTable, filename2);
+		printf("Extern Regular Symbol Table\n");
+		print_symbol_table(externTable);
+
+		printf("Extern  Symbol Table\n");
 		printExternTable(wordTable, dataTable, filename3);
+
 
 		freeSymbolTable(sym_tbl);
 		freeSymbolTable(entryTable);
@@ -114,21 +121,30 @@ symbol_t *firstSymbolMissingValue(symbol_table_t *table) {
 
 
 /*check for faults w/ extern symbols*/
-int checkExternSymbols(symbol_table_t *table) {
-	symbol_t *symbol1, *symbol2;
+int checkExternCollisions(symbol_table_t *exTable, symbol_table_t *otherTable) {
+	symbol_t *symbol1 = NULL, *symbol2 = NULL;
 
-	if (table == NULL) {
+	if (exTable == NULL || otherTable == NULL) {
+		return 0;
+	}
+	if(exTable->size == 0 || otherTable->size == 0){
 		return 0;
 	}
 
-	for (symbol1 = table->symbol_List; symbol1 != NULL; symbol1 = symbol1->next_sym) {
-		if (symbol1->type == _EXTERN) {
-			for (symbol2 = table->symbol_List; symbol2 != NULL; symbol2 = symbol2->next_sym) {
-				if ((symbol2->type == _INSTRUCTION || symbol2->type == _DATA) &&
-				    strcmp(symbol1->symbol_name, symbol2->symbol_name) == 0)
-					report_error(ERR_EXTERN_SYMBOL_DUP, line_count, SECOND, CRIT, 0);
-					return 1;
+	symbol1 = exTable->symbol_List;
+	symbol2 = otherTable->symbol_List;
 
+	while (symbol1 != NULL)
+	{
+		while (symbol2 != NULL) {
+			if (strcmp(symbol1->symbol_name, symbol2->symbol_name) == 0) {
+				report_error(ERR_EXTERN_SYMBOL_DUP, line_count, SECOND, CRIT, 0);
+				return 1;
+			}
+			symbol2 = symbol2->next_sym;
+			if (symbol2 == NULL) {
+				symbol2 = otherTable->symbol_List;
+				symbol1 = symbol1->next_sym;
 			}
 		}
 	}
@@ -310,8 +326,8 @@ void printEntryTable(symbol_table_t *table, char *filename) {
 	}
 
 	for (symbol = table->symbol_List; symbol != NULL; symbol = symbol->next_sym) {
-		printf("%s  %04d\n", symbol->symbol_name, symbol->address);
-		fprintf(exPtr, "%s  %04d\n", symbol->symbol_name, symbol->address);
+		printf("%s %04d\n", symbol->symbol_name, symbol->address);
+		fprintf(exPtr, "%s %04d\n", symbol->symbol_name, symbol->address);
 	}
 	fclose(exPtr);
 	return;
@@ -367,7 +383,7 @@ void print_symbol_table(symbol_table_t *sym_tbl) {
 	}
 	head = sym_tbl->symbol_List;
 	while (head != NULL) {
-		printf("name: %s , address: %d\n", head->symbol_name, head->address);
+		printf("name: %s , address: %d type %4d\n", head->symbol_name, head->address, head->type);
 		head = head->next_sym;
 	}
 	printf("\n");

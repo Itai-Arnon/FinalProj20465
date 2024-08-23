@@ -10,7 +10,7 @@
 #include "macro_list.h"
 
 /*main function| checks for symbol problems and other address*/
-void second_pass(symbol_table_t *, word_table_t *, word_table_t *, char *);
+void second_pass(symbol_table_t *, symbol_table_t *,word_table_t *, word_table_t *, char *);
 
 
 
@@ -26,7 +26,7 @@ symbol_t *firstSymbolMissingValue(symbol_table_t *table);
 int moveSymbolsToEntry(symbol_table_t *sym_tbl, symbol_table_t *entrySTable);
 
 /*Check if symbols of type ARE_T E have the same name as symbols of type ARE_T A or R */
-int checkExternSymbols(symbol_table_t *table);
+int checkExternCollisions(symbol_table_t *exTable , symbol_table_t *otherTable);
 
 /*adds existing symbol to another table */
 int addSymbolToTable(symbol_table_t *table, symbol_t *_symbol);
