@@ -128,8 +128,10 @@ void parse(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataT
 				/*idx  1 if only destination reg exits , 0 if two regs exist*/
 				idx = (seperator_c.counter == 2) ? 0 : 1;
 				for (; idx < seperator_c.counter; idx++) {/*classifies registers*/
-					seperator_c.cString[idx] = strstrip(seperator_c.cString[idx]);
-					parser.operands[idx].type_of_register = classifyRegisters(seperator_c.cString[idx],
+
+					strcpy(cmd_extra,seperator_c.cString[idx]);
+					  cmd_extra= strstrip(cmd_extra);
+					parser.operands[idx].type_of_register = classifyRegisters(cmd_extra,
 					                                                          idx);
 				}
 				/*if by the opcode registers a valid and if they are different*/
@@ -263,7 +265,7 @@ int classify_line(char *cmd) {
 type_of_register_t classifyRegisters(char *str, int first_or_second_operand) {
 
 	int i;
-	char *s_ptr;
+	char *s_ptr= NULL;
 	int len = strlen(str);
 	int number = 0, flag = 0;
 	/* Check if  '#' hence immediate */

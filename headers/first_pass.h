@@ -40,7 +40,7 @@ typedef struct word_table_t {
 void first_pass( symbol_table_t *,symbol_table_t * , word_table_t *, word_table_t * , char*);
 
 /*process .string directive*/
-void set_STRING_WORDS(symbol_table_t *sym_tbl, word_table_t *dataTable);
+void set_STRING_WORDS(symbol_table_t *,  word_table_t *);
 
 /*processes 1st instruction word*/
 void setOPCODE_INSTRUCTION(symbol_table_t *, word_table_t *);
@@ -51,7 +51,7 @@ void setOPCODE_WORDS(symbol_table_t *, word_table_t *, int, int);
 /*process .data directive*/
 void set_DATA_WORDS(symbol_table_t *, word_table_t *);
 
-void set_EXTnEntry(symbol_table_t *sym_tbl, word_table_t *dataTable);
+void set_EXTnEntry(symbol_table_t *,symbol_table_t *, word_table_t * );
 
 void set_number_data_word(word_t *word, char value);
 

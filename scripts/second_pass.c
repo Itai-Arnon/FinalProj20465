@@ -53,7 +53,8 @@ void second_pass(symbol_table_t *sym_tbl, symbol_table_t *externTable, word_tabl
 		checkExternCollisions(externTable, sym_tbl);
 		moveSymbolsToEntry(sym_tbl, entryTable);
 		/*2. check for symbols with undefined address*/
-		if()
+		if (isError)
+			return;
 		printTable(wordTable);
 		printf("-------------\n");
 		printTable(dataTable);
@@ -127,16 +128,14 @@ int checkExternCollisions(symbol_table_t *exTable, symbol_table_t *otherTable) {
 	if (exTable == NULL || otherTable == NULL) {
 		return 0;
 	}
-	if(exTable->size == 0 || otherTable->size == 0){
+	if (exTable->size == 0 || otherTable->size == 0) {
 		return 0;
 	}
 
 	symbol1 = exTable->symbol_List;
 	symbol2 = otherTable->symbol_List;
 
-	while (symbol1 != NULL)
-	{
-		while (symbol2 != NULL) {
+		while (symbol2 != NULL && symbol1 != NULL) {
 			if (strcmp(symbol1->symbol_name, symbol2->symbol_name) == 0) {
 				report_error(ERR_EXTERN_SYMBOL_DUP, line_count, SECOND, CRIT, 0);
 				return 1;
@@ -147,7 +146,7 @@ int checkExternCollisions(symbol_table_t *exTable, symbol_table_t *otherTable) {
 				symbol1 = symbol1->next_sym;
 			}
 		}
-	}
+
 	return 0;
 }
 

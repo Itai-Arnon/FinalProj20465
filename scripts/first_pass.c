@@ -16,7 +16,8 @@ static int IC = 100; /*first address of the instruction table is preset in tabel
 static int DC = 0;
 
 /**  out.txt ***/
-void first_pass(symbol_table_t *sym_tbl, symbol_table_t  *externTable, word_table_t *wordTable, word_table_t *dataTable, char *filename) {
+void first_pass(symbol_table_t *sym_tbl, symbol_table_t *externTable, word_table_t *wordTable, word_table_t *dataTable,
+                char *filename) {
 	int result = 0, n = 0;
 
 	if (isError) {
@@ -35,7 +36,7 @@ void first_pass(symbol_table_t *sym_tbl, symbol_table_t  *externTable, word_tabl
 
 			} else if (result == ENTRY || result == EXTERN) {
 
-				set_EXTnEntry(sym_tbl, dataTable);
+				set_EXTnEntry(sym_tbl, externTable, dataTable);
 			}
 			break;
 		case ERR:
@@ -49,7 +50,7 @@ void first_pass(symbol_table_t *sym_tbl, symbol_table_t  *externTable, word_tabl
 	}
 
 
-	second_pass(sym_tbl,  externTable ,wordTable, dataTable, filename);
+	second_pass(sym_tbl, externTable, wordTable, dataTable, filename);
 }
 
 /*sets the instruction word and the send to othre func to set other words*/
@@ -206,31 +207,33 @@ void set_STRING_WORDS(symbol_table_t *sym_tbl, word_table_t *table) {
 	DC++;
 
 
-
 }
 
 /*sets the entry or extern word*/
-void set_EXTnEntry(symbol_table_t *sym_tbl, word_table_t *table) {
-	symbol_t *symbol = findSymbol(sym_tbl, parser.directive.operand.symbol);
+void set_EXTnEntry(symbol_table_t *sym_tbl, symbol_table_t *externTable, word_table_t *table) {
+	symbol_t *symbol = NULL;
 	line_t *line = NULL;
-
 
 	switch (parser.directive.cmd) {
 
 		case EXTERN:
-			line = add_line(table, 0, symbol, E);
-			symbol->isUpdate = 1;
-			/*symbol address should be updated*/
-			set_ARE_into_word(&line->word, E);
-			DC++;
 			/*in case EXTERN we are done, label address is zero*/
+			symbol = findSymbol(externTable, parser.directive.operand.symbol);
+			if (symbol != NULL) {
+				line = add_line(table, 0, symbol, _EXTERN);
+				symbol->address = line->line_num;
+				/*symbol address should be updated*/
+				set_ARE_into_word(&line->word, E);
+				DC++;
+			}
 
+			break;
 		case ENTRY:
-
+			symbol = findSymbol(sym_tbl, parser.directive.operand.symbol);
 			if (symbol != NULL) {
 				symbol->type = _ENTRY;
 				symbol->isUpdate = 1;
-				symbol->address = 0; /*TBD*/
+				symbol->address = 0; /*TBD on second pass*/
 
 			} else report_error(ERR_ENTRY_SYMBOL_PROB, line_count, FIRST, CRIT, 0);
 			break;
@@ -238,6 +241,7 @@ void set_EXTnEntry(symbol_table_t *sym_tbl, word_table_t *table) {
 			break;
 
 	}
+
 }
 
 
