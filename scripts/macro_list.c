@@ -35,6 +35,7 @@ macro_table_t *initMacroTable(macro_table_t *tbl) {
 
 
 macro_node_t *constructMacroNode(macro_table_t *tbl, char *macro_name, char *line) {
+macro_node_t *node = NULL;
 int LEN = strlen(macro_name);
 if(macro_name[LEN-1]  == '\n') LEN = LEN -1 ;
 
@@ -43,19 +44,19 @@ if (tbl == NULL)
 
 	tbl->size++;
 
-	if (!(tbl->slot = (macro_node_t *) realloc(tbl->slot, (tbl->size) * sizeof(macro_node_t)))) {
+	if (!(node = (macro_node_t *) realloc(tbl->slot, (tbl->size) * sizeof(macro_node_t)))) {
 		report_error(ERR_MACRO_NODE_CREATION_FAILED, line_count, MACL, CRIT, 0);    /*critical error*/
 		return NULL;
 	}
-
+	tbl->slot = node;
 
 
 	tbl->slot[tbl->size - 1].index = tbl->size ;
-	strncpy(tbl->slot[tbl->size - 1].macro_name, macro_name , LEN);
-	strcpy(tbl->slot[tbl->size - 1].macro_line, line);
+	snprintf(tbl->slot[tbl->size - 1].macro_line, LINE_LENGTH, "%s",line  );
+	snprintf(tbl->slot[tbl->size - 1].macro_name, LEN+1, "%s", macro_name );
+	tbl->slot[tbl->size - 1].macro_name[LEN] ='\0';
 	tbl->slot[tbl->size - 1].macro_lock = 0;
 
-	printf("ADDRESS %p", &tbl->slot[tbl->size - 1] );
 	return &(tbl->slot[tbl->size - 1]);
 }
 
@@ -197,7 +198,7 @@ void printAllMacros(macro_table_t *tbl) {
 
 	for (i = 0; i < tbl->size; i++) {
 		printf("\n");
-		printf("Macro Name: %s", tbl->slot[i].macro_name);
+		printf("Macro Name: %s\t", tbl->slot[i].macro_name);
 		printf("Macro Line: %s", tbl->slot[i].macro_line);
 	}
 }

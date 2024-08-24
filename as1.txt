@@ -2,10 +2,6 @@ macr kik
 mov 1 , r2 1
 endmacr
 kik
-macr bik
-mov 1 , r2 1
-endmacr
-bik
 
 
 

@@ -16,9 +16,9 @@ int line_count;
 
 void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 	char *buffer = malloc(sizeof(char) * SET_BUFFER_LENGTH);
-	char *buffer_orig =  malloc(sizeof(char) * SET_BUFFER_LENGTH);
+	char *buffer_orig = buffer;
 	char *macro_name = (char *) calloc(MAX_MACRO_NAME, sizeof(char));
-	int LEN = 0;
+	int LEN = 0, count = 0;
 	int idx = 0;
 	int *pos = calloc(1, sizeof(int));
 
@@ -38,8 +38,8 @@ void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 
 	/*start of reading from file*/
 	while (fgets(buffer, SET_BUFFER_LENGTH, fptr_before) != NULL) {
+
 		line_count++;
-		strcpy(buffer_orig,buffer);
 		if (isError)
 			return;
 
@@ -81,17 +81,23 @@ void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 				tbl->isMacroOpen = 0;
 				/*macro is locked from rewriting forever*/
 				macro_lock(tbl, macro_name);
+				memset(macro_name,'\0',MAX_MACRO_NAME);
 				break;
 			case MACRO_EXPAND:
 				LEN = strlen(tbl->last_macro);
+				snprintf(macro_name,LEN,"%s\0", tbl->last_macro);
 
-				strncpy(macro_name,tbl->last_macro, LEN);
 				expandMacro(tbl, macro_name);
 				break;
 			case LINE_INSIDE:
 				strcpy(macro_name, tbl->last_macro);
-				strcat(macro_name,"\n");
+				strcat(macro_name,"\0");
+				printf("%s\n", macro_name);
+				printf("%s\n", buffer);
+				printf("%s\n", macro_name);
+				printf("%s\n", macro_name);
 				if (tbl->isMacroOpen == 1) {
+					printf("%d",count++);
 					if ((loadMacroTable(tbl, macro_name, buffer)) == 0)
 						report_error("MACRO TABLE FAILED TO LOAD", line_count, MAC, CRIT, 0);
 				}
@@ -110,6 +116,9 @@ void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 		memset(buffer, '\0', SET_BUFFER_LENGTH * sizeof(char));
 		memset(macro_name, '\0', MAX_MACRO_NAME * sizeof(char));
 	}
+	free(buffer); /* Free allocated memory */
+	free(macro_name);
+	free(pos);
 
 }
 
@@ -125,7 +134,8 @@ int typeofline(macro_table_t *tbl, char *line, char *macro_name, symbol_table_t 
 	/*removes white space from the front*/
 
 	if (sscanf(buffer, "%s%n", start, &pos) == 1) {
-		strcat(start,"\0");
+
+		start[strlen(start)]='\0';
 	/*	printf("%s\n",start);*/
 		switch (checkLegalName(start, ALPHANUM_COMBINED)) {
 			case 0:
@@ -150,9 +160,14 @@ int typeofline(macro_table_t *tbl, char *line, char *macro_name, symbol_table_t 
 			return LINE_INSIDE;
 		else
 			return LINE_OUTSIDE;
+
+		buffer = typeofline_buffer;
 	}
-	buffer = typeofline_buffer;
-	return MACRO_ERROR;
+
+	free(buffer);
+	free(start);
+
+
 }
 
 
@@ -205,8 +220,8 @@ int checkMacroStart(char *buffer, char *start, char *macro_name, int pos, symbol
 int checkMacroEnd(char *buffer, char *start, int pos) {
 	char *str = buffer;
 	if (strncmp(MACRO_END_WORD, start, MACRO_END_LEN) == 0) {
-		str = str + pos;
 		/*ending macro has to have a line by itself*/
+		str = advance_buffer_if_possible(str, start);
 		if (isEmptyOrWhitespaceFromEnd(str) == 0) {
 			report_error(ERR_MACRO_END, line_count, MAC, CRIT, 0);
 			return 0;
