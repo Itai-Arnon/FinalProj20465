@@ -36,6 +36,7 @@ void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 	else
 		rewind(fptr_before);
 
+	rewind(fptr_after);
 	/*start of reading from file*/
 	while (fgets(buffer, SET_BUFFER_LENGTH, fptr_before) != NULL) {
 
@@ -85,13 +86,13 @@ void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 				break;
 			case MACRO_EXPAND:
 				LEN = strlen(tbl->last_macro);
-				snprintf(macro_name,LEN,"%s\0", tbl->last_macro);
+				snprintf(macro_name,LEN+1,"%s\0", tbl->last_macro);
 
 				expandMacro(tbl, macro_name);
 				break;
 			case LINE_INSIDE:
-				strcpy(macro_name, tbl->last_macro);
-				strcat(macro_name,"\0");
+
+				snprintf( macro_name,strlen(tbl->last_macro) +1 ,"%s\0",tbl->last_macro);
 				printf("%s\n", macro_name);
 				printf("%s\n", buffer);
 				printf("%s\n", macro_name);

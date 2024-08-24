@@ -24,3 +24,7 @@ kik
 
 mov 1 , r2 1
 
+mov 1 , r2 1
+
+mov 1 , r2 1
+

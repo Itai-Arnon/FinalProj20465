@@ -80,8 +80,8 @@ int loadMacroTable(macro_table_t *tbl, char *macro_name, char *line) {
 
 /*expands macro writing to  file*/
 void expandMacro(macro_table_t *tbl, char *macro_name) {
-	macro_node_t *macro_start;
-	int i;
+
+	int i, slot = 0;
 	int LEN = 0;
 
 	if (macro_name[0] == '\0')
@@ -93,14 +93,12 @@ void expandMacro(macro_table_t *tbl, char *macro_name) {
 		return;
 	}
 
-	if ((macro_start = retMacro(tbl, macro_name))) {
-		LEN = getMacroLength(tbl, macro_name);
-	} else {
-		report_error(ERR_MACRO_TABLE_GENERAL_ERROR, line_count, MACL, CRIT, 0);
-		return;
-	}
+	slot = retSlot(tbl, macro_name);
+	LEN = getMacroLength(tbl, macro_name);
 
-	for (i = 0; i < LEN; i++) {
+
+
+	for (i = slot ; i < LEN; i++) {
 		fprintf(fptr_after, "%s\n", tbl->slot[i].macro_line);
 	}
 
@@ -147,17 +145,17 @@ macro_node_t *retMacro(macro_table_t *tbl, char *macro_name) {
 /*return the first index of macro by macro name*/
 int retSlot(macro_table_t *tbl, char *macro_name) {
 	int i = 0, LEN = 0;
-	if (tbl == NULL || tbl->isEmpty == 1) return 0;
+	if (tbl == NULL || tbl->size == 0) return 0;
 
+	LEN = strlen(macro_name);
 	for (i = 0; i < tbl->size; i++) {
-		LEN = strlen(macro_name);
 		if ((strncmp(macro_name, tbl->slot[i].macro_name, LEN)) == 0) {
 			/*if macro already exist returns err*/
 			return i;
 		}
 	}
 	/*not found*/
-	return -1;
+	return 0;
 }
 
 
