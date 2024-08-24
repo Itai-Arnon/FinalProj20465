@@ -9,10 +9,16 @@ int isRestOfLineEmpty(char *line) {
 	int idx = 0;
 	int LEN = nonNullTerminatedLength(s_check);
 	while (isspace(*s_check++) && *s_check);
-	if (*s_check == '\0' || LEN == 0)
+	if (*s_check != '\0') {
+		s_check[LEN] = '\0';
+		s_check = line;
 		return 0;
+	}
 	else
-		return 0;
+	*s_check = '\0';
+	s_check = line;
+	return 1;
+
 }
 
 
@@ -104,9 +110,11 @@ int checkLegalName(char *str, check_legal_name type) {
 		default:
 			break;
 	}
-
-	if (isalnum(s_str[i]))
+	if (isalnum(s_str[i])) {
+		*(s_str + i + 1)  = '\0';
+		s_str = str;
 		return i == (len - 1) ? 1 : 0;
+	}
 	else
 		return 0;
 }
@@ -210,7 +218,7 @@ int isEmptyOrWhitespaceFromEnd(char *str) {
 			return 0; /* Found a non-whitespace character */
 		}
 		end--;
-		*(end+1)='\0';
+		*(end+1)='\n';
 
 	}
 

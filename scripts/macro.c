@@ -18,7 +18,7 @@ void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 	char *buffer = malloc(sizeof(char) * SET_BUFFER_LENGTH);
 	char *buffer_orig =  malloc(sizeof(char) * SET_BUFFER_LENGTH);
 	char *macro_name = (char *) calloc(MAX_MACRO_NAME, sizeof(char));
-	int val = 0;
+	int LEN = 0;
 	int idx = 0;
 	int *pos = calloc(1, sizeof(int));
 
@@ -74,20 +74,18 @@ void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 
 		switch (typeofline(tbl, buffer, macro_name, sym_tbl)) {
 			case MACRO_START:
-
 					tbl->isMacroOpen = 1;
-
 				break;
 			case MACRO_END:
 				/*closes macro writing*/
 				tbl->isMacroOpen = 0;
 				/*macro is locked from rewriting forever*/
 				macro_lock(tbl, macro_name);
-				/*memset(macro_name,'\0', sizeof(macro_name));*/
-
 				break;
 			case MACRO_EXPAND:
-				/*todo isn't correct yet*/
+				LEN = strlen(tbl->last_macro);
+
+				strncpy(macro_name,tbl->last_macro, LEN);
 				expandMacro(tbl, macro_name);
 				break;
 			case LINE_INSIDE:
@@ -99,11 +97,15 @@ void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 				}
 				break;
 			case LINE_OUTSIDE:
-
 				fprintf(fptr_after, "%s\n", buffer);
+			case MACRO_ERROR:
+				report_error(ERR_GENERAL_ERROR,line_count,MAC , NON_CRIT , 0);
+			break;
 			default:
 				break;
 		}
+		printAllMacros(tbl);
+
 		buffer = buffer_orig;
 		memset(buffer, '\0', SET_BUFFER_LENGTH * sizeof(char));
 		memset(macro_name, '\0', MAX_MACRO_NAME * sizeof(char));
@@ -115,7 +117,7 @@ void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 int typeofline(macro_table_t *tbl, char *line, char *macro_name, symbol_table_t *sym_tbl) {
 	char *buffer = calloc(LINE_LENGTH, sizeof(char));
 	char *typeofline_buffer = buffer;
-	char *start = calloc(MAX_MACRO_NAME, sizeof(char));
+	char *start = calloc(MAX_MACRO_NAME+1, sizeof(char));
 	int pos = 0;
 
 
@@ -123,15 +125,17 @@ int typeofline(macro_table_t *tbl, char *line, char *macro_name, symbol_table_t 
 	/*removes white space from the front*/
 
 	if (sscanf(buffer, "%s%n", start, &pos) == 1) {
+		strcat(start,"\0");
+	/*	printf("%s\n",start);*/
 		switch (checkLegalName(start, ALPHANUM_COMBINED)) {
 			case 0:
-				report_error(ERR_MACRO_NAME_WRONG, line_count, MAC, CRIT, 0);
-				return (MACRO_ERROR);
-				break;
-			case 2:/*case of abnormal word that would fit later on*/
-				if (tbl->isMacroOpen == 1) return LINE_INSIDE;
-				else return LINE_OUTSIDE;
-				break;
+				free(buffer);
+				free(start);
+				return MACRO_ERROR;
+			case 2:
+				free(buffer);
+				free(start);
+				return (tbl->isMacroOpen == 1) ? LINE_INSIDE : LINE_OUTSIDE;
 			case 1:
 				break;
 		}
@@ -141,6 +145,7 @@ int typeofline(macro_table_t *tbl, char *line, char *macro_name, symbol_table_t 
 			return MACRO_END;
 		else if (checkMacroExpand(tbl, line, start, macro_name, pos))
 			return MACRO_EXPAND;
+
 		else if (tbl->isMacroOpen == 1)
 			return LINE_INSIDE;
 		else
@@ -166,6 +171,7 @@ int checkMacroStart(char *buffer, char *start, char *macro_name, int pos, symbol
 
 		if (sscanf(str, "%s%n", macro_n, &pos) == 1) {/*check for actual macro name*/
 			/*change the position*/
+
 
 			if ((dupNameExistsInTable(tbl, macro_n) == 1) || (macro_name_duplicate(macro_n) == 1)){
 				report_error(ERR_MACRO_NAME_DUP, line_count, MAC, CRIT, 0);    /*critical error*/
@@ -218,6 +224,7 @@ int checkMacroExpand(macro_table_t *tbl, char *buffer, char *start, char *macro_
 	int len = strlen(start);
 	if (tbl->isMacroOpen == 0 && tbl->size > 0 && (dupNameExistsInTable(tbl, start) == 1)) {
 		strncpy(macro_name, start,len);
+		strncpy(tbl->last_macro , macro_name,len);
 		/*macro name is the single word allowed on macro expand*/
 		if (isEmptyOrWhitespaceFromEnd(str)  == 0)
 			return 1;
@@ -262,12 +269,12 @@ int macro_name_duplicate(char *macro_name) {
 
 	LEN = strlen(macro_name);
 	for (j = 0; j < 16; ++j) {
-		if (strncmp(macro_name, opcode_names[j], LEN) == 0)
+		if (strcmp(macro_name, opcode_names[j]) == 0)
 			return 1;
 	}
 	LEN = strlen(macro_name);
 	for (j = 0; j < 4; ++j) {
-		if (strncmp(macro_name, directives[j], LEN) == 0)
+		if (strcmp(macro_name, directives[j]) == 0)
 			return 1;
 	}
 
@@ -280,7 +287,7 @@ int isHeadOfSentenceValid(macro_table_t *tbl, char *buffer) {
 	char start[MAX_MACRO_NAME]={'\0'};
 	int len = strlen(str);
 	if (sscanf(str, "%s", start) == 1) {
-
+			strcat(start,"\0");
 		if(strncmp(start, MACRO_START_WORD, MACRO_START_LEN) == 0 || strncmp(start, MACRO_END_WORD, MACRO_END_LEN) == 0 ){
 			return 0;
 		}

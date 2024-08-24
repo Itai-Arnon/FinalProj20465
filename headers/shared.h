@@ -65,6 +65,7 @@
 #define ERR_MACRO_NAME_DUP "Error Duplicate Macro Name or Macro name is an opcode, a Directive"
 #define ERR_MACRO_NOT_FOUND "Cannot find Macro"
 #define ERR_MACRO_NAME_OP_DIRECT_SYMBOL "Macro name is a opcode, a Directive or a Symbol"
+#define ERR_GENERAL_ERROR  "General Macro Failure, something in the process failed"
 
 /* symbol table related , symbol.c */
 #define ERR_DUPLICATE_SYMBOL_NAME  "DUPLICATE SYMBOL NAME"

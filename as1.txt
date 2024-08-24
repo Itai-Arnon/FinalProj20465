@@ -1,9 +1,13 @@
-macr n
+macr kik
 mov 1 , r2 1
 endmacr
-n
-macr kik
-mov 2
-endmacr
 kik
+macr bik
+mov 1 , r2 1
+endmacr
+bik
+kik
+
+
+
 

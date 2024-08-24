@@ -51,4 +51,6 @@ void printMacroName(macro_node_t *head);
 /*lock the macro so it would not be accessed accidently*/
 void macro_lock(macro_table_t *tbl, char *macro_name);
 
+void printAllMacros(macro_table_t *tbl);
+
 #endif /*M14_MACRO_LIST_H*/

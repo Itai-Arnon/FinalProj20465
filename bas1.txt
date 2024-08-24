@@ -1,16 +1,12 @@
 mov 1 , r2 1
 
-n
+mov 1 , r2 1
 
-n
+kik
 
-n
+mov 1 , r2 1
 
-n
+mov 1 , r2 1
 
-n
-
-n
-
-macr n
+kik
 
