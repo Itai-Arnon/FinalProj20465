@@ -1,1 +1,6 @@
-.data 11,1.data 11,1
+
+n
+mk
+mk
+.data 11,1
+mk

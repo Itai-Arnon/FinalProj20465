@@ -52,8 +52,8 @@
 
 /*macro related*/
 #define ERR_WRITING_MACRO  "Failed to write Macro"
-#define EER_MACRO_TABLE_FULL "Error No more space in Macro Table"
-#define EER_MACRO_TABLE_RETREIVE "Error Retreiving From Macro Table"
+#define ERR_MACRO_NAME "Macro Name Missing, Failed to Expand Macro"
+#define ERR_MACRO_NAME_RETRIEVE "Error Retrieving From Macro Table"
 #define ERR_MACRO_TABLE_GENERAL_ERROR "General Macro Table Error"
 #define ERR_MACRO_PERMISSION "Error  Macro Permission Mistake"
 #define ERR_MACRO_NODE_CREATION_FAILED "Macro Node Allocation Failed"

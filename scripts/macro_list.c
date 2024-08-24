@@ -73,6 +73,10 @@ void expandMacro(macro_table_t *tbl, char *macro_name) {
 	int i;
 	int LEN = 0;
 
+	if(macro_name[0]  == '\0')
+		report_error(ERR_MACRO_NAME_RETRIEVE,line_count,MACL,CRIT,0);
+
+
 	if (tbl == NULL || tbl->size == 0) {
 		printf("Macro Table Empty");
 		return;
@@ -86,7 +90,7 @@ void expandMacro(macro_table_t *tbl, char *macro_name) {
 	}
 
 	for (i = macro_start->index; i < LEN; i++) {
-			fprintf(fptr_after, "%s", tbl->slot[i].macro_line);
+			fprintf(fptr_after, "%s\n", tbl->slot[i].macro_line);
 		}
 
 	return;

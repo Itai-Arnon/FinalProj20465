@@ -5,20 +5,22 @@
 #include "headers/assembler.h"
 
 int isRestOfLineEmpty(char *line) {
+	char* s_check = line;
 	int idx = 0;
-	int LEN = strlen(line);
-	if (*line == '\0' || LEN == 0)
+	int LEN = strlen(s_check);
+	if (*s_check == '\0' || LEN == 0)
 		return 1;
 
 	for (idx = 0; idx < LEN; idx++) {
-		if (*line && !isspace(line[idx]))
+		if (*s_check && !isspace(s_check[idx]))
 			return 0;
 	}
 	return 1;
 }
 
 
-int findSeperator(char *str, char sep ) {
+int findSeperator(char *buffer, char sep ) {
+	char* str = buffer;
 	int LEN = strlen(str);
 	int i, j;
 	i = j = 0;
@@ -79,14 +81,10 @@ char *removeColon(char *symbol_name) {
 int checkLegalName(char *str, check_legal_name type) {
 	int i = 0;
 	int len = nonNullTerminatedLength(str);
-	/*for directives*/
-	if(str[0] == '.') {
-		str++;
-		while (isalpha(*str++));
-		if (*str != '\0')
-			return 0;
-		else
-			return 2;
+	/*before we chech the macro name. we hace to consider  directives and symbols with colon at their end*/
+	/*they will be tested later for validity*/
+	if(str[0] == '.' || str[len-1 ] == ':'	) {
+				return 2;
 	}
 	if (!isalpha(str[0])) return 0;
 	switch (type) {
@@ -109,7 +107,7 @@ int checkLegalName(char *str, check_legal_name type) {
 			break;
 	}
 
-	if (isalnum(str[i]) || str[i] == ':')
+	if (isalnum(str[i]))
 		return i == (len - 1) ? 1 : 0;
 	else
 		return 0;

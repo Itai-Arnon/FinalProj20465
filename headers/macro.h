@@ -30,11 +30,11 @@ int nonNullTerminatedLength(char* arr);
 /**
  * decides where is the line in pre processor terms
  */
-int typeofline( macro_table_t *tbl, char* line , char* macro_name , symbol_table_t *sym_tbl);
+int typeofline( macro_table_t *tbl, char*  , char*  , symbol_table_t* );
 
 /* checks if macro start, returns 1 or 0
 */
- int checkMacroStart(char* , char *, char *macro_name, int pos , symbol_table_t *sym_tbl);
+ int checkMacroStart(char* , char *, char *, int , symbol_table_t *,  macro_table_t* );
 /* checks if macro ends, returns 1 or 0
 */
 int	checkMacroEnd(char *,char *, int pos);
@@ -43,14 +43,9 @@ int	checkMacroEnd(char *,char *, int pos);
  /* checks the line if its a macro and exapnds it*/
 int checkMacroExpand(macro_table_t *tbl, char *line, char *start, char *macro_name, int pos);
 
-
-
-/**
- * Checks if the given buffer contains a specific EOF marker.
- *
- * @param buffer The buffer to check.
- * @return int Returns 1 if EOF marker is found, 0 otherwise.
- */
+/*filters non valid sentences*/
+int isHeadOfSentenceValid(macro_table_t*tbl, char *buffer);
+/* Checks if the given buffer contains a specific EOF marker.*/
 int checkEOFInBuffer(char* buffer);
 /*check if macro name has opcode directive or  symbol*/
 int macro_name_duplicate(char*);

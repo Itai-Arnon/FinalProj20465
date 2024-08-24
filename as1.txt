@@ -1,15 +1,4 @@
-macr m
-.data 11,1
-endmacr
-m
-macr maron
-.data 11,1
-endmacr
-maron
-maron
-maron
-maron
-m
+mk
 
 
 

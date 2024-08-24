@@ -16,6 +16,7 @@ typedef struct {
 	int isEmpty;
 	int isMacroOpen;
 	int size;
+	char last_macro[MAX_MACRO_NAME];
 	macro_node_t *slot;
 } macro_table_t;
 
