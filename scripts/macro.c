@@ -269,12 +269,12 @@ int isHeadOfSentenceValid(macro_table_t *tbl, char *buffer) {
 			return 0;
 		}
 
-		if ((str[len - 1] != ':') && str[0]!='.' && dupNameExistsInTable(tbl, start) == 0 && (macro_name_duplicate(start) == 1)) {
+		if ((str[len - 1] != ':') && str[0]!='.' && (dupNameExistsInTable(tbl, start) == 0 || (macro_name_duplicate(start) == 1))) {
 			report_error(ERR_MACRO_NAME_WRONG, line_count, MAC, CRIT, 0);
 			return 1;
 		}
 	}
-	return 1;
+	return 0;
 }
 
 

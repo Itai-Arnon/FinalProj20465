@@ -151,7 +151,7 @@ int retSlot(macro_table_t *tbl, char *macro_name) {
 
 int dupNameExistsInTable(macro_table_t *tbl, char *macro_name) {
 	int i = 0;
-	if (tbl == NULL || tbl->isEmpty == 1) return 0;
+	if (tbl == NULL || tbl->size == 0) return 0;
 
 	for (i = 0; i < tbl->size; ++i) {
 		if (strcmp(tbl->slot[i].macro_name, macro_name) == 0)
