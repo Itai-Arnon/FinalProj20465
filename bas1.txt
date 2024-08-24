@@ -1,7 +1,14 @@
+mov 1 , r2 1
 
 n
-mk
-mk
-.data 11,1
-mk
-mk
+
+n
+
+n
+
+n
+
+n
+
+n
+

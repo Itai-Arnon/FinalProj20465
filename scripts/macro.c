@@ -9,19 +9,19 @@
 #include "headers/utils.h"
 #include "headers/symbols.h"
 #include "headers/assembler.h"
-
+#include "headers/parser.h"
 
 int line_count;
 
 
-void
-read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
+void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 	char *buffer = malloc(sizeof(char) * SET_BUFFER_LENGTH);
-	char *buffer_orig = buffer;
+	char *buffer_orig =  malloc(sizeof(char) * SET_BUFFER_LENGTH);
 	char *macro_name = (char *) calloc(MAX_MACRO_NAME, sizeof(char));
 	int val = 0;
 	int idx = 0;
 	int *pos = calloc(1, sizeof(int));
+
 
 
 	line_count = 0;
@@ -39,25 +39,26 @@ read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 	/*start of reading from file*/
 	while (fgets(buffer, SET_BUFFER_LENGTH, fptr_before) != NULL) {
 		line_count++;
+		strcpy(buffer_orig,buffer);
 		if (isError)
 			return;
 
+		if (strlen(buffer) > LINE_LENGTH) {
+			report_error(ERR_LINE_LENGTH, line_count, MAC, CRIT, 0);
+			return;
+		}
 
 
 		/*check for empty line*/
 		if (isRestOfLineEmpty(buffer)) /*checks case of empty line*/
 			continue;
        /*remove white space from front and back*/
-		buffer = strstrip(buffer);
+
 
 
 		isHeadOfSentenceValid(tbl, buffer);
 
 
-		if (strlen(buffer) > LINE_LENGTH) {
-			report_error(ERR_LINE_LENGTH, line_count, MAC, CRIT, 0);
-			return;
-		}
 
 
 		if (*buffer == ';' || *buffer == '\0') { /*check for comment ;*/
@@ -73,8 +74,7 @@ read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 
 		switch (typeofline(tbl, buffer, macro_name, sym_tbl)) {
 			case MACRO_START:
-				if ((dupNameExistsInTable(tbl, macro_name) == 1) || (macro_name_duplicate(macro_name) == 1))
-					report_error(ERR_MACRO_NAME_DUP, line_count, MAC, CRIT, 0);    /*critical error*/
+
 				if (tbl->isMacroOpen == 0)
 					tbl->isMacroOpen = 1;
 
@@ -90,20 +90,19 @@ read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 
 				break;
 			case MACRO_EXPAND:
-				printf("REPORT: Macro Expand %d\n", line_count);
-				if (macro_name[0] == '\0') {
-					expandMacro(tbl, tbl->last_macro);
-				} else
-					expandMacro(tbl, macro_name);
+				/*todo isn't correct yet*/
+				expandMacro(tbl, macro_name);
 				break;
 			case LINE_INSIDE:
+				strcpy(macro_name, tbl->last_macro);
+				strcat(macro_name,"\n");
 				if (tbl->isMacroOpen == 1) {
 					if ((loadMacroTable(tbl, macro_name, buffer)) == 0)
 						report_error("MACRO TABLE FAILED TO LOAD", line_count, MAC, CRIT, 0);
-					printf("%s\n", buffer);
 				}
 				break;
 			case LINE_OUTSIDE:
+
 				fprintf(fptr_after, "%s\n", buffer);
 			default:
 				break;
@@ -123,7 +122,6 @@ int typeofline(macro_table_t *tbl, char *line, char *macro_name, symbol_table_t 
 	int pos = 0;
 
 
-	if (*line == '\0') return EMPTY_LINE;
 	strcpy(buffer, line);
 	/*removes white space from the front*/
 
@@ -160,34 +158,43 @@ int checkMacroStart(char *buffer, char *start, char *macro_name, int pos, symbol
 
 	char *str = buffer;
 	char macro_n[MAX_MACRO_NAME];
+	int compLength = 0;
 	memset(macro_n, '\0', sizeof(macro_n));
 
 
-	if (strncmp(MACRO_START_WORD, start, strlen(start)) == 0) {
-		str = str + pos + 1;
+	if (strncmp(MACRO_START_WORD, start, MACRO_START_LEN) == 0) {
 
-		pos = 0;
+		str  = advance_buffer_if_possible(str,start);
+
+
 		if (sscanf(str, "%s%n", macro_n, &pos) == 1) {/*check for actual macro name*/
 			/*change the position*/
-			str = str + pos + 1;
+
+			if ((dupNameExistsInTable(tbl, macro_n) == 1) || (macro_name_duplicate(macro_n) == 1))
+				report_error(ERR_MACRO_NAME_DUP, line_count, MAC, CRIT, 0);    /*critical error*/
+
 
 			if (strlen(macro_n) >= MAX_MACRO_NAME) {
 				report_error(ERR_MACRO_NAME_LONG, line_count, MAC, CRIT, 0);/*critical error*/
 				return 0;
 			}
+			compLength = (strlen(str) > strlen(macro_n)  ) ? 1:0;
+
 			/*macro named identified check if contiuation of buffer is empty*/
-			if (!(isRestOfLineEmpty(str))) {
+			if (compLength &&  isEmptyOrWhitespaceFromEnd(str) == 1) {
 				report_error(ERR_START_MACRO_DEF, line_count, MAC, CRIT, 0);  /* critical wait for macro check*/
 				return 0;
 			}
 			/*final filtering for isMacroStart, test for duplicates*/
-			strcpy(macro_name, macro_n);/*only place in use by typeofline*/
-			strcpy(tbl->last_macro, macro_n);
+
+			strncpy(macro_name, macro_n, strlen(macro_n));/*only place in use by typeofline*/
+			strncpy(tbl->last_macro, macro_n , strlen(macro_n));
 
 			return 1;/*line with name is correct*/
 		}
 
 	}
+	str =buffer;
 	return 0;
 }
 
@@ -196,32 +203,41 @@ int checkMacroEnd(char *buffer, char *start, int pos) {
 	if (strncmp(MACRO_END_WORD, start, MACRO_END_LEN) == 0) {
 		str = str + pos;
 		/*ending macro has to have a line by itself*/
-		if (!(isRestOfLineEmpty(str))) {
+		if (isEmptyOrWhitespaceFromEnd(str) == 0) {
 			report_error(ERR_MACRO_END, line_count, MAC, CRIT, 0);
 			return 0;
 		}
 		return 1;
 	}
 
+	str = buffer;
 	return 0;
 }
 
 /*check if  ready for expansion i.e macro_name is in table , and table not empty*/
 int checkMacroExpand(macro_table_t *tbl, char *buffer, char *start, char *macro_name, int pos) {
-
-	if (tbl->size > 0 && (dupNameExistsInTable(tbl, start) == 1)) {
-		strcpy(macro_name, start);
-		buffer += pos;
+	char *str = buffer;
+	int len = strlen(start);
+	if (tbl->isMacroOpen == 0 && tbl->size > 0 && (dupNameExistsInTable(tbl, start) == 1)) {
+		strncpy(macro_name, start,len);
 		/*macro name is the single word allowed on macro expand*/
-		if (isRestOfLineEmpty(buffer))
+		if (isEmptyOrWhitespaceFromEnd(str)  == 0)
 			return 1;
 		else {
 			/*macro name is the single word allowed on macro expand*/
+			str = buffer;
 			report_error(ERR_MACRO_EXPAND, line_count, MAC, CRIT, 0);
 			return 0;
 		}
+	} else if (tbl->isMacroOpen == 1) {
+		str = buffer;
+		return 0;
 	}
-	return 0;
+   else {
+		str = buffer;
+		report_error(ERR_MACRO_NOT_FOUND, line_count, MAC, CRIT, 0);
+		return 0;
+	}
 }
 
 
@@ -269,8 +285,8 @@ int isHeadOfSentenceValid(macro_table_t *tbl, char *buffer) {
 			return 0;
 		}
 
-		if ((str[len - 1] != ':') && str[0]!='.' && (dupNameExistsInTable(tbl, start) == 0 || (macro_name_duplicate(start) == 1))) {
-			report_error(ERR_MACRO_NAME_WRONG, line_count, MAC, CRIT, 0);
+		if ((str[len - 1] != ':') && str[0]!='.' && (dupNameExistsInTable(tbl, start) == 0 && isRestOfLineEmpty(str))) {
+			report_error(ERR_LINE_UNRECOGNIZED, line_count, MAC, CRIT, 0);
 			return 1;
 		}
 	}

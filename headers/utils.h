@@ -7,7 +7,7 @@
 #define BLACK_COLOR "\033[0m"
 #define RED_COLOR "\x1b[38;2;247;84;100m"
 
-#define SPACES  " \t\v\f"
+
 
 #include "shared.h"
 
@@ -43,7 +43,7 @@ int checkLegalName(char *str, check_legal_name type);
 
 char *removeColon(char *symbol_name);
 
-void removeFrontalWhitespace(char *buffer, int *pos);
+char* removeFrontalWhitespace(char *buffer);
 
 /*strips whitespace in both sides*/
 char *strstrip(char *s);
@@ -54,6 +54,11 @@ int countCommas(char *str);
 int convertOrCheckStringToNum(char *str, convert_func_t type);
 
 int countNumbersInString( char *str);
+
+int isEmptyOrWhitespaceFromEnd(char *str);
+
+
+
 
 int checkQuotes(char *str);
 

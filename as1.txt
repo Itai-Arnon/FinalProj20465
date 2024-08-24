@@ -1,4 +1,9 @@
-mk
-
-
+macr n
+mov 1 , r2 1
+endmacr
+n
+macr kik
+mov 2
+endmacr
+kik
 

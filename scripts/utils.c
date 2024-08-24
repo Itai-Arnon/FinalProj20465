@@ -5,22 +5,19 @@
 #include "headers/assembler.h"
 
 int isRestOfLineEmpty(char *line) {
-	char* s_check = line;
+	char *s_check = line;
 	int idx = 0;
-	int LEN = strlen(s_check);
+	int LEN = nonNullTerminatedLength(s_check);
+	while (isspace(*s_check++) && *s_check);
 	if (*s_check == '\0' || LEN == 0)
-		return 1;
-
-	for (idx = 0; idx < LEN; idx++) {
-		if (*s_check && !isspace(s_check[idx]))
-			return 0;
-	}
-	return 1;
+		return 0;
+	else
+		return 0;
 }
 
 
-int findSeperator(char *buffer, char sep ) {
-	char* str = buffer;
+int findSeperator(char *buffer, char sep) {
+	char *str = buffer;
 	int LEN = strlen(str);
 	int i, j;
 	i = j = 0;
@@ -31,7 +28,7 @@ int findSeperator(char *buffer, char sep ) {
 				return 1;
 		}
 	}
-return 0;
+	return 0;
 }
 
 int nonNullTerminatedLength(char *arr) {
@@ -79,44 +76,45 @@ char *removeColon(char *symbol_name) {
 
 
 int checkLegalName(char *str, check_legal_name type) {
+	char *s_str = str;
 	int i = 0;
-	int len = nonNullTerminatedLength(str);
+	int len = nonNullTerminatedLength(s_str);
 	/*before we chech the macro name. we hace to consider  directives and symbols with colon at their end*/
 	/*they will be tested later for validity*/
-	if(str[0] == '.' || str[len-1 ] == ':'	) {
-				return 2;
+	if (s_str[0] == '.' || s_str[len - 1] == ':') {
+		return 2;
 	}
-	if (!isalpha(str[0])) return 0;
+	if (!isalpha(s_str[0])) return 0;
 	switch (type) {
 		case ALPHA:
-			while (i < (len - 1) && isalpha(str[i])) ++i;
+			while (i < (len - 1) && isalpha(s_str[i])) ++i;
 			break;
 		case ALPHANUM:
-			while (i < (len - 1) && isalpha(str[i])) ++i;
+			while (i < (len - 1) && isalpha(s_str[i])) ++i;
 			/*check condition where after the alphabet there are digits which is acceptable*/
-			while (i < (len - 1) && isdigit(str[i])) ++i;
+			while (i < (len - 1) && isdigit(s_str[i])) ++i;
 			break;
 
 
 		case ALPHANUM_COMBINED:
 			/*check condition where after the alphabet there are digits which is acceptable*/
-			while (i < (len - 1) && isalnum(str[i])) ++i;
+			while (i < (len - 1) && isalnum(s_str[i])) ++i;
 			break;
 
 		default:
 			break;
 	}
 
-	if (isalnum(str[i]))
+	if (isalnum(s_str[i]))
 		return i == (len - 1) ? 1 : 0;
 	else
 		return 0;
 }
 
-void removeFrontalWhitespace(char *buffer, int *pos) {
-	*pos = 0;
-	while (isspace(buffer[*pos]))
-		++(*pos);
+/*meant only for frontal removal of whitspace*/
+char *removeFrontalWhitespace(char *buffer) {
+	while (isspace(*buffer++) && *buffer);
+	return buffer;
 }
 
 char *strstrip(char *s) {
@@ -128,7 +126,8 @@ char *strstrip(char *s) {
 	end = s + LEN - 1;
 	while (end >= s && isspace(*end))
 		end--;
-	*(end + 1) = '\0';
+	*(end + 1) = '\n';
+	*(end + 2) = '\0';
 	while (*s && isspace(*s))
 		s++;
 
@@ -199,5 +198,22 @@ int checkQuotes(char *str) { /*todo erase */
 	return 0;
 }
 
+int isEmptyOrWhitespaceFromEnd(char *str) {
+	if (str == NULL) {
+		return 1; /* Consider NULL as empty or whitespace */
+	}
 
+	char *end = str + strlen(str) - 1;
+
+	while (end >= str) {
+		if (!isspace(*end)) {
+			return 0; /* Found a non-whitespace character */
+		}
+		end--;
+		*(end+1)='\0';
+
+	}
+
+	return 1; /* Only whitespace characters found */
+}
 
