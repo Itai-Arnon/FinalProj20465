@@ -1,12 +1,12 @@
-macr kik
-mov 1 , r2 1
-mov 1 , r2 1
-mov 1 , r2 1
-mov 1 , r2 1
-mov 1 , r2 1
+macr non
+reg 23 3
+var 3434
+bear 43
+reg 23 3
+var 3434
+bear 43
 endmacr
-kik
-kik
+mov r1,r2
 
 
 

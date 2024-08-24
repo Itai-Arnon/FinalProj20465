@@ -37,18 +37,20 @@ macro_table_t *initMacroTable(macro_table_t *tbl) {
 macro_node_t *constructMacroNode(macro_table_t *tbl, char *macro_name, char *line) {
 macro_node_t *node = NULL;
 int LEN = strlen(macro_name);
-if(macro_name[LEN-1]  == '\n') LEN = LEN -1 ;
+if(macro_name[LEN-1]  != '\0') LEN--;
 
 if (tbl == NULL)
 		return NULL;
 
-	tbl->size++;
+	tbl->size+5;
 
 	if (!(node = (macro_node_t *) realloc(tbl->slot, (tbl->size) * sizeof(macro_node_t)))) {
 		report_error(ERR_MACRO_NODE_CREATION_FAILED, line_count, MACL, CRIT, 0);    /*critical error*/
+		tbl->size--;
 		return NULL;
 	}
-	tbl->slot = node;
+
+	  tbl->slot = node;
 
 
 	tbl->slot[tbl->size - 1].index = tbl->size ;
@@ -64,6 +66,8 @@ if (tbl == NULL)
 int loadMacroTable(macro_table_t *tbl, char *macro_name, char *line) {
 	/*increase in size , update of index are done inside constrrct node*/
 
+	tbl->isEmpty = 0;
+
 	if (macro_name[0] == '\0') {
 		report_error(ERR_MACRO_NAME, line_count, MACL, CRIT, 0);
 		return 0;
@@ -73,7 +77,7 @@ int loadMacroTable(macro_table_t *tbl, char *macro_name, char *line) {
 		return 0;
 	}
 	/*at init equal 1*/
-	tbl->isEmpty = 0;
+
 
 	return 1;
 }

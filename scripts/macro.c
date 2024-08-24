@@ -33,10 +33,8 @@ void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 
 	if (fgets(buffer, SET_BUFFER_LENGTH, fptr_before) == 0)
 		report_error("Warning FGETS is empty", line_count, MAC, NON_CRIT, 0);
-	else
-		rewind(fptr_before);
 
-	rewind(fptr_after);
+		rewind(fptr_before);
 	/*start of reading from file*/
 	while (fgets(buffer, SET_BUFFER_LENGTH, fptr_before) != NULL) {
 
@@ -105,6 +103,7 @@ void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 				break;
 			case LINE_OUTSIDE:
 				fprintf(fptr_after, "%s\n", buffer);
+				break;
 			case MACRO_ERROR:
 				report_error(ERR_GENERAL_ERROR,line_count,MAC , NON_CRIT , 0);
 			break;
@@ -238,11 +237,12 @@ int checkMacroEnd(char *buffer, char *start, int pos) {
 int checkMacroExpand(macro_table_t *tbl, char *buffer, char *start, char *macro_name, int pos) {
 	char *str = buffer;
 	int len = strlen(start);
+
 	if (tbl->isMacroOpen == 0 && tbl->size > 0 && (dupNameExistsInTable(tbl, start) == 1)) {
-		strncpy(macro_name, start,len);
-		strncpy(tbl->last_macro , macro_name,len);
+		strncpy(macro_name, start, len);
+		strncpy(tbl->last_macro, macro_name, len);
 		/*macro name is the single word allowed on macro expand*/
-		if (isEmptyOrWhitespaceFromEnd(str)  == 0)
+		if (isEmptyOrWhitespaceFromEnd(str) == 0)
 			return 1;
 		else {
 			/*macro name is the single word allowed on macro expand*/
@@ -250,15 +250,10 @@ int checkMacroExpand(macro_table_t *tbl, char *buffer, char *start, char *macro_
 			report_error(ERR_MACRO_EXPAND, line_count, MAC, CRIT, 0);
 			return 0;
 		}
-	} else if (tbl->isMacroOpen == 1) {
-		str = buffer;
-		return 0;
+
 	}
-   else {
-		str = buffer;
-		report_error(ERR_MACRO_NOT_FOUND, line_count, MAC, CRIT, 0);
-		return 0;
-	}
+	str = buffer;
+	return 0;
 }
 
 

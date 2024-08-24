@@ -60,6 +60,7 @@ void manage_files(int _argc, char **_argv, macro_table_t *macro_tbl, symbol_tabl
 
 
 	}
+	freeMacroTable(macro_tbl);
 }
 
 
@@ -204,7 +205,6 @@ void freeSymbolTable(symbol_table_t *symbolTable) {
 }
 
 void freeMacroTable(macro_table_t *table) {
-	int idx = 0;
 	if (table == NULL) {
 		return;
 	}
