@@ -284,7 +284,7 @@ int macro_name_duplicate(char *macro_name) {
 
 int isHeadOfSentenceValid(macro_table_t *tbl, char *buffer) {
 	char *str = buffer;
-	char start[MAX_MACRO_NAME]={'\0'};
+	char start[MAX_MACRO_NAME];
 	int len = strlen(str);
 	if (sscanf(str, "%s", start) == 1) {
 			strcat(start,"\0");

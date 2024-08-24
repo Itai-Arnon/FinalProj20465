@@ -35,8 +35,10 @@ macro_table_t *initMacroTable(macro_table_t *tbl) {
 
 
 macro_node_t *constructMacroNode(macro_table_t *tbl, char *macro_name, char *line) {
+int LEN = strlen(macro_name);
+if(macro_name[LEN-1]  == '\n') LEN = LEN -1 ;
 
-	if (tbl == NULL)
+if (tbl == NULL)
 		return NULL;
 
 	tbl->size++;
@@ -49,7 +51,7 @@ macro_node_t *constructMacroNode(macro_table_t *tbl, char *macro_name, char *lin
 
 
 	tbl->slot[tbl->size - 1].index = tbl->size ;
-	strcpy(tbl->slot[tbl->size - 1].macro_name, macro_name);
+	strncpy(tbl->slot[tbl->size - 1].macro_name, macro_name , LEN);
 	strcpy(tbl->slot[tbl->size - 1].macro_line, line);
 	tbl->slot[tbl->size - 1].macro_lock = 0;
 
