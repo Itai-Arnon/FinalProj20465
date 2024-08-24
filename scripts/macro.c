@@ -75,11 +75,8 @@ void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 		switch (typeofline(tbl, buffer, macro_name, sym_tbl)) {
 			case MACRO_START:
 
-				if (tbl->isMacroOpen == 0)
 					tbl->isMacroOpen = 1;
 
-				else
-					report_error(ERR_MACRO_PERMISSION, line_count, MAC, CRIT, 0);
 				break;
 			case MACRO_END:
 				/*closes macro writing*/
@@ -170,9 +167,10 @@ int checkMacroStart(char *buffer, char *start, char *macro_name, int pos, symbol
 		if (sscanf(str, "%s%n", macro_n, &pos) == 1) {/*check for actual macro name*/
 			/*change the position*/
 
-			if ((dupNameExistsInTable(tbl, macro_n) == 1) || (macro_name_duplicate(macro_n) == 1))
+			if ((dupNameExistsInTable(tbl, macro_n) == 1) || (macro_name_duplicate(macro_n) == 1)){
 				report_error(ERR_MACRO_NAME_DUP, line_count, MAC, CRIT, 0);    /*critical error*/
-
+			return 0;
+		}
 
 			if (strlen(macro_n) >= MAX_MACRO_NAME) {
 				report_error(ERR_MACRO_NAME_LONG, line_count, MAC, CRIT, 0);/*critical error*/
@@ -256,18 +254,20 @@ int checkEOFInBuffer(char *buffer) {
 /*checks only opcode and directive*/
 /*symbols will be checked in 2nd pass*/
 int macro_name_duplicate(char *macro_name) {
-	int j = 0;
+	int j = 0, LEN = 0;
 	char *opcode_names[16] = {"mov", "cmp", "add", "sub", "lea", "clr", "not", "inc", "dec", "jmp",
 	                          "bne", "red", "prn", "jsr", "rts", "stop"};
 	char *directives[4] = {".data", ".string", ".entry", ".extern"};
 
 
+	LEN = strlen(macro_name);
 	for (j = 0; j < 16; ++j) {
-		if (strcmp(macro_name, opcode_names[j]) == 0)
+		if (strncmp(macro_name, opcode_names[j], LEN) == 0)
 			return 1;
 	}
+	LEN = strlen(macro_name);
 	for (j = 0; j < 4; ++j) {
-		if (strcmp(macro_name, directives[j]) == 0)
+		if (strncmp(macro_name, directives[j], LEN) == 0)
 			return 1;
 	}
 

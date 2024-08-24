@@ -112,7 +112,7 @@ int getMacroLength(macro_table_t *tbl, char *macro_name) {
 	int length = 0;
 	for (i = 0; i < tbl->size; i++) {
 		LEN = strlen(macro_name);
-		if ((strncmp(macro_name, tbl->slot[i].macro_name),LEN ) == 0) {
+		if ((strncmp(macro_name, tbl->slot[i].macro_name ,LEN ) ) == 0) {
 			length++;
 		}
 	}
@@ -160,8 +160,8 @@ int dupNameExistsInTable(macro_table_t *tbl, char *macro_name) {
 	int i = 0 , LEN = 0;
 	if (tbl == NULL || tbl->size == 0) return 0;
 
+	LEN = strlen(macro_name);
 	for (i = 0; i < tbl->size; ++i) {
-		LEN = strlen(macro_name);
 		if (strncmp(tbl->slot[i].macro_name, macro_name,LEN) == 0)
 			return 1;  /*Name found*/
 	}
