@@ -12,7 +12,6 @@
 #include "headers/assembler.h"
 
 
-
 static direct_arr_t directArray[4];
 static opcode_arr_t opcodeArray[16];
 
@@ -44,16 +43,17 @@ void parse(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataT
 	char *orig_buffer = buffer;/*meast to restet the buffer*/
 	char *cmd = calloc(MAX_SYMBOL_NAME, sizeof(char));/*cmd parse*/
 	char *cmd_extra = calloc(MAX_SYMBOL_NAME, sizeof(char)); /* 2nd cmd parse*/
-	char *directive_str = NULL;/*auxiliary var*/
+	char *directive_str1 = NULL;/*auxiliary var*/
+	char *directive_str2 =calloc(12, sizeof(char));/*auxiliary var*/
 	char *sArr = calloc(MAX_SYMBOL_NAME, sizeof(char));/*.string array*/
 	int *pos = calloc(1, sizeof(int));/*promotes the buffer*/
 	symbol_table_t *externTable = NULL;/*auxiliary var*/
-	int idx, numCount, scanned, result, buff_len, isSymbol; /*auxiliary vars*/
-	idx = numCount = scanned = result = isSymbol = buff_len = 0;
+	int idx, numCount, scanned, result, buff_len, isSymbol ,LEN; /*auxiliary vars*/
+	idx = numCount = scanned = result = isSymbol = buff_len = LEN = 0;
 	rewind(fptr_after);
 	line_count = 0;
 
-	externTable= init_symbol_table(externTable);
+	externTable = init_symbol_table(externTable);
 	initEnumArr();
 	initDirectiveArray();/*todo check if needs more*/
 /*number of sscanf arguments*/
@@ -74,6 +74,7 @@ void parse(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataT
 			return;
 		}
 
+		if(isRestOfLineEmpty(buffer)) continue;
 
 		if (buffer[0] == '\0') continue;
 
@@ -130,8 +131,8 @@ void parse(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataT
 				idx = (seperator_c.counter == 2) ? 0 : 1;
 				for (; idx < seperator_c.counter; idx++) {/*classifies registers*/
 
-					strcpy(cmd_extra,seperator_c.cString[idx]);
-					  cmd_extra= strstrip(cmd_extra);
+					strcpy(cmd_extra, seperator_c.cString[idx]);
+					cmd_extra = strstrip(cmd_extra);
 					parser.operands[idx].type_of_register = classifyRegisters(cmd_extra,
 					                                                          idx);
 				}
@@ -162,11 +163,14 @@ void parse(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataT
 					/*amount of numbers*/
 					parser.directive.operand.data_len = numCount;
 					/*allocates memory for the numbers*/
-					parser.directive.operand.data = (int *) calloc(seperator_c.counter, sizeof(int));
+					parser.directive.operand.data = (int *) calloc(parser.directive.operand.data_len, sizeof(int));
 					/*assigns the numbers to the parser*/
 					for (idx = 0; idx < seperator_c.counter; idx++) {
-						directive_str = strstrip(seperator_c.cString[idx]);
-						*pos = convertOrCheckStringToNum(directive_str, 0);
+						directive_str1 =  (seperator_c.cString[idx]);
+						LEN  = strlen(directive_str1);
+						if(directive_str1[LEN-1] == '\n') LEN--;
+						sscanf(directive_str2 , "%d", directive_str1);
+						*pos = convertOrCheckStringToNum(directive_str2, 0);
 						/*checking bounds of values*/
 						if (*pos < MIN_15Bit_NUM || *pos > MAX_15Bit_NUM)
 							report_error(ERR_DATA_DIRECTIVE_NUMBER, line_count, PARS, CRIT, 0);
@@ -194,8 +198,10 @@ void parse(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataT
 						if (isRestOfLineEmpty(buffer) == 0)
 							report_error(ERR_OP_CODE_FAILED_STRUCTURE, line_count, PARS, CRIT, 0);
 
-						if (result == ENTRY) {
-							loadSymbolTable(sym_tbl, cmd, 0, _ENTRY);
+						if (result == ENTRY ) {
+						  if( isDuplicateSymbol(sym_tbl,cmd)  == 0)
+								loadSymbolTable(sym_tbl, cmd, 0, _ENTRY);
+
 						} else if (result == EXTERN)
 							loadSymbolTable(externTable, cmd, 0, _EXTERN);
 
@@ -206,24 +212,29 @@ void parse(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataT
 					} else
 						report_error(ERR_DIRECTIVE_RECOGNITION, line_count, PARS, CRIT, 0);
 				}
-					break;
-					case ERR:
-						report_error(ERR_LINE_UNRECOGNIZED, line_count, PARS, CRIT, 0);
-					break;
-					case TBD:
-						report_error(ERR_DIRECTIVE_RECOGNITION, line_count, PARS, CRIT, 0);
-					break;
-					default:
-						break;
+				break;
+			case ERR:
+				report_error(ERR_LINE_UNRECOGNIZED, line_count, PARS, CRIT, 0);
+				break;
+			case TBD:
+				report_error(ERR_DIRECTIVE_RECOGNITION, line_count, PARS, CRIT, 0);
+				break;
+			default:
+				break;
 
 		}/*end of switch*/
 		if (isError) {
 			break;
 		}
 
-		first_pass(sym_tbl, externTable, wordTable , dataTable, filename);
 		buffer = orig_buffer;
+		first_pass(sym_tbl, externTable, wordTable, dataTable, filename);
 	}
+	free(cmd);
+	free(cmd_extra);
+	free(directive_str2);
+	free(sArr);
+	free(pos);
 } /*END OF PARSE*/
 
 
@@ -266,7 +277,7 @@ int classify_line(char *cmd) {
 type_of_register_t classifyRegisters(char *str, int first_or_second_operand) {
 
 	int i;
-	char *s_ptr= NULL;
+	char *s_ptr = NULL;
 	int len = strlen(str);
 	int number = 0, flag = 0;
 	/* Check if  '#' hence immediate */

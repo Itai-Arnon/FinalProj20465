@@ -27,8 +27,7 @@ void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 	line_count = 0;
 
 	if (tbl == NULL || sym_tbl == NULL) {
-		report_error(ERR_MACRO_TABLE_GENERAL_ERROR, line_count, FIRST, CRIT, 0);
-		return;
+		report_error(ERR_MACRO_TABLE_GENERAL_ERROR, line_count, MAC, CRIT, 0);
 	}
 
 	if (fgets(buffer, SET_BUFFER_LENGTH, fptr_before) == 0)
@@ -74,7 +73,8 @@ void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 
 		switch (typeofline(tbl, buffer, macro_name, sym_tbl)) {
 			case MACRO_START:
-					tbl->isMacroOpen = 1;
+
+				tbl->isMacroOpen = 1;
 				break;
 			case MACRO_END:
 				/*closes macro writing*/
@@ -84,38 +84,36 @@ void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 				memset(macro_name,'\0',MAX_MACRO_NAME);
 				break;
 			case MACRO_EXPAND:
-				LEN = strlen(tbl->last_macro);
-				snprintf(macro_name,LEN+1,"%s\0", tbl->last_macro);
-
 				expandMacro(tbl, macro_name);
 				break;
 			case LINE_INSIDE:
 
-				snprintf( macro_name,strlen(tbl->last_macro) +1 ,"%s\0",tbl->last_macro);
-				printf("%s\n", macro_name);
-				printf("%s\n", buffer);
-				printf("%s\n", macro_name);
-				printf("%s\n", macro_name);
 				if (tbl->isMacroOpen == 1) {
-					printf("%d",count++);
 					if ((loadMacroTable(tbl, macro_name, buffer)) == 0)
 						report_error("MACRO TABLE FAILED TO LOAD", line_count, MAC, CRIT, 0);
 				}
+				printAllMacros(tbl);
 				break;
 			case LINE_OUTSIDE:
-				fprintf(fptr_after, "%s\n", buffer);
+				/*write to after file*/
+				if(dupNameExistsInTable(tbl, buffer) == 1){
+					expandMacro(tbl, buffer);
+					return;
+				}
+
+				fprintf(fptr_after, "%s", buffer);
+
 				break;
 			case MACRO_ERROR:
-				report_error(ERR_GENERAL_ERROR,line_count,MAC , NON_CRIT , 0);
+				report_error(ERR_MACRO_NAME_WRONG,line_count,MAC , NON_CRIT , 0);
 			break;
 			default:
 				break;
 		}
-		printAllMacros(tbl);
+
 
 		buffer = buffer_orig;
-		memset(buffer, '\0', SET_BUFFER_LENGTH * sizeof(char));
-		memset(macro_name, '\0', MAX_MACRO_NAME * sizeof(char));
+
 	}
 	free(buffer); /* Free allocated memory */
 	free(macro_name);
@@ -137,19 +135,7 @@ int typeofline(macro_table_t *tbl, char *line, char *macro_name, symbol_table_t 
 	if (sscanf(buffer, "%s%n", start, &pos) == 1) {
 
 		start[strlen(start)]='\0';
-	/*	printf("%s\n",start);*/
-		switch (checkLegalName(start, ALPHANUM_COMBINED)) {
-			case 0:
-				free(buffer);
-				free(start);
-				return MACRO_ERROR;
-			case 2:
-				free(buffer);
-				free(start);
-				return (tbl->isMacroOpen == 1) ? LINE_INSIDE : LINE_OUTSIDE;
-			case 1:
-				break;
-		}
+
 		if (checkMacroStart(buffer, start, macro_name, pos, sym_tbl, tbl))
 			return MACRO_START;
 		else if (checkMacroEnd(buffer, start, pos))
@@ -164,7 +150,8 @@ int typeofline(macro_table_t *tbl, char *line, char *macro_name, symbol_table_t 
 
 		buffer = typeofline_buffer;
 	}
-
+	memset(buffer, '\0', LINE_LENGTH * sizeof(char));
+	memset(start, '\0',   MAX_MACRO_NAME+1* sizeof(char));
 	free(buffer);
 	free(start);
 
@@ -179,7 +166,6 @@ int checkMacroStart(char *buffer, char *start, char *macro_name, int pos, symbol
 	int compLength = 0;
 	memset(macro_n, '\0', sizeof(macro_n));
 
-
 	if (strncmp(MACRO_START_WORD, start, MACRO_START_LEN) == 0) {
 
 		str  = advance_buffer_if_possible(str,start);
@@ -187,7 +173,15 @@ int checkMacroStart(char *buffer, char *start, char *macro_name, int pos, symbol
 
 		if (sscanf(str, "%s%n", macro_n, &pos) == 1) {/*check for actual macro name*/
 			/*change the position*/
-
+			switch (checkLegalName(macro_n, ALPHANUM_COMBINED)) {
+				case 0:
+					report_error(ERR_MACRO_NAME_WRONG, line_count, MAC, CRIT, 0);
+					return 0;
+				case 2:
+					return 0 ;
+				case 1:
+					break;
+			}
 
 			if ((dupNameExistsInTable(tbl, macro_n) == 1) || (macro_name_duplicate(macro_n) == 1)){
 				report_error(ERR_MACRO_NAME_DUP, line_count, MAC, CRIT, 0);    /*critical error*/

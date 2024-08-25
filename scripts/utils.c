@@ -157,14 +157,16 @@ int countCommas(char *str) {
 int convertOrCheckStringToNum(char *str, convert_func_t type) {
 	char *endtoken;
 	unsigned long num = strtol(str, &endtoken, 10);
-
-
 	switch (type) {
 		case 0:
-			if (*endtoken != '\0') {
+			if (num == 0)
+				return 0;
+
+			if (*endtoken != '\0')   {
 				report_error(ERR_FAILED_TO_CONVERT_NUMBER, line_count, UTIL, CRIT, 0);
 			} else
 				return (int) num;
+			break;
 		case 1:
 			if (*endtoken != '\0') {
 				return 0;

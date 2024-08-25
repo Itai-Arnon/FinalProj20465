@@ -1,13 +1,12 @@
-macr non
-reg 23 3
-var 3434
-bear 43
-reg 23 3
-var 3434
-bear 43
-endmacr
 mov r1,r2
-
-
-
-
+mov r1,r2
+mov r1,r2
+MAC: mov r1,r2
+mov r1,r2
+.data 0, 7 , 8
+macr rock
+mov r1,r2
+endmacr
+.entry MAC
+rock
+stop

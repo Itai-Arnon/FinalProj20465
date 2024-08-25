@@ -20,7 +20,7 @@ static int DC;
 void second_pass(symbol_table_t *sym_tbl, symbol_table_t *externTable, word_table_t *wordTable, word_table_t *dataTable,
                  char *filename) {
 	symbol_table_t *entryTable = NULL;
-	char *boo, *filename1, *filename2, *filename3, *filename4;
+	char *boo, *obfile, *extFile, *entryFile;
 
 
 	int idx, result = 0, n = 0, _shift = 0;
@@ -28,56 +28,55 @@ void second_pass(symbol_table_t *sym_tbl, symbol_table_t *externTable, word_tabl
 		return;
 	}
 	entryTable = init_symbol_table(entryTable);
-	filename1 = "..\\ps.ob.txt";
-	filename2 = "..\\ps.ent.txt";
-	filename3 = "..\\ps.ext.txt";
-	filename4 = "..\\ps.ob.txt";
+
+
+
+
 
 	if (parser.op == stop) {
-		printf("Stop Occured\n");
+		printf("%s\n" ,filename);
+		obfile = replaceExtension(filename,"ob");
+		extFile = replaceExtension(filename,"ext");
+		entryFile = replaceExtension(filename,"ent");
+
+		printf("%s\n  %s\n  %s\n",obfile , extFile ,entryFile);
+		/*printf("Stop Occured\n");
 		if (wordTable->size + dataTable->size > MAX_WORDS) {
 			report_error(ERR_TOO_MANY_WORDS, line_count, SECOND, CRIT, 0);
 			return;
 		}
 		_shift = wordTable->size + _offset;
-		/*1. adds a value to data table address and to symbol that are not _INSTRUCTION*/
-		printf(" DATA TABLE ADDRESS CHAGE  %d\n", _shift);
+		*//*1. adds a value to data table address and to symbol that are not _INSTRUCTION*//*
 
 		addNumberToWordTable(dataTable, _shift);
 		addConstantToSymbols(sym_tbl, wordTable, _DATA, _shift);
 		addConstantToSymbols(externTable, wordTable, _EXTERN, _shift);
 		addConstantToSymbols(sym_tbl, wordTable, _ENTRY, _shift);
-		/*all ARE = R are given missing addresses*/
+		*//*all ARE = R are given missing addresses*//*
 		updateRelocatableLines(wordTable);
 		updateRelocatableLines(dataTable);
 		checkExternCollisions(externTable, sym_tbl);
 		moveSymbolsToEntry(sym_tbl, entryTable);
-		/*2. check for symbols with undefined address*/
+		*//* check for symbols with undefined address*//*
 		if (isError)
 			return;
 		printTable(wordTable);
-		printf("-------------\n");
 		printTable(dataTable);
-		printf("ALl Symbol Table\n");
 
 		print_symbol_table(sym_tbl);
-		printf("Entry  Symbol Table\n");
-		print_symbol_table(entryTable);
 
-		printTableToFile(wordTable, dataTable, filename1);
-		printf("Entry to file  Symbol Table\n");
+
 		printEntryTable(entryTable, filename2);
-		printf("Extern Regular Symbol Table\n");
-		print_symbol_table(externTable);
 
-		printf("Extern  Symbol Table\n");
+
+		*//*extern symbol*//*
+
 		printExternTable(wordTable, dataTable, filename3);
-
 
 		freeSymbolTable(sym_tbl);
 		freeSymbolTable(entryTable);
 		freeWordTable(wordTable);
-		freeWordTable(dataTable);
+		freeWordTable(dataTable);*/
 		return;
 
 	}
@@ -135,17 +134,17 @@ int checkExternCollisions(symbol_table_t *exTable, symbol_table_t *otherTable) {
 	symbol1 = exTable->symbol_List;
 	symbol2 = otherTable->symbol_List;
 
-		while (symbol2 != NULL && symbol1 != NULL) {
-			if (strcmp(symbol1->symbol_name, symbol2->symbol_name) == 0) {
-				report_error(ERR_EXTERN_SYMBOL_DUP, line_count, SECOND, CRIT, 0);
-				return 1;
-			}
-			symbol2 = symbol2->next_sym;
-			if (symbol2 == NULL) {
-				symbol2 = otherTable->symbol_List;
-				symbol1 = symbol1->next_sym;
-			}
+	while (symbol2 != NULL && symbol1 != NULL) {
+		if (strcmp(symbol1->symbol_name, symbol2->symbol_name) == 0) {
+			report_error(ERR_EXTERN_SYMBOL_DUP, line_count, SECOND, CRIT, 0);
+			return 1;
 		}
+		symbol2 = symbol2->next_sym;
+		if (symbol2 == NULL) {
+			symbol2 = otherTable->symbol_List;
+			symbol1 = symbol1->next_sym;
+		}
+	}
 
 	return 0;
 }
@@ -154,7 +153,7 @@ int checkExternCollisions(symbol_table_t *exTable, symbol_table_t *otherTable) {
 
 /*moves all entry symbols to a new table - */
 int moveSymbolsToEntry(symbol_table_t *sym_tbl, symbol_table_t *entryTable) {
-	symbol_t *new, *current = NULL;
+	symbol_t *new = NULL, *current = NULL;
 	int counter = 0;
 
 
@@ -185,7 +184,6 @@ int addSymbolToTable(symbol_table_t *table, symbol_t *_symbol) {
 	if (table == NULL) {
 		return 0;
 	}
-	head = table->symbol_List;
 
 	/*the case where the table is empty*/
 	if (head == NULL) {
@@ -296,7 +294,6 @@ int countExternInTables(word_table_t *table) {
 	int i;
 
 
-
 /* Check if the table is not NULL its size is not zero */
 	if (table != NULL && (table->size > 0)) {
 		for (i = 0; i < table->size; i++) {
@@ -341,7 +338,7 @@ void printExternTable(word_table_t *table1, word_table_t *table2, char *filename
 	line_t *line;
 	int i;
 
-	if (table1 == NULL || table2 == 0 || filename[0] == '\0') {
+	if (table1 == NULL || table2 == NULL || filename[0] == '\0') {
 		report_error("Extern Table Empty Tables are Invalid or File Invalid\n\n", line_count, SECOND, CRIT, 0);
 		return;
 	}
@@ -354,7 +351,6 @@ void printExternTable(word_table_t *table1, word_table_t *table2, char *filename
 		for (i = 0; i < table1->size; i++) {
 			line = &table1->lines[i];
 			if (line->_ARE == E) {
-				printf("%s  %4d\n", line->symbol->symbol_name, line->line_num);
 				fprintf(exPtr, "%s  %4d\n", line->symbol->symbol_name, line->line_num);
 			}
 		}
@@ -364,7 +360,6 @@ void printExternTable(word_table_t *table1, word_table_t *table2, char *filename
 		for (i = 0; i < table2->size; i++) {
 			line = &table2->lines[i];
 			if (line->_ARE == E) {
-				printf("%s  %4d\n", line->symbol->symbol_name, line->line_num);
 				fprintf(exPtr, "%s  %4d\n", line->symbol->symbol_name, line->line_num);
 			}
 		}

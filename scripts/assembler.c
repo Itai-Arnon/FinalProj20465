@@ -44,7 +44,6 @@ int main(int argc, char *argv[]) {
 void manage_files(int _argc, char **_argv, macro_table_t *macro_tbl, symbol_table_t *sym_tbl, word_table_t *wordTable,
                   word_table_t *dataTable) {
 	int idx = 0;
-	int num_files = _argc;
 	char *str1 = NULL;
 
 	if (_argc == 1) {
@@ -55,11 +54,18 @@ void manage_files(int _argc, char **_argv, macro_table_t *macro_tbl, symbol_tabl
 	for (idx = 1; idx < _argc; ++idx) {
 		printf("%d\n", idx);
 		fptr_before = initSourceFiles(_argv, fptr_before, idx, 0);
-		fptr_after = initDestinationPointer(_argv, fptr_after, idx, "a+", 0);
+		fptr_after = initDestinationPointer(_argv, fptr_after, idx, "w+", 0);
 		read_preprocessor(macro_tbl, sym_tbl);
-
+		rewind(fptr_after);
+		parse(sym_tbl, wordTable, dataTable,_argv[idx]);
+		if (isError) {
+			report_error("ERR_FILE_GENERAL",line_count,AS,CRIT,0);
+			isError = 0;
+			continue;
+		}
 
 	}
+
 	freeMacroTable(macro_tbl);
 }
 

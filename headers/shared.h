@@ -48,7 +48,8 @@
 #define ERR_FILE_OBJ_EXT_ENT "Error in creating OB EXT or ENT file"
 #define ERR_NO_FILES "No Files Inserted"
 #define ERR_FILE_DESTINATION "Error with Destination file or files"
-#define ERR_FILE_SOURCE "Error with Source file or files"
+#define ERR_FILE_SOURCE "Error with Source file or Destination File"
+#define ERR_FILE_GENERAL "Error with Source file or Destination File. If relevant we will now move to the next file"
 
 /*macro related*/
 #define ERR_WRITING_MACRO  "Failed to write Macro"
@@ -58,7 +59,7 @@
 #define ERR_MACRO_PERMISSION "Error  Macro Permission Mistake"
 #define ERR_MACRO_NODE_CREATION_FAILED "Macro Node Allocation Failed"
 #define ERR_MACRO_NAME_LONG "Macro Name Too Long"
-#define ERR_MACRO_NAME_WRONG "Macro Name Illegal"
+#define ERR_MACRO_NAME_WRONG "Potential Macro Name Illegal"
 #define ERR_START_MACRO_DEF "Error In Macro Start Definition"
 #define ERR_MACRO_END "Error In Macro End Definition"
 #define ERR_MACRO_EXPAND "Error In Macro Expand Definition"
