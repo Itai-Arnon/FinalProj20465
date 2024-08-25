@@ -1,4 +1,20 @@
 
+
+/*eof function*/
+while(!feof(fp)){
+		if(!(fgets(line,81,(FILE*)fp))){/*if returned null or we reached EOF*/
+			if(feof(fp)){/*if EOF*/
+				break;
+			}
+			else{/*error occured*/
+				printf("Error: Failed to read line %d",SC);
+				continue;
+			}
+
+
+
+
+
 /*******************************************************/
 #define BADKEY -1
 #define A1 1

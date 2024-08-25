@@ -35,6 +35,7 @@ void read_preprocessor(macro_table_t *tbl, symbol_table_t *sym_tbl) {
 		report_error("Warning FGETS is empty", line_count, MAC, NON_CRIT, 0);
 
 		rewind(fptr_before);
+		line_count = 0;
 	/*start of reading from file*/
 	while (fgets(buffer, SET_BUFFER_LENGTH, fptr_before) != NULL) {
 

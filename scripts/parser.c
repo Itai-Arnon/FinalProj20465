@@ -50,6 +50,7 @@ void parse(symbol_table_t *sym_tbl, word_table_t *wordTable, word_table_t *dataT
 	symbol_table_t *externTable = NULL;/*auxiliary var*/
 	int idx, numCount, scanned, result, buff_len, isSymbol; /*auxiliary vars*/
 	idx = numCount = scanned = result = isSymbol = buff_len = 0;
+	rewind(fptr_after);
 	line_count = 0;
 
 	externTable= init_symbol_table(externTable);
