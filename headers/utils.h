@@ -57,9 +57,14 @@ int countNumbersInString( char *str);
 
 int isEmptyOrWhitespaceFromEnd(char *str);
 
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+char *exchangeExtension(const char *filename, const char *old_ext, const char *new_ext);
+char *exchangeExtensionNoMalloc(char *filename, const char *old_ext, const char *new_ext);
 
 
-
-int checkQuotes(char *str);
+		int checkQuotes(char *str);
 
 #endif /* M14_UTILS_H*/

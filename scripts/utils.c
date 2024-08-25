@@ -227,3 +227,57 @@ int isEmptyOrWhitespaceFromEnd(char *str) {
 	return 1; /* Only whitespace characters found */
 }
 
+
+char *exchangeExtensionNoMalloc(char *filename, const char *old_ext, const char *new_ext) {
+	char *pos = NULL;
+	size_t filename_len = strlen(filename);
+	size_t old_ext_len = strlen(old_ext);
+
+
+	/* Find the last occurrence of old_ext in filename **/
+	if (filename_len >= old_ext_len) {
+		pos = strstr(filename + filename_len - old_ext_len, old_ext);
+	}
+
+	/** If old_ext is found at the end of the filename, replace it with new_ext **/
+	if (pos != NULL && strcmp(pos, old_ext) == 0) {
+		strcpy(pos, new_ext);
+	} else {
+		/** If old_ext is not found, append new_ext to the filename **/
+		strcat(filename, new_ext);
+	}
+
+	return filename;
+}
+
+char *exchangeExtension(const char *filename, const char *old_ext, const char *new_ext) {
+	char *pos = NULL;
+	size_t filename_len = strlen(filename);
+	size_t old_ext_len = strlen(old_ext);
+	size_t new_ext_len = strlen(new_ext);
+	size_t new_filename_len = filename_len + new_ext_len - old_ext_len + 1; /* +1 for null terminator */
+
+	/* Allocate memory for the new filename */
+	char *new_filename = (char *)malloc(new_filename_len);
+	if (new_filename == NULL) {
+		report_error(ERR_FILE_DESTINATION,line_count,SECOND,CRIT,0);
+		return NULL;
+	}
+	/* Copy the original filename to the new filename */
+	strcpy(new_filename, filename);
+
+	/* Find the last occurrence of old_ext in filename */
+	if (filename_len >= old_ext_len) {
+		pos = strstr(new_filename + filename_len - old_ext_len, old_ext);
+	}
+
+	/* If old_ext is found at the end of the filename, replace it with new_ext */
+	if (pos != NULL && strcmp(pos, old_ext) == 0) {
+		strcpy(pos, new_ext);
+	} else {
+		/* If old_ext is not found, append new_ext to the filename */
+		strcat(new_filename, new_ext);
+	}
+
+	return new_filename;
+}

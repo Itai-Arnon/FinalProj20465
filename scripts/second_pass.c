@@ -20,13 +20,15 @@ static int DC;
 void second_pass(symbol_table_t *sym_tbl, symbol_table_t *externTable, word_table_t *wordTable, word_table_t *dataTable,
                  char *filename) {
 	symbol_table_t *entryTable = NULL;
-	char *boo, *obfile, *extFile, *entryFile;
-
-
+	char  *obfile, *extFile, *entryFile;
+	char file_orig[MAX_FILE_NAME];
 	int idx, result = 0, n = 0, _shift = 0;
+	int LEN = strlen(filename);
 	if (isError == 1) {
 		return;
 	}
+
+
 	entryTable = init_symbol_table(entryTable);
 
 
@@ -34,49 +36,56 @@ void second_pass(symbol_table_t *sym_tbl, symbol_table_t *externTable, word_tabl
 
 
 	if (parser.op == stop) {
-		printf("%s\n" ,filename);
-		obfile = replaceExtension(filename,"ob");
-		extFile = replaceExtension(filename,"ext");
-		entryFile = replaceExtension(filename,"ent");
 
-		printf("%s\n  %s\n  %s\n",obfile , extFile ,entryFile);
-		/*printf("Stop Occured\n");
+		obfile = exchangeExtension(filename,"txt","ob");
+		extFile = exchangeExtension(filename,"txt" ,"ext");
+		entryFile = exchangeExtension(filename,"txt","ent");
+
+
+	/*	obfile = exchangeExtension(filename, "txt", "ob.txt");
+		extFile = exchangeExtension(filename, "txt", "ext.txt");
+		entryFile = exchangeExtension(filename, "txt", "ent.txt");*/
+
+
+		printf("Stop Occured\n");
 		if (wordTable->size + dataTable->size > MAX_WORDS) {
 			report_error(ERR_TOO_MANY_WORDS, line_count, SECOND, CRIT, 0);
 			return;
 		}
 		_shift = wordTable->size + _offset;
-		*//*1. adds a value to data table address and to symbol that are not _INSTRUCTION*//*
+		/*adds a value to data table address and to symbol that are not _INSTRUCTION*/
 
 		addNumberToWordTable(dataTable, _shift);
 		addConstantToSymbols(sym_tbl, wordTable, _DATA, _shift);
 		addConstantToSymbols(externTable, wordTable, _EXTERN, _shift);
 		addConstantToSymbols(sym_tbl, wordTable, _ENTRY, _shift);
-		*//*all ARE = R are given missing addresses*//*
+		/*all ARE = R are given missing addresses*/
 		updateRelocatableLines(wordTable);
 		updateRelocatableLines(dataTable);
 		checkExternCollisions(externTable, sym_tbl);
 		moveSymbolsToEntry(sym_tbl, entryTable);
-		*//* check for symbols with undefined address*//*
+		/* check for symbols with undefined address*/
 		if (isError)
 			return;
-		printTable(wordTable);
-		printTable(dataTable);
+	/*	printTable(wordTable);
+		printTable(dataTable);*/
+		printTableToFile(wordTable , dataTable ,  obfile );
+
 
 		print_symbol_table(sym_tbl);
 
 
-		printEntryTable(entryTable, filename2);
+		printEntryTable(entryTable, entryFile);
 
 
-		*//*extern symbol*//*
+		/*extern symbol*/
 
-		printExternTable(wordTable, dataTable, filename3);
+		printExternTable(wordTable, dataTable, extFile);
 
 		freeSymbolTable(sym_tbl);
 		freeSymbolTable(entryTable);
 		freeWordTable(wordTable);
-		freeWordTable(dataTable);*/
+		freeWordTable(dataTable);
 		return;
 
 	}

@@ -13,7 +13,7 @@
 #define SET_BUFFER_LENGTH 85
 
 #define MAX_MACRO_NAME 31
-#define MAX_MACROS 20
+#define MAX_FILE_NAME 64
 #define MAX_DIRECTIVE_NAME 8
 
 /*macros*/

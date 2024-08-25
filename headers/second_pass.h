@@ -58,9 +58,6 @@ void print_symbol_table(symbol_table_t *sym_tbl);
 /*print the word in binary form*/
 void printBinary(unsigned short num);
 
-/*print to file the entry table*/
-void printEntryTableFile(symbol_table_t *, FILE *, int);
-
 /*basic print of word_table */
 void printTable(word_table_t *table);
 
