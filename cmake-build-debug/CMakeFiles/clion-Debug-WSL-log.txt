@@ -1,0 +1,4 @@
+/usr/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/usr/bin/make -DCMAKE_C_COMPILER=/usr/bin/gcc -DCMAKE_CXX_COMPILER=/usr/bin/g++ -G "Unix Makefiles" -S /home/itai_a417/20465_Reloaded/mReloaded14 -B /home/itai_a417/20465_Reloaded/mReloaded14/cmake-build-debug
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/itai_a417/20465_Reloaded/mReloaded14/cmake-build-debug

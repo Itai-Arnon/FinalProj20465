@@ -1,0 +1,1 @@
+/usr/bin/gcc -g CMakeFiles/mReloaded14.dir/src/macro.c.o CMakeFiles/mReloaded14.dir/src/macro_list.c.o CMakeFiles/mReloaded14.dir/src/utils.c.o CMakeFiles/mReloaded14.dir/src/assembler.c.o CMakeFiles/mReloaded14.dir/src/parser.c.o CMakeFiles/mReloaded14.dir/src/symbols.c.o CMakeFiles/mReloaded14.dir/src/first_pass.c.o CMakeFiles/mReloaded14.dir/src/second_pass.c.o -o mReloaded14 

@@ -1,0 +1,45 @@
+# Define action as  variable with flags
+CREATOR = gcc -Wall -ansi -pedantic 
+
+# Target to build the executable 'assembler'
+assembler: 		assembler.o macro.o macro_list.o symbols.o parser.o first_pass.o second_pass.o utils.o
+					$(CREATOR) assembler.o macro.o macro_list.o symbols.o parser.o first_pass.o second_pass.o utils.o -o assembler
+
+
+# Rule to build 'assembler.o' object file
+assembler.o: 		assembler.c macro.h  macro_list.h shared.h global_vars.h  utils.h symbols.h parser.h first_pass.h assembler.h second_pass.h 
+					$(CREATOR) -c assembler.c -o assembler.o
+
+
+# Rule to build 'macro.o' object file
+macro.o: 			macro.c macro_list.h macro.h shared .h global_vars.h  utils.h  symbols.h assembler.h
+					$(CREATOR) -c macro.c -o macro.o
+
+# Rule to build 'macro_list.o' object file
+macro_list.o:	 	macro_list.c macro_list.h  shared.h global_vars.h assembler.h 
+					$(CREATOR) -c macro_list.c  -o macro_list.o
+
+# Rule to build 'symbols.o' object file
+symbols.o: 		symbols.c symbols.h global_vars.h macro_list.h shared.h global_vars.h utils.h first_pass.h assembler.h parser.h
+					$(CREATOR) -c symbols.c -o symbols.o
+
+# Rule to build 'parser.o' object file
+parser.o: 			parser.c  macro. h  macro_list.h shared.h global_vars.h utils.h symbols.h parser.h assembler.h
+					$(CREATOR) -c parser.c -o parser.o
+
+# Rule to build 'first_pass.o' object file
+first_pass.o: 		first_pass.c macro.h shared.h global_vars.h utils.h symbols.h parser.h first_pass.h assembler.h second_pass.h
+					$(CREATOR) -c first_pass.c -o first_pass.o
+
+# Rule to build 'second_pass.o' object file
+second_pass.o: 	second_pass.c  second_pass.h  macro.h  macro_list.h shared.h global_vars.h utils.h symbols.h parser.h first_pass.h assembler.h
+					$(CREATOR) -c second_pass.c -o second_pass.o
+
+# Rule to build 'utils.o' object file
+utils.o: 			utils.c utils.h global_vars.h assembler.h
+					$(CREATOR) -c utils.c -o utils.o
+
+# Clean rule to remove all object files and the executable
+clean:
+					rm -f *.o assembler
+

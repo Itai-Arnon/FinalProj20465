@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="mReloaded14"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/home/itai_a417/20465_Reloaded/mReloaded14/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/itai_a417/20465_Reloaded/mReloaded14/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/itai_a417/20465_Reloaded/mReloaded14/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/itai_a417/20465_Reloaded/mReloaded14/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/itai_a417/20465_Reloaded/mReloaded14/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="mReloaded14">
+				<Option output="/home/itai_a417/20465_Reloaded/mReloaded14/cmake-build-debug/mReloaded14" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/itai_a417/20465_Reloaded/mReloaded14/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/itai_a417/20465_Reloaded/mReloaded14/."/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/12/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/itai_a417/20465_Reloaded/mReloaded14/cmake-build-debug/Makefile&quot;  VERBOSE=1 mReloaded14"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/itai_a417/20465_Reloaded/mReloaded14/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/itai_a417/20465_Reloaded/mReloaded14/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/itai_a417/20465_Reloaded/mReloaded14/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="mReloaded14/fast">
+				<Option output="/home/itai_a417/20465_Reloaded/mReloaded14/cmake-build-debug/mReloaded14" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/itai_a417/20465_Reloaded/mReloaded14/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/itai_a417/20465_Reloaded/mReloaded14/."/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/12/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/itai_a417/20465_Reloaded/mReloaded14/cmake-build-debug/Makefile&quot;  VERBOSE=1 mReloaded14/fast"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/itai_a417/20465_Reloaded/mReloaded14/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/itai_a417/20465_Reloaded/mReloaded14/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/itai_a417/20465_Reloaded/mReloaded14/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/home/itai_a417/20465_Reloaded/mReloaded14/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/itai_a417/20465_Reloaded/mReloaded14/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/itai_a417/20465_Reloaded/mReloaded14/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/itai_a417/20465_Reloaded/mReloaded14/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/itai_a417/20465_Reloaded/mReloaded14/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/home/itai_a417/20465_Reloaded/mReloaded14/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/itai_a417/20465_Reloaded/mReloaded14/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/itai_a417/20465_Reloaded/mReloaded14/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/itai_a417/20465_Reloaded/mReloaded14/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/itai_a417/20465_Reloaded/mReloaded14/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/home/itai_a417/20465_Reloaded/mReloaded14/include/assembler.h">
+			<Option target="mReloaded14"/>
+		</Unit>
+		<Unit filename="/home/itai_a417/20465_Reloaded/mReloaded14/include/first_pass.h">
+			<Option target="mReloaded14"/>
+		</Unit>
+		<Unit filename="/home/itai_a417/20465_Reloaded/mReloaded14/include/global_vars.h">
+			<Option target="mReloaded14"/>
+		</Unit>
+		<Unit filename="/home/itai_a417/20465_Reloaded/mReloaded14/include/macro.h">
+			<Option target="mReloaded14"/>
+		</Unit>
+		<Unit filename="/home/itai_a417/20465_Reloaded/mReloaded14/include/macro_list.h">
+			<Option target="mReloaded14"/>
+		</Unit>
+		<Unit filename="/home/itai_a417/20465_Reloaded/mReloaded14/include/parser.h">
+			<Option target="mReloaded14"/>
+		</Unit>
+		<Unit filename="/home/itai_a417/20465_Reloaded/mReloaded14/include/second_pass.h">
+			<Option target="mReloaded14"/>
+		</Unit>
+		<Unit filename="/home/itai_a417/20465_Reloaded/mReloaded14/include/shared.h">
+			<Option target="mReloaded14"/>
+		</Unit>
+		<Unit filename="/home/itai_a417/20465_Reloaded/mReloaded14/include/symbols.h">
+			<Option target="mReloaded14"/>
+		</Unit>
+		<Unit filename="/home/itai_a417/20465_Reloaded/mReloaded14/include/utils.h">
+			<Option target="mReloaded14"/>
+		</Unit>
+		<Unit filename="/home/itai_a417/20465_Reloaded/mReloaded14/src/assembler.c">
+			<Option target="mReloaded14"/>
+		</Unit>
+		<Unit filename="/home/itai_a417/20465_Reloaded/mReloaded14/src/first_pass.c">
+			<Option target="mReloaded14"/>
+		</Unit>
+		<Unit filename="/home/itai_a417/20465_Reloaded/mReloaded14/src/macro.c">
+			<Option target="mReloaded14"/>
+		</Unit>
+		<Unit filename="/home/itai_a417/20465_Reloaded/mReloaded14/src/macro_list.c">
+			<Option target="mReloaded14"/>
+		</Unit>
+		<Unit filename="/home/itai_a417/20465_Reloaded/mReloaded14/src/parser.c">
+			<Option target="mReloaded14"/>
+		</Unit>
+		<Unit filename="/home/itai_a417/20465_Reloaded/mReloaded14/src/second_pass.c">
+			<Option target="mReloaded14"/>
+		</Unit>
+		<Unit filename="/home/itai_a417/20465_Reloaded/mReloaded14/src/symbols.c">
+			<Option target="mReloaded14"/>
+		</Unit>
+		<Unit filename="/home/itai_a417/20465_Reloaded/mReloaded14/src/utils.c">
+			<Option target="mReloaded14"/>
+		</Unit>
+		<Unit filename="/home/itai_a417/20465_Reloaded/mReloaded14/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>
